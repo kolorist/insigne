@@ -1,0 +1,58 @@
+__TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE__;__FUNC_COMMENTS__
+0;ActiveTexture;GLenum texture;texture;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;AttachShader;GLuint program, GLuint shader;program, shader;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BindBuffer;GLenum target, GLuint buffer;target, buffer;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BindFramebuffer;GLenum target, GLuint framebuffer;target, framebuffer;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BindRenderbuffer;GLenum target, GLuint renderbuffer;target, renderbuffer;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BindTexture;GLenum target, GLuint texture;target, texture;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BindVertexArray;GLuint targetArray;targetArray;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BlendEquation;GLenum mode;mode;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BlendFunc;GLenum sfactor, GLenum dfactor;sfactor, dfactor;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BlitFramebuffer;GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter;srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BufferData;GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage;target, size, data, usage;void;since OpenGL 2.0 / OpenGL ES 2.0
+1;CheckFramebufferStatus;GLenum target;target;GLenum;since OpenGL 2.0 / OpenGL ES 2.0
+0;Clear;GLbitfield mask;mask;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;ClearColor;GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha;red, green, blue, alpha;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;CompileShader;GLuint shader;shader;void;since OpenGL 2.0 / OpenGL ES 2.0
+1;CreateProgram;;;GLuint;since OpenGL 2.0 / OpenGL ES 2.0
+1;CreateShader;GLenum shaderType;shaderType;GLuint;since OpenGL 2.0 / OpenGL ES 2.0
+0;CullFace;GLenum mode;mode;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;DeleteBuffers;GLsizei n, const GLuint* buffers;n, buffers;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;DeleteShader;GLuint shader;shader;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;DeleteVertexArrays;GLsizei n, const GLuint* arrays;n, arrays;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;DepthFunc;GLenum func;func;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;DepthMask;GLboolean flag;flag;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;Disable;GLenum cap;cap;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;DrawBuffers;GLsizei n, const GLenum* bufs;n, bufs;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;DrawElements;GLenum mode, GLsizei count, GLenum type, const GLvoid* indices;mode, count, type, indices;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;Enable;GLenum cap;cap;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;EnableVertexAttribArray;GLuint index;index;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;FramebufferRenderbuffer;GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer;target, attachment, renderbuffertarget, renderbuffer;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;FramebufferTexture2D;GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level;target, attachment, textarget, texture, level;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;FrontFace;GLenum mode;mode;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;GenBuffers;GLsizei n, GLuint* buffers;n, buffers;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;GenFramebuffers;GLsizei n, GLuint* framebuffers;n, framebuffers;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;GenRenderbuffers;GLsizei n, GLuint* renderbuffers;n, renderbuffers;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;GenTextures;GLsizei n, GLuint* textures;n, textures;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;GenVertexArrays;GLsizei n, GLuint* arrays;n, arrays;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;GenerateMipmap;GLenum target;target;void;since OpenGL 2.0 / OpenGL ES 2.0
+1;GetAttribLocation;GLuint program, const GLchar* name;program, name;GLint;deprecated, please use explicit layout scheme
+1;GetError;;;GLenum;since OpenGL 2.0 / OpenGL ES 2.0
+0;GetIntegerv;GLenum pname, GLint* data;pname, data;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;GetShaderInfoLog;GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog;shader, maxLength, length, infoLog;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;GetShaderiv;GLuint shader, GLenum pname, GLint* params;shader, pname, params;void;since OpenGL 2.0 / OpenGL ES 2.0
+1;GetUniformLocation;GLuint program, const GLchar* name;program, name;GLint;since OpenGL 2.0 / OpenGL ES 2.0
+0;LinkProgram;GLuint program;program;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;RenderbufferStorage;GLenum target, GLenum internalformat, GLsizei width, GLsizei height;target, internalformat, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;RenderbufferStorageMultisample;GLenum target, GLsizei samples, GLenum internalFormat, GLsizei width, GLsizei height;target, samples, internalFormat, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;Scissor;GLint x, GLint y, GLsizei width, GLsizei height;x, y, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;ShaderSource;GLuint shader, GLsizei count, const GLchar** string, const GLint* length;shader, count, string, length;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;TexImage2D;GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data;target, level, internalFormat, width, height, border, format, type, data;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;TexParameteri;GLenum target, GLenum pname, GLint param;target, pname, param;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;Uniform1f;GLint location, GLfloat v0;location, v0;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;Uniform1i;GLint location, GLint v0;location, v0;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;Uniform3fv;GLint location, GLsizei count, const GLfloat* value;location, count, value;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;UniformMatrix4fv;GLint location, GLsizei count, GLboolean transpose, const GLfloat* value;location, count, transpose, value;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;UseProgram;GLuint program;program;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;VertexAttribPointer;GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer;index, size, type, normalized, stride, pointer;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;Viewport;GLint x, GLint y, GLsizei width, GLsizei height;x, y, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0

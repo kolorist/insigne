@@ -1,0 +1,1 @@
+extern __FUNC_RET_TYPE__ __stdcall *gl__FUNC_NAME__(__FUNC_PARAMS__);
