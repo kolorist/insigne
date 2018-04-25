@@ -8,3 +8,4 @@
 
 #include "insigne/gl/identifiers.h"
 
+namespace insigne {

@@ -5,3 +5,31 @@
 
 #include "insigne/generated_code/proxy.h"
 
+namespace insigne {
+
+void assert_driver_no_error()
+{
+	GLenum error = glGetError();
+	switch (error) {
+		case GL_INVALID_ENUM:
+			//CLOVER_DEBUG("Error in GraphicsDriver: GL_INVALID_ENUM");
+			break;
+		case GL_INVALID_VALUE:
+			//CLOVER_DEBUG("Error in GraphicsDriver: GL_INVALID_VALUE");
+			break;
+		case GL_INVALID_OPERATION:
+			//CLOVER_DEBUG("Error in GraphicsDriver: GL_INVALID_OPERATION");
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			//CLOVER_DEBUG("Error in GraphicsDriver: GL_INVALID_FRAMEBUFFER_OPERATION");
+			break;
+		case GL_OUT_OF_MEMORY:
+			//CLOVER_DEBUG("Error in GraphicsDriver: GL_OUT_OF_MEMORY");
+			break;
+		case GL_NO_ERROR:
+			break;
+		default:
+			//CLOVER_DEBUG("Something wrong with the driver!");
+			break;
+	}
+}

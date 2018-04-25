@@ -5,3 +5,7 @@
 
 #pragma once
 
+#include "insigne/gl/identifiers.h"
+#include "oglapis.h"
+
+namespace insigne {

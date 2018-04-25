@@ -1,1 +1,2 @@
-extern __FUNC_RET_TYPE__ __stdcall *gl__FUNC_NAME__(__FUNC_PARAMS__);
+typedef __FUNC_RET_TYPE__ (__stdcall *gl__FUNC_NAME___t)(__FUNC_PARAMS__);
+extern gl__FUNC_NAME___t gl__FUNC_NAME__;

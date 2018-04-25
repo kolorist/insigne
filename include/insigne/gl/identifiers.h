@@ -1,20 +1,24 @@
 #pragma once
 
-typedef unsigned int GLenum;
-typedef unsigned char GLboolean;
-typedef unsigned int GLbitfield;
-typedef signed char GLbyte;
-typedef short GLshort;
-typedef int GLint;
-typedef int GLsizei;
-typedef unsigned char GLubyte;
-typedef unsigned short GLushort;
-typedef unsigned int GLuint;
-typedef float GLfloat;
-typedef float GLclampf;
-typedef double GLdouble;
-typedef double GLclampd;
-typedef void GLvoid;
+// TODO: check these types on 32/64bit platforms
+typedef unsigned int							GLenum;
+typedef unsigned char							GLboolean;
+typedef unsigned int							GLbitfield;
+typedef signed char								GLbyte;
+typedef short									GLshort;
+typedef int										GLint;
+typedef int										GLsizei;
+typedef int*									GLsizeiptr;
+typedef int*									GLintptr;
+typedef unsigned char							GLubyte;
+typedef char									GLchar;
+typedef unsigned short							GLushort;
+typedef unsigned int							GLuint;
+typedef float									GLfloat;
+typedef float									GLclampf;
+typedef double									GLdouble;
+typedef double									GLclampd;
+typedef void									GLvoid;
 
 /* AlphaFunction */
 #define GL_NEVER                          0x0200
@@ -26,6 +30,11 @@ typedef void GLvoid;
 #define GL_GEQUAL                         0x0206
 #define GL_ALWAYS                         0x0207
 
+/* AttribMask */
+#define GL_DEPTH_BUFFER_BIT               0x00000100
+#define GL_STENCIL_BUFFER_BIT             0x00000400
+#define GL_COLOR_BUFFER_BIT               0x00004000
+
 /* BeginMode */
 #define GL_POINTS                         0x0000
 #define GL_LINES                          0x0001
@@ -36,7 +45,6 @@ typedef void GLvoid;
 #define GL_TRIANGLE_FAN                   0x0006
 #define GL_QUADS                          0x0007
 #define GL_QUAD_STRIP                     0x0008
-#define GL_POLYGON                        0x0009
 
 /* BlendingFactorDest */
 #define GL_ZERO                           0
@@ -60,10 +68,6 @@ typedef void GLvoid;
 #define GL_INT                            0x1404
 #define GL_UNSIGNED_INT                   0x1405
 #define GL_FLOAT                          0x1406
-#define GL_2_BYTES                        0x1407
-#define GL_3_BYTES                        0x1408
-#define GL_4_BYTES                        0x1409
-#define GL_DOUBLE                         0x140A
 
 /* ErrorCode */
 #define GL_NO_ERROR                       0
@@ -73,7 +77,13 @@ typedef void GLvoid;
 #define GL_STACK_OVERFLOW                 0x0503
 #define GL_STACK_UNDERFLOW                0x0504
 #define GL_OUT_OF_MEMORY                  0x0505
+#define GL_INVALID_FRAMEBUFFER_OPERATION  0x0506
 
 /* FrontFaceDirection */
 #define GL_CW                             0x0900
 #define GL_CCW                            0x0901
+
+/* ContextCreation */
+#define GLX_CONTEXT_MAJOR_VERSION_ARB     0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB     0x2092
+#define GLX_CONTEXT_FLAGS_ARB             0x2094
