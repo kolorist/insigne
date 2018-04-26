@@ -1,7 +1,6 @@
 #include "insigne/driver.h"
 
-#include <assert/assert.h>
-#include <thread/mutex.h>
+#include <platform/windows/system.h>
 
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/oglapis.h"
@@ -37,9 +36,11 @@ namespace insigne {
 		wglCreateContextAttribsARB = (wglCreateContextAttribsARB_t)get_api_address("wglCreateContextAttribsARB");
 	}
 
-	void initialize_driver(HWND i_hwnd)
+	void initialize_driver(calyx::context_attribs* i_ctx)
 	{
-		g_gl_context.hwnd = i_hwnd;
+		calyx::windows_context_attribs* ctx = static_cast<calyx::windows_context_attribs*>(i_ctx);
+
+		g_gl_context.hwnd = ctx->hwnd;
 		HDC hDC = GetDC(g_gl_context.hwnd);
 
 		PIXELFORMATDESCRIPTOR pxFormatDesc;

@@ -1,13 +1,14 @@
 #pragma once
 
-#include <stdaliases.h>
+#include <floral.h>
 
 #include "generated_code/proxy.h"
 
 #include "context.h"
+#include <context.h>
 
 namespace insigne {
-	void										initialize_driver(HWND i_hwnd);
+	void										initialize_driver();
 
 	void										create_main_context();
 	void										create_shared_context();

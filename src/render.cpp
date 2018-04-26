@@ -1,7 +1,5 @@
 #include "insigne/render.h"
 
-#include <floral.h>
-
 #include "insigne/stream.h"
 #include "insigne/context.h"
 #include "insigne/driver.h"
@@ -33,12 +31,16 @@ namespace insigne {
 		while(true)
 		{
 			pxClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			/*
 			s_cmdbuffer_condvar.wait(s_cmdbuffer_mtx);
 			for (u32 i = 0; i < s_render_command_buffer.get_size(); i++) {
 				// process
+				geometry_stream_command cmd;
+				push_command(cmd);
 			}
 
 			s_render_command_buffer.empty();
+			*/
 			swap_buffers();
 		}
 	}

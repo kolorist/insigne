@@ -7,8 +7,8 @@ project (${PROJECT_NAME})
 include_directories ("${PROJECT_SOURCE_DIR}/include")
 
 set (file_list
-	"${PROJECT_SOURCE_DIR}/src/generated_code/oglapis.cpp"
 	"${PROJECT_SOURCE_DIR}/src/generated_code/proxy.cpp"
+	"${PROJECT_SOURCE_DIR}/src/generated_code/oglapis.cpp"
 	"${PROJECT_SOURCE_DIR}/src/context.cpp"
 	"${PROJECT_SOURCE_DIR}/src/stream.cpp"
 	"${PROJECT_SOURCE_DIR}/src/render.cpp"
@@ -16,6 +16,12 @@ set (file_list
 
 add_definitions(
 	-D_CRT_SECURE_NO_WARNINGS)
+	
+set (lib_list
+	floral
+	calyx
+	clover
+	helich)
 
 if (${ANDROID_BUILD})
 	message(STATUS ${PROJECT_NAME} " will be built using Android configs")
@@ -36,24 +42,27 @@ if (${ANDROID_BUILD})
 	set (file_list
 		${file_list}
 		"${PROJECT_SOURCE_DIR}/src/driver_egl.cpp")
+	set (lib_list
+		${lib_list}
+		EGL)
 	
 else ()
 	message(STATUS ${PROJECT_NAME} " will be built using Windows configs")
+	find_package (OpenGL)
 	add_definitions (
 		-DPLATFORM_WINDOWS)
 	set (file_list
 		${file_list}
 		"${PROJECT_SOURCE_DIR}/src/driver_windows.cpp")
+	set (lib_list
+		${lib_list}
+		opengl32)
 endif (${ANDROID_BUILD})
-
-find_package (OpenGL)
 
 add_library (${PROJECT_NAME} ${file_list})
 
 target_link_libraries (${PROJECT_NAME}
-	floral
-	helich
-	opengl32)
+	${lib_list})
 
 target_include_directories (${PROJECT_NAME} PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)

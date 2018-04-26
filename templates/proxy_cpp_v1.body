@@ -4,4 +4,3 @@ __FUNC_RET_TYPE__ px__FUNC_NAME__(__FUNC_PARAMS__)
 	assert_driver_no_error();
 	return ret;
 }
-

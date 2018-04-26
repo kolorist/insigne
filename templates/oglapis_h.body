@@ -1,2 +1,2 @@
-typedef __FUNC_RET_TYPE__ (__stdcall *gl__FUNC_NAME___t)(__FUNC_PARAMS__);
+typedef APICALL __FUNC_RET_TYPE__ (APIENTRY *gl__FUNC_NAME___t)(__FUNC_PARAMS__);
 extern gl__FUNC_NAME___t gl__FUNC_NAME__;

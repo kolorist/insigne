@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdaliases.h>
+#include <floral.h>
 
 #include "generated_code/proxy.h"
 

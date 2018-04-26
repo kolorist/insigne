@@ -3,4 +3,3 @@ __FUNC_RET_TYPE__ px__FUNC_NAME__(__FUNC_PARAMS__)
 	gl__FUNC_NAME__(__FUNC_PARAMS_FW__);
 	assert_driver_no_error();
 }
-

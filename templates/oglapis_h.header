@@ -8,4 +8,20 @@
 
 #include "insigne/gl/identifiers.h"
 
+#if defined(PLATFORM_WINDOWS)
+#	ifndef APIENTRY
+#		define APIENTRY __stdcall
+#	endif
+#	ifndef APICALL
+#		define APICALL __declspec(dllimport)
+#	endif
+#else
+#	ifndef APIENTRY
+#		define APIENTRY
+#	endif
+#	ifndef APICALL
+#		define APICALL
+#	endif
+#endif
+
 namespace insigne {
