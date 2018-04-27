@@ -23,6 +23,17 @@ namespace insigne {
 	static floral::condition_variable			s_cmdbuffer_condvar;
 	static floral::mutex						s_cmdbuffer_mtx;
 
+	// -----------------------------------------
+	struct render_state {
+		u32										rs_toggles;
+		u32										rs_values;
+		stencil_mask_t							stencil_mask;
+		stencil_ref_t							stencil_ref;
+		scissor_pos_t							scissor_x, scissor_y;
+		scissor_size_t							scissor_width, scissor_height;
+	};
+	static render_state							s_render_state;
+
 	void render_thread_func(voidptr i_data)
 	{
 		create_main_context();
@@ -41,9 +52,7 @@ namespace insigne {
 						{
 							render_command cmd;
 							gpuCmd.serialize(cmd);
-
 							draw_surface_idx(cmd.surface_handle, cmd.shader_handle);
-
 							break;
 						}
 
