@@ -10,7 +10,6 @@ set (file_list
 	"${PROJECT_SOURCE_DIR}/src/generated_code/proxy.cpp"
 	"${PROJECT_SOURCE_DIR}/src/generated_code/oglapis.cpp"
 	"${PROJECT_SOURCE_DIR}/src/context.cpp"
-	"${PROJECT_SOURCE_DIR}/src/stream.cpp"
 	"${PROJECT_SOURCE_DIR}/src/render.cpp"
 	"${PROJECT_SOURCE_DIR}/src/memory.cpp")
 
@@ -41,7 +40,8 @@ if (${ANDROID_BUILD})
 	
 	set (file_list
 		${file_list}
-		"${PROJECT_SOURCE_DIR}/src/driver_egl.cpp")
+		"${PROJECT_SOURCE_DIR}/src/driver_egl.cpp"
+		"${PROJECT_SOURCE_DIR}/src/renderer_egl.cpp")
 	set (lib_list
 		${lib_list}
 		EGL)
@@ -53,7 +53,8 @@ else ()
 		-DPLATFORM_WINDOWS)
 	set (file_list
 		${file_list}
-		"${PROJECT_SOURCE_DIR}/src/driver_windows.cpp")
+		"${PROJECT_SOURCE_DIR}/src/driver_windows.cpp"
+		"${PROJECT_SOURCE_DIR}/src/renderer_gl.cpp")
 	set (lib_list
 		${lib_list}
 		opengl32)

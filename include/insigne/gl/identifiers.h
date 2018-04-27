@@ -87,3 +87,14 @@ typedef void									GLvoid;
 #define GLX_CONTEXT_MAJOR_VERSION_ARB     0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB     0x2092
 #define GLX_CONTEXT_FLAGS_ARB             0x2094
+
+/* Shader */
+#define GL_FRAGMENT_SHADER                0x8B30
+#define GL_VERTEX_SHADER                  0x8B31
+#define GL_COMPILE_STATUS                 0x8B81
+#define GL_INFO_LOG_LENGTH                0x8B84
+
+/* BufferObject */
+#define GL_ARRAY_BUFFER                   0x8892
+#define GL_ELEMENT_ARRAY_BUFFER           0x8893
+#define GL_STATIC_DRAW                    0x88E4

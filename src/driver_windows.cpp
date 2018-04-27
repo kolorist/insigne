@@ -36,11 +36,9 @@ namespace insigne {
 		wglCreateContextAttribsARB = (wglCreateContextAttribsARB_t)get_api_address("wglCreateContextAttribsARB");
 	}
 
-	void initialize_driver(calyx::context_attribs* i_ctx)
+	void initialize_driver()
 	{
-		calyx::windows_context_attribs* ctx = static_cast<calyx::windows_context_attribs*>(i_ctx);
-
-		g_gl_context.hwnd = ctx->hwnd;
+		g_gl_context.hwnd = calyx::g_windows_context_attribs.hwnd;
 		HDC hDC = GetDC(g_gl_context.hwnd);
 
 		PIXELFORMATDESCRIPTOR pxFormatDesc;

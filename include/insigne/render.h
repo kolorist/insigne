@@ -2,9 +2,8 @@
 
 #include <floral.h>
 
+#include "commons.h"
 #include "generated_code/proxy.h"
-
-#include "buffers.h"
 
 namespace insigne {
 
@@ -15,6 +14,8 @@ namespace insigne {
 	void										end_frame();
 	void										dispatch_frame();
 
-	void										push_command(render_command& i_cmd);
-
+	void										set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha);
+	void										upload_texture(texture_format i_format, voidptr i_data);
+	const surface_handle						upload_geometry(voidptr i_vertices, voidptr i_indices, size i_stride, const u32 i_vcount, const u32 i_icount);
+	const shader_handle							compile_shader(const_cstr i_vertstr, const_cstr i_fragstr);
 }
