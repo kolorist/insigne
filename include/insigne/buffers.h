@@ -71,6 +71,8 @@ namespace insigne {
 	};
 
 	struct render_command {
+		surface_handle_t						surface_handle;
+		shader_handle_t							shader_handle;
 	};
 
 	enum class stream_type {
@@ -85,7 +87,7 @@ namespace insigne {
 			// texture
 			struct {
 				voidptr							data;
-				texture_format					format;
+				texture_format_e				format;
 			};
 
 			// geom

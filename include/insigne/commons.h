@@ -2,7 +2,7 @@
 
 namespace insigne {
 
-	enum class texture_format {
+	enum class texture_format_e {
 		invalid = 0,
 		rgb,
 		hdr_rgb,
@@ -13,7 +13,7 @@ namespace insigne {
 		depth_stencil
 	};
 
-	enum class texture_internal_format {
+	enum class texture_internal_format_e {
 		invalid = 0,
 		rg16f,
 		rgb16f,
@@ -26,8 +26,8 @@ namespace insigne {
 		depth24stencil8
 	};
 
-	typedef u32									shader_handle;
-	typedef u32									texture_handle;
-	typedef u32									surface_handle;
+	typedef u32									shader_handle_t;
+	typedef u32									texture_handle_t;
+	typedef u32									surface_handle_t;
 
 }

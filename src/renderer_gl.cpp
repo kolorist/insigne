@@ -1,11 +1,36 @@
-#include "insigne/renderer_gl.h"
+#include "insigne/renderer.h"
 
 #include <clover.h>
 
 #include "memory.h"
 #include "insigne/generated_code/proxy.h"
+#include "insigne/gl/identifiers.h"
 
 namespace insigne {
+
+	struct shader {
+		GLuint									gpu_handle;
+	};
+
+	struct surface {
+		size									stride;
+		u32										icount;
+		GLuint									vbo;
+		GLuint									ibo;
+	};
+
+	struct texture {
+		GLuint									gpu_handle;
+		u32										width;
+		u32										height;
+		GLenum									format;
+		GLenum									internal_format;
+	};
+
+	typedef floral::fixed_array<shader, linear_allocator_t>		shader_array_t;
+	typedef floral::fixed_array<texture, linear_allocator_t>	texture_array_t;
+	typedef floral::fixed_array<surface, linear_allocator_t>	surface_array_t;
+
 
 	static shader_array_t						s_shaders;
 	static texture_array_t						s_textures;
@@ -15,6 +40,7 @@ namespace insigne {
 	{
 		s_shaders.init(64u, &g_persistance_allocator);
 		s_textures.init(64u, &g_persistance_allocator);
+		s_surfaces.init(256u, &g_persistance_allocator);
 	}
 
 
@@ -30,14 +56,14 @@ namespace insigne {
 		pxClear(clearBit);
 	}
 	
-	shader_handle create_shader()
+	shader_handle_t create_shader()
 	{
 		u32 idx = s_shaders.get_size();
 		s_shaders.push_back(shader());
-		return static_cast<shader_handle>(idx);
+		return static_cast<shader_handle_t>(idx);
 	}
 
-	void compile_shader(shader_handle& i_hdl, const_cstr i_vertstr, const_cstr i_fragstr)
+	void compile_shader(shader_handle_t& i_hdl, const_cstr i_vertstr, const_cstr i_fragstr)
 	{
 		shader& thisShader = s_shaders[i_hdl];
 		
@@ -97,14 +123,14 @@ namespace insigne {
 		s_shaders[i_hdl].gpu_handle = newShader;
 	}
 
-	surface_handle create_surface()
+	surface_handle_t create_surface()
 	{
 		u32 idx = s_surfaces.get_size();
 		s_surfaces.push_back(surface());
-		return static_cast<surface_handle>(idx);
+		return static_cast<surface_handle_t>(idx);
 	}
 
-	void upload_surface(surface_handle& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount, size i_stride)
+	void upload_surface(surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount, size i_stride)
 	{
 		GLuint vbo = 0, ibo = 0;
 		pxGenBuffers(1, &vbo);
@@ -125,5 +151,19 @@ namespace insigne {
 
 		s_surfaces[i_hdl].vbo = vbo;
 		s_surfaces[i_hdl].ibo = ibo;
+		s_surfaces[i_hdl].icount = i_icount;
+		s_surfaces[i_hdl].stride = i_stride;
+	}
+
+	void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const shader_handle_t& i_shaderHdl)
+	{
+		surface surf = s_surfaces[i_surfaceHdl];
+		shader shdr = s_shaders[i_shaderHdl];
+
+		pxBindBuffer(GL_ARRAY_BUFFER, surf.vbo);
+		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surf.ibo);
+		pxEnableVertexAttribArray(0);
+		pxVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, surf.stride, 0);
+		pxDrawElements(GL_TRIANGLES, surf.icount, GL_UNSIGNED_INT, 0);
 	}
 }

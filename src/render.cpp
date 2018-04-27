@@ -5,14 +5,18 @@
 #include "insigne/buffers.h"
 #include "insigne/memory.h"
 
-#include "insigne/renderer_gl.h"
+#include "insigne/renderer.h"
 
 namespace insigne {
+
+#define MAX_GPU_COMMAND_BUFFERS					3
 
 	// -----------------------------------------
 	typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
 
-	static gpu_command_buffer_t					s_gpu_command_buffer;
+	static gpu_command_buffer_t					s_gpu_command_buffer[MAX_GPU_COMMAND_BUFFERS];
+	static size									s_front_cmdbuff;
+	static size									s_back_cmdbuff;
 	// -----------------------------------------
 	static floral::condition_variable			s_init_condvar;
 	static floral::mutex						s_init_mtx;
@@ -26,13 +30,20 @@ namespace insigne {
 		s_init_condvar.notify_one();
 		while(true)
 		{
-			s_cmdbuffer_condvar.wait(s_cmdbuffer_mtx);
-			for (u32 i = 0; i < s_gpu_command_buffer.get_size(); i++) {
-				gpu_command& gpuCmd = s_gpu_command_buffer[i];
+			while (s_front_cmdbuff == s_back_cmdbuff)
+				s_cmdbuffer_condvar.wait(s_cmdbuffer_mtx);
+
+			for (u32 i = 0; i < s_gpu_command_buffer[s_front_cmdbuff].get_size(); i++) {
+				gpu_command& gpuCmd = s_gpu_command_buffer[s_front_cmdbuff][i];
 				gpuCmd.reset_cursor();
 				switch (gpuCmd.opcode) {
 					case command::draw_geom:
 						{
+							render_command cmd;
+							gpuCmd.serialize(cmd);
+
+							draw_surface_idx(cmd.surface_handle, cmd.shader_handle);
+
 							break;
 						}
 
@@ -95,7 +106,8 @@ namespace insigne {
 				}
 			}
 
-			s_gpu_command_buffer.empty();
+			s_gpu_command_buffer[s_front_cmdbuff].empty();
+			s_front_cmdbuff = (s_front_cmdbuff + 1) % MAX_GPU_COMMAND_BUFFERS;
 			swap_buffers();
 		}
 	}
@@ -103,7 +115,10 @@ namespace insigne {
 	// -----------------------------------------
 	void initialize_render_thread()
 	{
-		s_gpu_command_buffer.init(GPU_COMMAND_BUFFER_SIZE, &g_persistance_allocator);
+		for (size i = 0; i < MAX_GPU_COMMAND_BUFFERS; i++)
+			s_gpu_command_buffer[i].init(GPU_COMMAND_BUFFER_SIZE, &g_persistance_allocator);
+		s_front_cmdbuff = 0;
+		s_back_cmdbuff = 2;
 
 		g_render_thread.entry_point = &insigne::render_thread_func;
 		g_render_thread.ptr_data = nullptr;
@@ -121,7 +136,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_init_state;
 		newCmd.deserialize(i_cmd);
-		s_gpu_command_buffer.push_back(newCmd);
+		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 
 	void push_command(const render_command& i_cmd)
@@ -129,7 +144,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::draw_geom;
 		newCmd.deserialize(i_cmd);
-		s_gpu_command_buffer.push_back(newCmd);
+		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 
 	void push_command(const stream_command& i_cmd)
@@ -137,7 +152,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::stream_data;
 		newCmd.deserialize(i_cmd);
-		s_gpu_command_buffer.push_back(newCmd);
+		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 	// -----------------------------------------
 	void begin_frame()
@@ -148,11 +163,13 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_framebuffer;
 		newCmd.deserialize(cmd);
-		s_gpu_command_buffer.push_back(newCmd);
+		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 
 	void end_frame()
 	{
+		while ((s_back_cmdbuff + 1) % MAX_GPU_COMMAND_BUFFERS == s_front_cmdbuff);
+		s_back_cmdbuff = (s_back_cmdbuff + 1) % MAX_GPU_COMMAND_BUFFERS;
 	}
 
 	void dispatch_frame()
@@ -168,7 +185,7 @@ namespace insigne {
 		push_command(cmd);
 	}
 
-	void upload_texture(texture_format i_format, voidptr i_data)
+	void upload_texture(texture_format_e i_format, voidptr i_data)
 	{
 		stream_command cmd;
 		cmd.data_type = stream_type::texture;
@@ -177,7 +194,7 @@ namespace insigne {
 		push_command(cmd);
 	}
 
-	const surface_handle upload_geometry(voidptr i_vertices, voidptr i_indices, size i_stride, const u32 i_vcount, const u32 i_icount)
+	const surface_handle_t upload_surface(voidptr i_vertices, voidptr i_indices, size i_stride, const u32 i_vcount, const u32 i_icount)
 	{
 		stream_command cmd;
 		cmd.data_type = stream_type::geometry;
@@ -194,7 +211,7 @@ namespace insigne {
 		return cmd.surface_idx;
 	}
 
-	const shader_handle compile_shader(const_cstr i_vertstr, const_cstr i_fragstr)
+	const shader_handle_t compile_shader(const_cstr i_vertstr, const_cstr i_fragstr)
 	{
 		stream_command cmd;
 		cmd.data_type = stream_type::shader;
@@ -204,6 +221,15 @@ namespace insigne {
 
 		push_command(cmd);
 		return cmd.shader_idx;
+	}
+
+	void draw_surface(const surface_handle_t i_surfaceHdl, const shader_handle_t i_shaderHdl)
+	{
+		render_command cmd;
+		cmd.surface_handle = i_surfaceHdl;
+		cmd.shader_handle = i_shaderHdl;
+
+		push_command(cmd);
 	}
 
 }
