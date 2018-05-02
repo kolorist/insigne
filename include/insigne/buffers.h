@@ -94,7 +94,7 @@ namespace insigne {
 			struct {
 				voidptr							vertices;
 				voidptr							indices;
-				size							stride;
+				s32								stride;
 				u32								vcount;
 				u32								icount;
 				u32								surface_idx;

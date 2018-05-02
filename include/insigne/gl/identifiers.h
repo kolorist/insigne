@@ -1,23 +1,25 @@
 #pragma once
 
-// TODO: check these types on 32/64bit platforms
-typedef unsigned int							GLenum;
-typedef unsigned char							GLboolean;
-typedef unsigned int							GLbitfield;
-typedef signed char								GLbyte;
-typedef short									GLshort;
-typedef int										GLint;
-typedef int										GLsizei;
-typedef int*									GLsizeiptr;
-typedef int*									GLintptr;
-typedef unsigned char							GLubyte;
-typedef char									GLchar;
-typedef unsigned short							GLushort;
-typedef unsigned int							GLuint;
-typedef float									GLfloat;
-typedef float									GLclampf;
-typedef double									GLdouble;
-typedef double									GLclampd;
+// from floral
+#include <stdaliases.h>
+
+typedef u32										GLenum;
+typedef u8										GLboolean;
+typedef u32										GLbitfield;
+typedef s8										GLbyte;
+typedef s16										GLshort;
+typedef s32										GLint;
+typedef s32										GLsizei;
+typedef ssize									GLsizeiptr;
+typedef ssize									GLintptr;
+typedef u8										GLubyte;
+typedef c8										GLchar;
+typedef u16										GLushort;
+typedef u32										GLuint;
+typedef f32										GLfloat;
+typedef f32										GLclampf;
+typedef f64										GLdouble;
+typedef f64										GLclampd;
 typedef void									GLvoid;
 
 /* AlphaFunction */
@@ -98,3 +100,8 @@ typedef void									GLvoid;
 #define GL_ARRAY_BUFFER                   0x8892
 #define GL_ELEMENT_ARRAY_BUFFER           0x8893
 #define GL_STATIC_DRAW                    0x88E4
+
+/* DrawType */
+#define GL_STREAM_DRAW                    0x88E0
+#define GL_STATIC_DRAW                    0x88E4
+#define GL_DYNAMIC_DRAW                   0x88E8

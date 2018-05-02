@@ -20,6 +20,7 @@ set (lib_list
 	floral
 	calyx
 	clover
+	imgui
 	helich)
 
 if (${ANDROID_BUILD})

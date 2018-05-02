@@ -7,13 +7,15 @@
 #include "insigne/gl/identifiers.h"
 
 namespace insigne {
+namespace renderer {
 
 	struct shader {
 		GLuint									gpu_handle;
 	};
 
 	struct surface {
-		size									stride;
+		s32										stride;
+		draw_type_e								draw_type;
 		u32										icount;
 		GLuint									vbo;
 		GLuint									ibo;
@@ -31,10 +33,14 @@ namespace insigne {
 	typedef floral::fixed_array<texture, linear_allocator_t>	texture_array_t;
 	typedef floral::fixed_array<surface, linear_allocator_t>	surface_array_t;
 
-
 	static shader_array_t						s_shaders;
 	static texture_array_t						s_textures;
 	static surface_array_t						s_surfaces;
+
+	static GLenum s_draw_types[] = {
+		GL_STATIC_DRAW,
+		GL_DYNAMIC_DRAW,
+		GL_STREAM_DRAW };
 
 	void initialize_renderer()
 	{
@@ -130,15 +136,16 @@ namespace insigne {
 		return static_cast<surface_handle_t>(idx);
 	}
 
-	void upload_surface(surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount, size i_stride)
+	void upload_surface(surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount, s32 i_stride, const draw_type_e i_drawType /* = draw_type_e::static_surface */)
 	{
 		GLuint vbo = 0, ibo = 0;
+		GLenum drawType = s_draw_types[static_cast<s32>(i_drawType)];
 		pxGenBuffers(1, &vbo);
 		pxBindBuffer(GL_ARRAY_BUFFER, vbo);
 		pxBufferData(GL_ARRAY_BUFFER,
 			(GLsizeiptr)(i_vcount * i_stride),
 			(const GLvoid*)(i_vertices),
-			GL_STATIC_DRAW);
+			drawType);
 		pxBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		pxGenBuffers(1, &ibo);
@@ -146,13 +153,37 @@ namespace insigne {
 		pxBufferData(GL_ELEMENT_ARRAY_BUFFER,
 				(GLsizeiptr)(i_icount * sizeof(u32)),
 				(const GLvoid*)(i_indices),
-				GL_STATIC_DRAW);
+				drawType);
 		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+		s_surfaces[i_hdl].stride = i_stride;
+		s_surfaces[i_hdl].draw_type = i_drawType;
+		s_surfaces[i_hdl].icount = i_icount;
 		s_surfaces[i_hdl].vbo = vbo;
 		s_surfaces[i_hdl].ibo = ibo;
+	}
+
+	void update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount)
+	{
+		s32 stride = s_surfaces[i_hdl].stride;
+		GLenum drawType = s_draw_types[static_cast<s32>(s_surfaces[i_hdl].draw_type)];
+		GLuint vbo = s_surfaces[i_hdl].vbo;
+		GLuint ibo = s_surfaces[i_hdl].ibo;
+
+		pxBindBuffer(GL_ARRAY_BUFFER, vbo);
+		pxBufferData(GL_ARRAY_BUFFER,
+				(GLsizeiptr)(i_vcount * stride),
+				(const GLvoid*)(i_vertices),
+				drawType);
+		pxBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		pxBufferData(GL_ELEMENT_ARRAY_BUFFER,
+				(GLsizeiptr)(i_icount * sizeof(u32)),
+				(const GLvoid*)(i_indices),
+				drawType);
+		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		s_surfaces[i_hdl].icount = i_icount;
-		s_surfaces[i_hdl].stride = i_stride;
 	}
 
 	void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const shader_handle_t& i_shaderHdl)
@@ -166,4 +197,5 @@ namespace insigne {
 		pxVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, surf.stride, 0);
 		pxDrawElements(GL_TRIANGLES, surf.icount, GL_UNSIGNED_INT, 0);
 	}
+}
 }

@@ -37,7 +37,7 @@ namespace insigne {
 	void render_thread_func(voidptr i_data)
 	{
 		create_main_context();
-		initialize_renderer();
+		renderer::initialize_renderer();
 		s_init_condvar.notify_one();
 		while(true)
 		{
@@ -52,7 +52,7 @@ namespace insigne {
 						{
 							render_command cmd;
 							gpuCmd.serialize(cmd);
-							draw_surface_idx(cmd.surface_handle, cmd.shader_handle);
+							renderer::draw_surface_idx(cmd.surface_handle, cmd.shader_handle);
 							break;
 						}
 
@@ -65,7 +65,7 @@ namespace insigne {
 						{
 							framebuffer_command cmd;
 							gpuCmd.serialize(cmd);
-							clear_framebuffer(cmd.clear_color_buffer, cmd.clear_depth_buffer);
+							renderer::clear_framebuffer(cmd.clear_color_buffer, cmd.clear_depth_buffer);
 							break;
 						}
 
@@ -82,13 +82,13 @@ namespace insigne {
 								
 								case stream_type::geometry:
 									{
-										upload_surface(cmd.surface_idx, cmd.vertices, cmd.indices, cmd.vcount, cmd.icount, cmd.stride);
+										renderer::upload_surface(cmd.surface_idx, cmd.vertices, cmd.indices, cmd.vcount, cmd.icount, cmd.stride);
 										break;
 									}
 
 								case stream_type::shader:
 									{
-										compile_shader(cmd.shader_idx, cmd.vertex_str, cmd.fragment_str);
+										renderer::compile_shader(cmd.shader_idx, cmd.vertex_str, cmd.fragment_str);
 										break;
 									}
 								
@@ -102,7 +102,7 @@ namespace insigne {
 						{
 							init_command cmd;
 							gpuCmd.serialize(cmd);
-							clear_color(cmd.clear_color);
+							renderer::clear_color(cmd.clear_color);
 						};
 
 					case command::invalid:
@@ -203,7 +203,7 @@ namespace insigne {
 		push_command(cmd);
 	}
 
-	const surface_handle_t upload_surface(voidptr i_vertices, voidptr i_indices, size i_stride, const u32 i_vcount, const u32 i_icount)
+	const surface_handle_t upload_surface(voidptr i_vertices, voidptr i_indices, s32 i_stride, const u32 i_vcount, const u32 i_icount)
 	{
 		stream_command cmd;
 		cmd.data_type = stream_type::geometry;
@@ -213,7 +213,7 @@ namespace insigne {
 		cmd.vcount = i_vcount;
 		cmd.icount = i_icount;
 		cmd.has_indices = true;
-		cmd.surface_idx = create_surface();
+		cmd.surface_idx = renderer::create_surface();
 
 		push_command(cmd);
 
@@ -226,7 +226,7 @@ namespace insigne {
 		cmd.data_type = stream_type::shader;
 		cmd.vertex_str = i_vertstr;
 		cmd.fragment_str = i_fragstr;
-		cmd.shader_idx = create_shader();
+		cmd.shader_idx = renderer::create_shader();
 
 		push_command(cmd);
 		return cmd.shader_idx;

@@ -11,11 +11,11 @@ namespace insigne {
 		stencil_test							= 1u << 5
 	};
 
-	enum class render_state_valuemask_e {
-		depth_func								= 0x00000007,	// bit 0, 1, 2
-		front_face								= 0x00000008,	// bit 3
-		blend_equation							= 0x00000030,	// bit 4, 5
-		blend_func_sfactor						= 0xf0000000,	// bit 28, 29, 30, 31
+	enum class render_state_valuemask_e{
+		depth_func								= 0x7 << 0,	// bit 0, 1, 2
+		front_face								= 0x1 << 3,	// bit 3
+		blend_equation							= 0x3 << 4,	// bit 4, 5
+		blend_func_sfactor						= 0xf << 6,	// bit 6, 7, 8, 9
 		blend_func_dfactor						= 0x0f000000,	// bit 24, 25, 26, 27
 		stencil_func							= 0x00700000,
 		stencil_op_sfail						= 0x00070000,
@@ -27,6 +27,12 @@ namespace insigne {
 	typedef s32									stencil_ref_t;
 	typedef s32									scissor_pos_t;
 	typedef s32									scissor_size_t;
+
+	enum class draw_type_e {
+		static_surface = 0,
+		dynamic_surface,
+		stream_surface
+	};
 
 	enum class texture_format_e {
 		invalid = 0,
