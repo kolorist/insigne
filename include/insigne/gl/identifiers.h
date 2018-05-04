@@ -57,6 +57,12 @@ typedef void									GLvoid;
 #define GL_ONE_MINUS_SRC_ALPHA            0x0303
 #define GL_DST_ALPHA                      0x0304
 #define GL_ONE_MINUS_DST_ALPHA            0x0305
+#define GL_DST_COLOR                      0x0306
+#define GL_ONE_MINUS_DST_COLOR            0x0307
+#define GL_CONSTANT_COLOR                 0x8001
+#define GL_ONE_MINUS_CONSTANT_COLOR       0x8002
+#define GL_CONSTANT_ALPHA                 0x8003
+#define GL_ONE_MINUS_CONSTANT_ALPHA       0x8004
 
 /* Boolean */
 #define GL_TRUE                           1
@@ -105,3 +111,14 @@ typedef void									GLvoid;
 #define GL_STREAM_DRAW                    0x88E0
 #define GL_STATIC_DRAW                    0x88E4
 #define GL_DYNAMIC_DRAW                   0x88E8
+
+/* RenderState */
+#define GL_DEPTH_TEST                     0x0B71
+
+/* Operations */
+#define GL_ADD                            0x0104
+#define GL_SUBTRACT                       0x84E7
+#define GL_FUNC_SUBTRACT                  0x800A
+#define GL_FUNC_REVERSE_SUBTRACT          0x800B
+#define GL_MIN                            0x8007
+#define GL_MAX                            0x8008

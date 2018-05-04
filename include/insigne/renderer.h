@@ -12,6 +12,20 @@ namespace renderer {
 	void										initialize_renderer();
 
 	// -----------------------------------------
+	template <typename t_switch>
+	void										set_depth_test(const compare_func_e i_depthFunc);
+	template <typename t_switch>
+	void										set_depth_write();
+	template <typename t_switch>
+	void										set_cull_face(const front_face_e i_frontFace);
+	template <typename t_switch>
+	void										set_blending(const blend_equation_e i_blendEqu, const factor_e i_sfactor, const factor_e i_dfactor);
+	template <typename t_switch>
+	void										set_scissor_test(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
+	template <typename t_switch>
+	void										set_stencil_test(const compare_func_e i_func, const u32 i_mask, const s32 i_ref, const operation_e i_sfail, const operation_e i_dpfail, const operation_e i_dppass);
+
+	// -----------------------------------------
 	void										clear_color(const floral::vec4f& i_color);
 	void										clear_framebuffer(const bool i_clearcolor, const bool i_cleardepth);
 	

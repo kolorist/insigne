@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "buffers.h"
+#include "commons.h"
 
 namespace insigne {
 
@@ -14,7 +15,9 @@ namespace insigne {
 	enum class command {
 		invalid = 0,
 		setup_init_state,
-		setup_render_state,
+		setup_render_state_toggle,
+		setup_blending_state,
+		setup_scissor_state,
 		setup_framebuffer,
 		draw_geom,
 		stream_data
@@ -60,9 +63,64 @@ namespace insigne {
 		floral::vec4f							clear_color;
 	};
 
-	struct state_command {
-		bool									depth_test;
-		bool									depth_write;
+	enum class depth_cmd_e {
+		toggle = 0,
+		change_func
+	};
+
+	struct render_state_toggle_command {
+		render_state_togglemask_e				toggle;
+		union {
+			// depth_test
+			struct {
+				compare_func_e					depth_func;
+				bool							to_value;
+			};
+			// depth_write
+			struct {
+				bool							to_value;
+			};
+			// cull_face
+			struct {
+				front_face_e					front_face;
+				bool							to_value;
+			};
+			// blending
+			struct {
+				compare_func_e					blend_equation;
+				factor_e						blend_func_sfactor;
+				factor_e						blend_func_dfactor;
+				bool							to_value;
+			};
+			// scissor_test
+			struct {
+				s32								x, y, width, height;
+				bool							to_value;
+			};
+			// stencil_test
+			struct {
+				compare_func_e					stencil_func;
+				u32								stencil_mask;
+				s32								stencil_ref;
+				operation_e						stencil_op_sfail;
+				operation_e						stencil_op_dpfail;
+				operation_e						stencil_op_dppass;
+				bool							to_value;
+			};
+		};
+	};
+
+	struct blending_state_command {
+		compare_func_e							blend_equation;
+		factor_e								blend_sfactor;
+		factor_e								blend_dfactor;
+		bool									blend_enable;
+	};
+
+	struct scissor_state_command {
+		s32										x, y;
+		s32										width, height;
+		bool									scissor_test;
 	};
 
 	struct framebuffer_command {
@@ -81,6 +139,7 @@ namespace insigne {
 		geometry,
 		shader
 	};
+
 	struct stream_command {
 		stream_type								data_type;
 		union {

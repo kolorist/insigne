@@ -1,5 +1,8 @@
 #include "insigne/render.h"
 
+#include <floral.h>
+
+#include "insigne/commons.h"
 #include "insigne/context.h"
 #include "insigne/driver.h"
 #include "insigne/buffers.h"
@@ -24,15 +27,17 @@ namespace insigne {
 	static floral::mutex						s_cmdbuffer_mtx;
 
 	// -----------------------------------------
-	struct render_state {
-		u32										rs_toggles;
-		u32										rs_values;
-		stencil_mask_t							stencil_mask;
-		stencil_ref_t							stencil_ref;
-		scissor_pos_t							scissor_x, scissor_y;
-		scissor_size_t							scissor_width, scissor_height;
+	static render_state_t						s_render_state;
+	enum class render_state_changelog_e {
+		depth_test								= 1u << 0,
+		depth_write								= 1u << 2,
+		cull_face								= 1u << 3,
+		blending								= 1u << 4,
+		scissor_test							= 1u << 5,
+		stencil_test							= 1u << 6
 	};
-	static render_state							s_render_state;
+
+	u32											s_render_state_changelog;
 
 	void render_thread_func(voidptr i_data)
 	{
@@ -56,8 +61,57 @@ namespace insigne {
 							break;
 						}
 
-					case command::setup_render_state:
+					case command::setup_render_state_toggle:
 						{
+							render_state_toggle_command cmd;
+							gpuCmd.serialize(cmd);
+							switch (cmd.toggle) {
+								// TODO: what the heck, there is no point of using meta-prog along with runtime decision. FIX IT
+								case render_state_togglemask_e::depth_test:
+									{
+										if (cmd.to_value)
+											renderer::set_depth_test<true_type>(cmd.depth_func);
+										else renderer::set_depth_test<false_type>(cmd.depth_func);
+										break;
+									}
+								case render_state_togglemask_e::depth_write:
+									{
+										if (cmd.to_value)
+											renderer::set_depth_write<true_type>();
+										else renderer::set_depth_write<false_type>();
+										break;
+									}
+								case render_state_togglemask_e::cull_face:
+									{
+										if (cmd.to_value)
+											renderer::set_cull_face<true_type>(cmd.front_face);
+										else renderer::set_cull_face<false_type>(cmd.front_face);
+										break;
+									}
+								case render_state_togglemask_e::blending:
+									{
+										if (cmd.to_value)
+											renderer::set_blending<true_type>(cmd.blend_equation, cmd.blend_func_sfactor, cmd.blend_func_dfactor);
+										else renderer::set_blending<false_type>(cmd.blend_equation, cmd.blend_func_sfactor, cmd.blend_func_dfactor);
+										break;
+									}
+								case render_state_togglemask_e::scissor_test:
+									{
+										if (cmd.to_value)
+											renderer::set_scissor_test<true_type>(cmd.x, cmd.y, cmd.width, cmd.height);
+										else renderer::set_scissor_test<false_type>(cmd.x, cmd.y, cmd.width, cmd.height);
+										break;
+									}
+								case render_state_togglemask_e::stencil_test:
+									{
+										if (cmd.to_value)
+											renderer::set_stencil_test<true_type>(cmd.stencil_func, cmd.stencil_mask, cmd.stencil_ref, cmd.stencil_op_sfail, cmd.stencil_op_dpfail, cmd.stencil_op_dppass);
+										else renderer::set_stencil_test<false_type>(cmd.stencil_func, cmd.stencil_mask, cmd.stencil_ref, cmd.stencil_op_sfail, cmd.stencil_op_dpfail, cmd.stencil_op_dppass);
+										break;
+									}
+								default:
+									break;
+							};
 							break;
 						}
 
@@ -128,6 +182,7 @@ namespace insigne {
 			s_gpu_command_buffer[i].init(GPU_COMMAND_BUFFER_SIZE, &g_persistance_allocator);
 		s_front_cmdbuff = 0;
 		s_back_cmdbuff = 2;
+		s_render_state_changelog = 0;
 
 		g_render_thread.entry_point = &insigne::render_thread_func;
 		g_render_thread.ptr_data = nullptr;
@@ -163,7 +218,117 @@ namespace insigne {
 		newCmd.deserialize(i_cmd);
 		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
+
+	void push_command(const render_state_toggle_command& i_cmd)
+	{
+		gpu_command newCmd;
+		newCmd.opcode = command::setup_render_state_toggle;
+		newCmd.deserialize(i_cmd);
+		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
+	}
+
 	// -----------------------------------------
+	// render state
+	void set_depth_test(const bool i_enable)
+	{
+		if (i_enable != TEST_BIT_BOOL(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::depth_test))) {
+			SET_BIT(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::depth_test));		// update state
+			SET_BIT(s_render_state_changelog, static_cast<u32>(render_state_changelog_e::depth_test));	// update change log
+		}
+	}
+
+	void set_depth_write(const bool i_enable)
+	{
+		if (i_enable != TEST_BIT_BOOL(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::depth_write))) {
+			SET_BIT(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::depth_write));	// update state
+			SET_BIT(s_render_state_changelog, static_cast<u32>(render_state_changelog_e::depth_write));	// update change log
+		}
+	}
+
+	void set_depth_func(const compare_func_e i_func)
+	{
+		s_render_state.depth_func = i_func;
+	}
+
+	void commit_render_state()
+	{
+		// quick quit
+		if (!s_render_state_changelog)
+			return;
+
+		u32 rst = s_render_state.toggles;
+		render_state_t rs = s_render_state;
+		u32 cl = s_render_state_changelog;
+
+		// depth_test
+		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::depth_test))) {
+			render_state_toggle_command cmd;
+			cmd.toggle = render_state_togglemask_e::depth_test;
+			cmd.depth_func = rs.depth_func;
+			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::depth_test));
+			push_command(cmd);
+		}
+
+		// depth_write
+		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::depth_write))) {
+			render_state_toggle_command cmd;
+			cmd.toggle = render_state_togglemask_e::depth_write;
+			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::depth_write));
+			push_command(cmd);
+		}
+
+		// cull_face
+		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::cull_face))) {
+			render_state_toggle_command cmd;
+			cmd.toggle = render_state_togglemask_e::cull_face;
+			cmd.front_face = rs.front_face;
+			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::cull_face));
+			push_command(cmd);
+		}
+
+		// blending
+		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::blending))) {
+			render_state_toggle_command cmd;
+			cmd.toggle = render_state_togglemask_e::blending;
+			cmd.blend_equation = rs.blend_equation;
+			cmd.blend_func_sfactor = rs.blend_func_sfactor;
+			cmd.blend_func_dfactor = rs.blend_func_dfactor;
+			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::blending));
+			push_command(cmd);
+		}
+
+		// scissor_test
+		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::scissor_test))) {
+			render_state_toggle_command cmd;
+			cmd.toggle = render_state_togglemask_e::scissor_test;
+			cmd.x = rs.scissor_x;
+			cmd.y = rs.scissor_y;
+			cmd.width = rs.scissor_width;
+			cmd.height = rs.scissor_height;
+			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::scissor_test));
+			push_command(cmd);
+		}
+
+		// stencil_test
+		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::stencil_test))) {
+			render_state_toggle_command cmd;
+			cmd.toggle = render_state_togglemask_e::stencil_test;
+			cmd.stencil_func = rs.stencil_func;
+			cmd.stencil_mask = rs.stencil_mask;
+			cmd.stencil_ref = rs.stencil_ref;
+			cmd.stencil_op_sfail = rs.stencil_op_sfail;
+			cmd.stencil_op_dpfail = rs.stencil_op_dpfail;
+			cmd.stencil_op_dppass = rs.stencil_op_dppass;
+			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::stencil_test));
+			push_command(cmd);
+		}
+
+		// after this, the render state will be clean
+		s_render_state_changelog = 0;
+	}
+	
+	// -----------------------------------------
+	// state-dependant
 	void begin_frame()
 	{
 		framebuffer_command cmd;
@@ -186,7 +351,6 @@ namespace insigne {
 		s_cmdbuffer_condvar.notify_one();
 	}
 
-	// -----------------------------------------
 	void set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha)
 	{
 		init_command cmd;
@@ -232,8 +396,10 @@ namespace insigne {
 		return cmd.shader_idx;
 	}
 
+	// state dependant
 	void draw_surface(const surface_handle_t i_surfaceHdl, const shader_handle_t i_shaderHdl)
 	{
+		commit_render_state();
 		render_command cmd;
 		cmd.surface_handle = i_surfaceHdl;
 		cmd.shader_handle = i_shaderHdl;

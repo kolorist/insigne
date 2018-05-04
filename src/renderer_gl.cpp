@@ -37,10 +37,52 @@ namespace renderer {
 	static texture_array_t						s_textures;
 	static surface_array_t						s_surfaces;
 
+	// -----------------------------------------
 	static GLenum s_draw_types[] = {
 		GL_STATIC_DRAW,
 		GL_DYNAMIC_DRAW,
 		GL_STREAM_DRAW };
+
+	static GLenum s_cmp_funcs[] = {
+		GL_NEVER,
+		GL_LESS,
+		GL_EQUAL,
+		GL_LEQUAL,
+		GL_GREATER,
+		GL_NOTEQUAL,
+		GL_ALWAYS
+	};
+
+	static GLenum s_front_faces[] = {
+		GL_CW,
+		GL_CCW
+	};
+
+	static GLenum s_blend_equations[] = {
+		GL_ADD,
+		GL_FUNC_SUBTRACT,
+		GL_FUNC_REVERSE_SUBTRACT,
+		GL_MIN,
+		GL_MAX
+	};
+
+	static GLenum s_factors[] = {
+		GL_ZERO,
+		GL_ONE,
+		GL_SRC_COLOR,
+		GL_ONE_MINUS_SRC_COLOR,
+		GL_DST_COLOR,
+		GL_ONE_MINUS_DST_COLOR,
+		GL_SRC_ALPHA,
+		GL_ONE_MINUS_SRC_ALPHA,
+		GL_DST_ALPHA,
+		GL_ONE_MINUS_DST_ALPHA,
+		GL_CONSTANT_COLOR,
+		GL_ONE_MINUS_CONSTANT_COLOR,
+		GL_CONSTANT_ALPHA,
+		GL_ONE_MINUS_CONSTANT_ALPHA
+	};
+	// -----------------------------------------
 
 	void initialize_renderer()
 	{
@@ -49,11 +91,85 @@ namespace renderer {
 		s_surfaces.init(256u, &g_persistance_allocator);
 	}
 
+	// -----------------------------------------
+	template <>
+	void set_depth_test<true_type>(const compare_func_e i_depthFunc)
+	{
+		pxEnable(GL_DEPTH_TEST);
+		pxDepthFunc(s_cmp_funcs[static_cast<s32>(i_depthFunc)]);
+	}
+
+	template <>
+	void set_depth_test<false_type>(const compare_func_e i_depthFunc)
+	{
+		pxDisable(GL_DEPTH_TEST);
+	}
+
+	template <>
+	void set_depth_write<true_type>()
+	{
+		pxDepthMask(GL_TRUE);
+	}
+
+	template <>
+	void set_depth_write<false_type>()
+	{
+		pxDepthMask(GL_FALSE);
+	}
+
+	template <>
+	void set_cull_face<true_type>(const front_face_e i_frontFace)
+	{
+		pxEnable(GL_CULL_FACE);
+		pxFrontFace(s_front_faces[static_cast<s32>(i_frontFace)];
+	}
+
+	template <>
+	void set_cull_face<false_type>(const front_face_e i_frontFace)
+	{
+		pxDisable(GL_CULL_FACE);
+	}
+
+	template <>
+	void set_blending<true_type>(const blend_equation_e i_blendEqu, const factor_e i_sfactor, const factor_e i_dfactor)
+	{
+		pxEnable(GL_BLEND);
+		pxBlendEquation(s_blend_equations[static_cast<s32>(i_blendEqu)]);
+		pxBlendFactor(s_factors[static_cast<s32>(i_sfactor)], s_factors[static_cast<s32>(i_dfactor)]);
+	}
+
+	template <>
+	void set_blending<false_type>(const blend_equation_e i_blendEqu, const factor_e i_sfactor, const factor_e i_dfactor)
+	{
+		pxDisable(GL_BLEND);
+	}
+
+	template <>
+	void set_scissor_test<true_type>(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
+	{
+	}
+
+	template <>
+	void set_scissor_test<false_type>(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
+	{
+	}
+
+	template <>
+	void set_stencil_test<true_type>(const compare_func_e i_func, const u32 i_mask, const s32 i_ref, const operation_e i_sfail, const operation_e i_dpfail, const operation_e i_dppass)
+	{
+	}
+
+	template <>
+	void set_stencil_test<false_type>(const compare_func_e i_func, const u32 i_mask, const s32 i_ref, const operation_e i_sfail, const operation_e i_dpfail, const operation_e i_dppass)
+	{
+	}
+	// -----------------------------------------
 
 	void clear_color(const floral::vec4f& i_color)
 	{
 		pxClearColor(i_color.x, i_color.y, i_color.z, i_color.w);
 	}
+
 	void clear_framebuffer(const bool i_clearcolor, const bool i_cleardepth)
 	{
 		GLbitfield clearBit = 0;
