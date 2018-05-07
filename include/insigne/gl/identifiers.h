@@ -114,6 +114,10 @@ typedef void									GLvoid;
 
 /* RenderState */
 #define GL_DEPTH_TEST                     0x0B71
+#define GL_CULL_FACE                      0x0B44
+#define GL_BLEND                          0x0BE2
+#define GL_SCISSOR_TEST                   0x0C11
+#define GL_STENCIL_TEST                   0x0B90
 
 /* Operations */
 #define GL_ADD                            0x0104
@@ -122,3 +126,54 @@ typedef void									GLvoid;
 #define GL_FUNC_REVERSE_SUBTRACT          0x800B
 #define GL_MIN                            0x8007
 #define GL_MAX                            0x8008
+#define GL_KEEP                           0x1E00
+#define GL_REPLACE                        0x1E01
+#define GL_INCR                           0x1E02
+#define GL_DECR                           0x1E03
+#define GL_INCR_WRAP                      0x8507
+#define GL_DECR_WRAP                      0x8508
+#define GL_INVERT                         0x150A
+
+/* Texture */
+#define GL_TEXTURE_2D                     0x0DE1
+
+/* TextureFormat */
+#define GL_RGB                            0x1907
+#define GL_RGBA                           0x1908
+#define GL_DEPTH_COMPONENT                0x1902
+#define GL_DEPTH_STENCIL                  0x84F9
+#define GL_RG16F                          0x822F
+#define GL_RGBA16F                        0x881A
+#define GL_RGB16F                         0x881B
+#define GL_RGB8                           0x8051
+#define GL_RGBA8                          0x8058
+#define GL_SRGB                           0x8C40
+#define GL_SRGB8                          0x8C41
+#define GL_SRGB_ALPHA                     0x8C42
+#define GL_SRGB8_ALPHA8                   0x8C43
+#define GL_DEPTH_COMPONENT16              0x81A5
+#define GL_DEPTH_COMPONENT24              0x81A6
+#define GL_DEPTH24_STENCIL8               0x88F0
+#define GL_UNSIGNED_INT_24_8              0x84FA
+
+/* TextureParameter */
+#define GL_TEXTURE_MAG_FILTER             0x2800
+#define GL_TEXTURE_MIN_FILTER             0x2801
+#define GL_TEXTURE_WRAP_S                 0x2802
+#define GL_TEXTURE_WRAP_T                 0x2803
+#define GL_UNPACK_ROW_LENGTH              0x0CF2
+#define GL_UNPACK_SKIP_ROWS               0x0CF3
+#define GL_UNPACK_SKIP_PIXELS             0x0CF4
+#define GL_UNPACK_ALIGNMENT               0x0CF5
+
+/* TextureWrapMode */
+#define GL_CLAMP                          0x2900
+#define GL_REPEAT                         0x2901
+
+/* TextureFiltering */
+#define GL_NEAREST                        0x2600
+#define GL_LINEAR                         0x2601
+#define GL_NEAREST_MIPMAP_NEAREST         0x2700
+#define GL_LINEAR_MIPMAP_NEAREST          0x2701
+#define GL_NEAREST_MIPMAP_LINEAR          0x2702
+#define GL_LINEAR_MIPMAP_LINEAR           0x2703

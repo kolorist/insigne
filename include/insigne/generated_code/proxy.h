@@ -94,9 +94,13 @@ void pxGetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLcha
 
 void pxGetShaderiv(GLuint shader, GLenum pname, GLint* params);
 
+const GLubyte* pxGetString(GLenum name);
+
 GLint pxGetUniformLocation(GLuint program, const GLchar* name);
 
 void pxLinkProgram(GLuint program);
+
+void pxPixelStorei(GLenum pname, GLint param);
 
 void pxRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 
@@ -105,6 +109,10 @@ void pxRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum int
 void pxScissor(GLint x, GLint y, GLsizei width, GLsizei height);
 
 void pxShaderSource(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+
+void pxStencilFunc(GLenum func, GLint ref, GLuint mask);
+
+void pxStencilOp(GLenum sfail, GLenum dpfail, GLenum dppass);
 
 void pxTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data);
 
@@ -123,7 +131,5 @@ void pxUseProgram(GLuint program);
 void pxVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
 
 void pxViewport(GLint x, GLint y, GLsizei width, GLsizei height);
-
-const GLubyte* pxGetString(GLenum name);
 
 }

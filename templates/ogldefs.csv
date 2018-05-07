@@ -41,12 +41,16 @@ __TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE
 0;GetIntegerv;GLenum pname, GLint* data;pname, data;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;GetShaderInfoLog;GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog;shader, maxLength, length, infoLog;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;GetShaderiv;GLuint shader, GLenum pname, GLint* params;shader, pname, params;void;since OpenGL 2.0 / OpenGL ES 2.0
+1;GetString;GLenum name;name;const GLubyte*;since OpenGL 2.0 / OpenGL ES 2.0
 1;GetUniformLocation;GLuint program, const GLchar* name;program, name;GLint;since OpenGL 2.0 / OpenGL ES 2.0
 0;LinkProgram;GLuint program;program;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;PixelStorei;GLenum pname, GLint param;pname, param;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;RenderbufferStorage;GLenum target, GLenum internalformat, GLsizei width, GLsizei height;target, internalformat, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;RenderbufferStorageMultisample;GLenum target, GLsizei samples, GLenum internalFormat, GLsizei width, GLsizei height;target, samples, internalFormat, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;Scissor;GLint x, GLint y, GLsizei width, GLsizei height;x, y, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;ShaderSource;GLuint shader, GLsizei count, const GLchar** string, const GLint* length;shader, count, string, length;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;StencilFunc;GLenum func, GLint ref, GLuint mask;func, ref, mask;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;StencilOp;GLenum sfail, GLenum dpfail, GLenum dppass;sfail, dpfail, dppass;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;TexImage2D;GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data;target, level, internalFormat, width, height, border, format, type, data;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;TexParameteri;GLenum target, GLenum pname, GLint param;target, pname, param;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;Uniform1f;GLint location, GLfloat v0;location, v0;void;since OpenGL 2.0 / OpenGL ES 2.0
@@ -56,4 +60,3 @@ __TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE
 0;UseProgram;GLuint program;program;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;VertexAttribPointer;GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer;index, size, type, normalized, stride, pointer;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;Viewport;GLint x, GLint y, GLsizei width, GLsizei height;x, y, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0
-1;GetString;GLenum name;name;const GLubyte*;since OpenGL 2.0 / OpenGL ES 2.0

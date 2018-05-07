@@ -152,11 +152,17 @@ extern glGetShaderInfoLog_t glGetShaderInfoLog;
 typedef APICALL void (APIENTRY *glGetShaderiv_t)(GLuint shader, GLenum pname, GLint* params);
 extern glGetShaderiv_t glGetShaderiv;
 
+typedef APICALL const GLubyte* (APIENTRY *glGetString_t)(GLenum name);
+extern glGetString_t glGetString;
+
 typedef APICALL GLint (APIENTRY *glGetUniformLocation_t)(GLuint program, const GLchar* name);
 extern glGetUniformLocation_t glGetUniformLocation;
 
 typedef APICALL void (APIENTRY *glLinkProgram_t)(GLuint program);
 extern glLinkProgram_t glLinkProgram;
+
+typedef APICALL void (APIENTRY *glPixelStorei_t)(GLenum pname, GLint param);
+extern glPixelStorei_t glPixelStorei;
 
 typedef APICALL void (APIENTRY *glRenderbufferStorage_t)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 extern glRenderbufferStorage_t glRenderbufferStorage;
@@ -169,6 +175,12 @@ extern glScissor_t glScissor;
 
 typedef APICALL void (APIENTRY *glShaderSource_t)(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
 extern glShaderSource_t glShaderSource;
+
+typedef APICALL void (APIENTRY *glStencilFunc_t)(GLenum func, GLint ref, GLuint mask);
+extern glStencilFunc_t glStencilFunc;
+
+typedef APICALL void (APIENTRY *glStencilOp_t)(GLenum sfail, GLenum dpfail, GLenum dppass);
+extern glStencilOp_t glStencilOp;
 
 typedef APICALL void (APIENTRY *glTexImage2D_t)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data);
 extern glTexImage2D_t glTexImage2D;
@@ -196,8 +208,5 @@ extern glVertexAttribPointer_t glVertexAttribPointer;
 
 typedef APICALL void (APIENTRY *glViewport_t)(GLint x, GLint y, GLsizei width, GLsizei height);
 extern glViewport_t glViewport;
-
-typedef APICALL const GLubyte* (APIENTRY *glGetString_t)(GLenum name);
-extern glGetString_t glGetString;
 
 }

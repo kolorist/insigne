@@ -358,13 +358,39 @@ namespace insigne {
 		push_command(cmd);
 	}
 
-	void upload_texture(texture_format_e i_format, voidptr i_data)
+	const texture_handle_t upload_texture2d(const s32 i_width, const s32 i_height, const texture_format_e i_format, voidptr i_data)
 	{
+		static texture_internal_format_e s_internal_formats[] = {
+			texture_internal_format_e::rgb8,
+			texture_internal_format_e::rgb16f,
+			texture_internal_format_e::srgb8,
+			texture_internal_format_e::rgba8,
+			texture_internal_format_e::rgba16f,
+			texture_internal_format_e::depth24,
+			texture_internal_format_e::depth24_stencil8
+		};
+		static data_type_e s_data_types[] = {
+			data_type_e::elem_unsigned_byte,
+			data_type_e::elem_signed_float,
+			data_type_e::elem_unsigned_byte,
+			data_type_e::elem_unsigned_byte,
+			data_type_e::elem_signed_float,
+			data_type_e::elem_unsigned_int,
+			data_type_e::elem_unsigned_int_24_8
+		};
+
 		stream_command cmd;
 		cmd.data_type = stream_type::texture;
 		cmd.data = i_data;
 		cmd.format = i_format;
+		cmd.width = i_width;
+		cmd.height = i_height;
+		cmd.internal_format = s_internal_formats[static_cast<s32>(i_format)];
+		cmd.pixel_data_type = s_data_types[static_cast<s32>(i_format)];
+		cmd.texture_idx = renderer::create_texture();
 		push_command(cmd);
+
+		return cmd.texture_idx;
 	}
 
 	const surface_handle_t upload_surface(voidptr i_vertices, voidptr i_indices, s32 i_stride, const u32 i_vcount, const u32 i_icount)

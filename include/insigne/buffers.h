@@ -87,7 +87,7 @@ namespace insigne {
 			};
 			// blending
 			struct {
-				compare_func_e					blend_equation;
+				blend_equation_e				blend_equation;
 				factor_e						blend_func_sfactor;
 				factor_e						blend_func_dfactor;
 				bool							to_value;
@@ -146,7 +146,11 @@ namespace insigne {
 			// texture
 			struct {
 				voidptr							data;
+				texture_handle_t				texture_idx;
 				texture_format_e				format;
+				texture_internal_format_e		internal_format;
+				data_type_e						pixel_data_type;
+				s32								width, height;
 			};
 
 			// geom
@@ -156,7 +160,7 @@ namespace insigne {
 				s32								stride;
 				u32								vcount;
 				u32								icount;
-				u32								surface_idx;
+				surface_handle_t				surface_idx;
 				bool							has_indices;
 			};
 
@@ -164,7 +168,7 @@ namespace insigne {
 			struct {
 				const_cstr						vertex_str;
 				const_cstr						fragment_str;
-				u32								shader_idx;
+				shader_handle_t					shader_idx;
 			};
 		};
 	};

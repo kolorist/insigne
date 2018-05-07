@@ -1,5 +1,7 @@
 #pragma once
 
+#include <floral.h>
+
 namespace insigne {
 
 	enum class render_state_togglemask_e {
@@ -69,6 +71,27 @@ namespace insigne {
 		oper_invert
 	};
 
+	enum class data_type_e {
+		elem_unsigned_byte = 0,
+		elem_signed_byte,
+		elem_unsigned_int,
+		elem_signed_int,
+		elem_signed_float,
+		elem_unsigned_int_24_8
+	};
+
+	enum class material_data_type_e {
+		param_int = 0,
+		param_float,
+		param_sampler2d,
+		param_samepler_cube,
+		param_vec2,
+		param_vec3,
+		param_vec4,
+		param_mat3,
+		param_mat4
+	};
+
 	struct render_state_t {
 		u32										toggles;
 
@@ -76,7 +99,7 @@ namespace insigne {
 
 		front_face_e							front_face;
 
-		compare_func_e							blend_equation;
+		blend_equation_e						blend_equation;
 		factor_e								blend_func_sfactor;
 		factor_e								blend_func_dfactor;
 
@@ -93,6 +116,13 @@ namespace insigne {
 		s32										scissor_height;
 	};
 
+	struct material_param_t {
+		c8										name;
+		material_data_type_e					data_type;
+	};
+
+	typedef floral::inplace_array<material_param_t, 64u>	material_param_list_t;
+
 	enum class texture_format_e {
 		rgb = 0,
 		hdr_rgb,
@@ -107,16 +137,28 @@ namespace insigne {
 		rg16f = 0,
 		rgb16f,
 		rgba16f,
+		rgb8,
 		rgba8,
 		srgb8,
 		srgb8_alpha8,
 		depth16,
 		depth24,
-		depth24stencil8
+		depth24_stencil8
 	};
 
-	typedef u32									shader_handle_t;
-	typedef u32									texture_handle_t;
-	typedef u32									surface_handle_t;
+	enum class filtering_e {
+		nearest,
+		linear,
+		nearest_mipmap_nearest,
+		linear_mipmap_nearest,
+		nearest_mipmap_linear,
+		linear_mipmap_linear
+	};
+
+	typedef s32									shader_handle_t;
+	typedef s32									texture_handle_t;
+	typedef s32									surface_handle_t;
+	typedef s32									material_handle_t;
+	typedef s32									param_id;
 
 }

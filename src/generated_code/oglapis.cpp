@@ -91,9 +91,13 @@ glGetShaderInfoLog_t glGetShaderInfoLog;
 
 glGetShaderiv_t glGetShaderiv;
 
+glGetString_t glGetString;
+
 glGetUniformLocation_t glGetUniformLocation;
 
 glLinkProgram_t glLinkProgram;
+
+glPixelStorei_t glPixelStorei;
 
 glRenderbufferStorage_t glRenderbufferStorage;
 
@@ -102,6 +106,10 @@ glRenderbufferStorageMultisample_t glRenderbufferStorageMultisample;
 glScissor_t glScissor;
 
 glShaderSource_t glShaderSource;
+
+glStencilFunc_t glStencilFunc;
+
+glStencilOp_t glStencilOp;
 
 glTexImage2D_t glTexImage2D;
 
@@ -120,7 +128,5 @@ glUseProgram_t glUseProgram;
 glVertexAttribPointer_t glVertexAttribPointer;
 
 glViewport_t glViewport;
-
-glGetString_t glGetString;
 
 }

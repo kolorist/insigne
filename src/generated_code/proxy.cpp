@@ -293,6 +293,13 @@ void pxGetShaderiv(GLuint shader, GLenum pname, GLint* params)
 	assert_driver_no_error();
 }
 
+const GLubyte* pxGetString(GLenum name)
+{
+	const GLubyte* ret = glGetString(name);
+	assert_driver_no_error();
+	return ret;
+}
+
 GLint pxGetUniformLocation(GLuint program, const GLchar* name)
 {
 	GLint ret = glGetUniformLocation(program, name);
@@ -303,6 +310,12 @@ GLint pxGetUniformLocation(GLuint program, const GLchar* name)
 void pxLinkProgram(GLuint program)
 {
 	glLinkProgram(program);
+	assert_driver_no_error();
+}
+
+void pxPixelStorei(GLenum pname, GLint param)
+{
+	glPixelStorei(pname, param);
 	assert_driver_no_error();
 }
 
@@ -327,6 +340,18 @@ void pxScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 void pxShaderSource(GLuint shader, GLsizei count, const GLchar** string, const GLint* length)
 {
 	glShaderSource(shader, count, string, length);
+	assert_driver_no_error();
+}
+
+void pxStencilFunc(GLenum func, GLint ref, GLuint mask)
+{
+	glStencilFunc(func, ref, mask);
+	assert_driver_no_error();
+}
+
+void pxStencilOp(GLenum sfail, GLenum dpfail, GLenum dppass)
+{
+	glStencilOp(sfail, dpfail, dppass);
 	assert_driver_no_error();
 }
 
@@ -382,13 +407,6 @@ void pxViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	glViewport(x, y, width, height);
 	assert_driver_no_error();
-}
-
-const GLubyte* pxGetString(GLenum name)
-{
-	const GLubyte* ret = glGetString(name);
-	assert_driver_no_error();
-	return ret;
 }
 
 }

@@ -88,9 +88,13 @@ API_HELPER(void, GetShaderInfoLog);
 
 API_HELPER(void, GetShaderiv);
 
+API_HELPER(const GLubyte*, GetString);
+
 API_HELPER(GLint, GetUniformLocation);
 
 API_HELPER(void, LinkProgram);
+
+API_HELPER(void, PixelStorei);
 
 API_HELPER(void, RenderbufferStorage);
 
@@ -99,6 +103,10 @@ API_HELPER(void, RenderbufferStorageMultisample);
 API_HELPER(void, Scissor);
 
 API_HELPER(void, ShaderSource);
+
+API_HELPER(void, StencilFunc);
+
+API_HELPER(void, StencilOp);
 
 API_HELPER(void, TexImage2D);
 
@@ -117,6 +125,4 @@ API_HELPER(void, UseProgram);
 API_HELPER(void, VertexAttribPointer);
 
 API_HELPER(void, Viewport);
-
-API_HELPER(const GLubyte*, GetString);
 

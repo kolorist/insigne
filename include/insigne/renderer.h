@@ -28,6 +28,14 @@ namespace renderer {
 	// -----------------------------------------
 	void										clear_color(const floral::vec4f& i_color);
 	void										clear_framebuffer(const bool i_clearcolor, const bool i_cleardepth);
+
+	texture_handle_t							create_texture();
+	void										upload_texture2d(const texture_handle_t& i_hdl, const s32 i_width,
+													const s32 i_height, const texture_format_e i_format,
+													const texture_internal_format_e i_internalFormat,
+													const data_type_e i_dataType, voidptr i_data,
+													const filtering_e i_minFil = filtering_e::nearest,
+													const filtering_e i_magFil = filtering_e::nearest);
 	
 	shader_handle_t								create_shader();
 	void										compile_shader(shader_handle_t& i_hdl, const_cstr i_vertstr, const_cstr i_fragstr);
