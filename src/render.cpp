@@ -1,6 +1,7 @@
 #include "insigne/render.h"
 
 #include <floral.h>
+#include <clover.h>
 
 #include "insigne/commons.h"
 #include "insigne/context.h"
@@ -131,6 +132,8 @@ namespace insigne {
 								case stream_type::texture:
 									{
 										// TODO: add
+										renderer::upload_texture2d(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
+												cmd.internal_format, cmd.pixel_data_type, cmd.data);
 										break;
 									}
 								
@@ -143,6 +146,12 @@ namespace insigne {
 								case stream_type::shader:
 									{
 										renderer::compile_shader(cmd.shader_idx, cmd.vertex_str, cmd.fragment_str);
+										break;
+									}
+
+								case stream_type::material:
+									{
+										renderer::compile_material(cmd.material_idx, cmd.from_shader, *cmd.param_list);
 										break;
 									}
 								
@@ -178,6 +187,10 @@ namespace insigne {
 	// -----------------------------------------
 	void initialize_render_thread()
 	{
+		FLORAL_ASSERT_MSG(sizeof(init_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
+		FLORAL_ASSERT_MSG(sizeof(render_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
+		FLORAL_ASSERT_MSG(sizeof(stream_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
+		FLORAL_ASSERT_MSG(sizeof(render_state_toggle_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		for (size i = 0; i < MAX_GPU_COMMAND_BUFFERS; i++)
 			s_gpu_command_buffer[i].init(GPU_COMMAND_BUFFER_SIZE, &g_persistance_allocator);
 		s_front_cmdbuff = 0;
@@ -420,6 +433,23 @@ namespace insigne {
 
 		push_command(cmd);
 		return cmd.shader_idx;
+	}
+
+	material_param_list_t* allocate_material_param_list(const u32 i_paramCount)
+	{
+		return g_stream_allocator.allocate<material_param_list_t>(i_paramCount, &g_stream_allocator);
+	}
+
+	const material_handle_t create_material(const shader_handle_t i_fromShader, material_param_list_t* i_paramList)
+	{
+		stream_command cmd;
+		cmd.data_type = stream_type::material;
+		cmd.from_shader = i_fromShader;
+		cmd.param_list = i_paramList;			// trigger copy constructor for deep copy
+		cmd.material_idx = renderer::create_material();
+
+		push_command(cmd);
+		return cmd.material_idx;
 	}
 
 	// state dependant

@@ -30,7 +30,8 @@ namespace insigne {
 	void										update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount);
 
 	const shader_handle_t						compile_shader(const_cstr i_vertstr, const_cstr i_fragstr);
-	const material_handle_t						create_material(const shader_handle_t i_fromShader, const material_param_list_t& i_paramList);
+	material_param_list_t*						allocate_material_param_list(const u32 i_paramCount);
+	const material_handle_t						create_material(const shader_handle_t i_fromShader, material_param_list_t* i_paramList);
 	template <class t_param_type>
 	const param_id								get_material_param(const material_handle_t i_hdl, const_cstr i_name);
 	template <class t_param_type>

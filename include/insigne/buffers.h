@@ -9,7 +9,7 @@
 
 namespace insigne {
 
-#define COMMAND_PAYLOAD_SIZE					128
+#define COMMAND_PAYLOAD_SIZE					64
 #define GPU_COMMAND_BUFFER_SIZE					1024u
 
 	enum class command {
@@ -137,7 +137,8 @@ namespace insigne {
 		invalid = 0,
 		texture,
 		geometry,
-		shader
+		shader,
+		material
 	};
 
 	struct stream_command {
@@ -170,7 +171,17 @@ namespace insigne {
 				const_cstr						fragment_str;
 				shader_handle_t					shader_idx;
 			};
+
+			// material
+			struct {
+				material_param_list_t*			param_list;
+				material_handle_t				material_idx;
+				shader_handle_t					from_shader;
+			};
 		};
+
+		stream_command() {}
+		~stream_command() {}
 	};
 
 }

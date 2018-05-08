@@ -2,6 +2,8 @@
 
 #include <floral.h>
 
+#include "memory.h"
+
 namespace insigne {
 
 	enum class render_state_togglemask_e {
@@ -84,7 +86,7 @@ namespace insigne {
 		param_int = 0,
 		param_float,
 		param_sampler2d,
-		param_samepler_cube,
+		param_sampler_cube,
 		param_vec2,
 		param_vec3,
 		param_vec4,
@@ -117,11 +119,20 @@ namespace insigne {
 	};
 
 	struct material_param_t {
-		c8										name;
+		c8										name[128];
 		material_data_type_e					data_type;
+
+		material_param_t()
+		{ }
+
+		material_param_t(const_cstr i_name, material_data_type_e i_dataType)
+		{
+			strcpy(name, i_name);
+			data_type = i_dataType;
+		}
 	};
 
-	typedef floral::inplace_array<material_param_t, 64u>	material_param_list_t;
+	typedef floral::fixed_array<material_param_t, freelist_allocator_t>	material_param_list_t;
 
 	enum class texture_format_e {
 		rgb = 0,
