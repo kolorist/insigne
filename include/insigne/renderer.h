@@ -4,6 +4,7 @@
 
 #include "memory.h"
 #include "commons.h"
+#include "internal_commons.h"
 
 namespace insigne {
 namespace renderer {
@@ -37,8 +38,11 @@ namespace renderer {
 													const filtering_e i_minFil = filtering_e::nearest,
 													const filtering_e i_magFil = filtering_e::nearest);
 	
-	shader_handle_t								create_shader();
+	shader_handle_t								create_shader(const shader_param_list_t* i_paramList);
 	void										compile_shader(shader_handle_t& i_hdl, const_cstr i_vertstr, const_cstr i_fragstr);
+	void										compile_shader(const shader_handle_t& i_hdl, const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList);
+	const material_template_t&					get_material_template(const shader_handle_t& i_shaderHdl);
+
 	/*
 	material_handle_t							create_material();
 	void										compile_material(const material_handle_t& i_matHdl, const shader_handle_t& i_shaderHdl, material_param_list_t& i_paramList);

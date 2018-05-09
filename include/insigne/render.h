@@ -29,21 +29,10 @@ namespace insigne {
 	const surface_handle_t						upload_surface(voidptr i_vertices, voidptr i_indices, s32 i_stride, const u32 i_vcount, const u32 i_icount);
 	void										update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount);
 
-	const shader_handle_t						compile_shader(const_cstr i_vertstr, const_cstr i_fragstr);
 	shader_param_list_t*						allocate_shader_param_list(const u32 i_paramCount);
 	const shader_handle_t						compile_shader(const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList);
 
-	/*
-	 * Before creating material, we must create a parameter list so that insigne know how to pullout uniforms from shader
-	 */
-	material_param_list_t*						allocate_material_param_list(const u32 i_paramCount);
-
-	/*
-	 * Using parameter list, we will create a binding table (with place-holder uniform handles) so that user can set
-	 * shader paremeters right after calling create_material()
-	 */
-	const material_handle_t						create_material(const shader_handle_t i_fromShader, material_param_list_t* i_paramList);
-
+	const material_handle_t						create_material(const shader_handle_t i_fromShader);
 	template <class t_param_type>
 	const param_id								get_material_param(const material_handle_t i_hdl, const_cstr i_name);
 	template <class t_param_type>

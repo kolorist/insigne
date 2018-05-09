@@ -4,6 +4,7 @@
 #include <clover.h>
 
 #include "insigne/commons.h"
+#include "insigne/internal_commons.h"
 #include "insigne/context.h"
 #include "insigne/driver.h"
 #include "insigne/buffers.h"
@@ -55,9 +56,17 @@ namespace insigne {
 		t_value									value;
 	};
 
+	template <typename t_value, u32 t_capacity>
+	using param_array_t = floral::inplace_array<id_value_pair_t<t_value>, t_capacity>;
+
 	struct material_t {
-		
+		shader_handle_t							shader_handle;
+		param_array_t<f32, 8u>					float_params;
+		param_array_t<texture_handle_t, 4u>		texture2d_params;
 	};
+
+	// TODO: this should be a memory pool of materials
+	static floral::fixed_array<material_t, linear_allocator_t>	s_materials;
 
 	// -----------------------------------------
 
@@ -166,7 +175,7 @@ namespace insigne {
 
 								case stream_type::shader:
 									{
-										renderer::compile_shader(cmd.shader_idx, cmd.vertex_str, cmd.fragment_str);
+										renderer::compile_shader(cmd.shader_idx, cmd.vertex_str, cmd.fragment_str, cmd.shader_param_list);
 										break;
 									}
 
@@ -212,11 +221,14 @@ namespace insigne {
 		FLORAL_ASSERT_MSG(sizeof(render_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		FLORAL_ASSERT_MSG(sizeof(stream_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		FLORAL_ASSERT_MSG(sizeof(render_state_toggle_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
+
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
 			s_gpu_command_buffer[i].init(GPU_COMMAND_BUFFER_SIZE, &g_persistance_allocator);
 
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
 			s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(8));
+
+		s_materials.init(32, &g_persistance_allocator);
 
 		s_front_cmdbuff = 0;
 		s_back_cmdbuff = 2;
@@ -452,18 +464,6 @@ namespace insigne {
 		return cmd.surface_idx;
 	}
 
-	const shader_handle_t compile_shader(const_cstr i_vertstr, const_cstr i_fragstr)
-	{
-		stream_command cmd;
-		cmd.data_type = stream_type::shader;
-		cmd.vertex_str = i_vertstr;
-		cmd.fragment_str = i_fragstr;
-		cmd.shader_idx = renderer::create_shader();
-
-		push_command(cmd);
-		return cmd.shader_idx;
-	}
-
 	shader_param_list_t* allocate_shader_param_list(const u32 i_paramCount)
 	{
 		return s_composing_allocator.allocate<shader_param_list_t>(i_paramCount, &s_composing_allocator);
@@ -475,28 +475,37 @@ namespace insigne {
 		cmd.data_type = stream_type::shader;
 		cmd.vertex_str = i_vertStr;
 		cmd.fragment_str = i_fragStr;
-		cmd.shader_idx = renderer::create_shader();
+		cmd.shader_idx = renderer::create_shader(i_paramList);
 		cmd.shader_param_list = i_paramList;
 
 		push_command(cmd);
 		return cmd.shader_idx;
 	}
 
-	material_param_list_t* allocate_material_param_list(const u32 i_paramCount)
+	const material_handle_t create_material(const shader_handle_t i_fromShader)
 	{
-		return g_stream_allocator.allocate<material_param_list_t>(i_paramCount, &g_stream_allocator);
-	}
+		material_t newMaterial;
+		newMaterial.shader_handle = i_fromShader;
+		const renderer::material_template_t& matTemplate = renderer::get_material_template(i_fromShader);
 
-	const material_handle_t create_material(const shader_handle_t i_fromShader, material_param_list_t* i_paramList)
-	{
-		stream_command cmd;
-		cmd.data_type = stream_type::material;
-		cmd.from_shader = i_fromShader;
-		cmd.param_list = i_paramList;			// trigger copy constructor for deep copy
-		//cmd.material_idx = renderer::create_material();
+		// create material from template
+		for (u32 i = 0; i < matTemplate.float_param_ids.get_size(); i++) {
+			id_value_pair_t<f32> newParam;
+			newParam.id = matTemplate.float_param_ids[i];
+			newParam.value = 0.0f;
+			newMaterial.float_params.push_back(newParam);
+		}
 
-		push_command(cmd);
-		return cmd.material_idx;
+		for (u32 i = 0; i < matTemplate.texture2d_param_ids.get_size(); i++) {
+			id_value_pair_t<texture_handle_t> newParam;
+			newParam.id = matTemplate.texture2d_param_ids[i];
+			newParam.value = 0;
+			newMaterial.texture2d_params.push_back(newParam);
+		}
+
+		material_handle_t newMatHdl = static_cast<material_handle_t>(s_materials.get_size());
+		s_materials.push_back(newMaterial);
+		return newMatHdl;
 	}
 
 	// state dependant

@@ -23,15 +23,17 @@ namespace renderer {
 	struct shader {
 		GLuint									gpu_handle;
 
-		floral::inplace_array<param_t, 8u>		int_params;
-		floral::inplace_array<param_t, 8u>		float_params;
-		floral::inplace_array<param_t, 8u>		texture_params;
+		//floral::inplace_array<param_t, 8u>		int_params;
+		floral::inplace_array<GLuint, 8u>		float_params;
+		floral::inplace_array<GLuint, 4u>		texture2d_params;
+		/*
 		floral::inplace_array<param_t, 4u>		texture_cube_params;
 		floral::inplace_array<param_t, 8u>		vec2_params;
 		floral::inplace_array<param_t, 8u>		vec3_params;
 		floral::inplace_array<param_t, 8u>		vec4_params;
 		floral::inplace_array<param_t, 4u>		mat3_params;
 		floral::inplace_array<param_t, 4u>		mat4_params;
+		*/
 	};
 
 	struct surface {
@@ -50,11 +52,13 @@ namespace renderer {
 		GLenum									internal_format;
 	};
 
-	typedef floral::fixed_array<shader, linear_allocator_t>		shader_array_t;
-	typedef floral::fixed_array<texture, linear_allocator_t>	texture_array_t;
-	typedef floral::fixed_array<surface, linear_allocator_t>	surface_array_t;
+	typedef floral::fixed_array<shader, linear_allocator_t>					shader_array_t;
+	typedef floral::fixed_array<material_template_t, linear_allocator_t>	material_template_array_t;
+	typedef floral::fixed_array<texture, linear_allocator_t>				texture_array_t;
+	typedef floral::fixed_array<surface, linear_allocator_t>				surface_array_t;
 
 	static shader_array_t						s_shaders;
+	static material_template_array_t			s_material_templates;
 	static texture_array_t						s_textures;
 	static surface_array_t						s_surfaces;
 
@@ -161,6 +165,7 @@ namespace renderer {
 	void initialize_renderer()
 	{
 		s_shaders.init(64u, &g_persistance_allocator);
+		s_material_templates.init(64u, &g_persistance_allocator);
 		s_textures.init(64u, &g_persistance_allocator);
 		s_surfaces.init(256u, &g_persistance_allocator);
 	}
@@ -302,10 +307,33 @@ namespace renderer {
 		thisTexture.internal_format = s_internal_formats[static_cast<s32>(i_internalFormat)];
 	}
 
-	shader_handle_t create_shader()
+	shader_handle_t create_shader(const shader_param_list_t* i_paramList)
 	{
 		u32 idx = s_shaders.get_size();
 		s_shaders.push_back(shader());
+		material_template_t newTemplate;
+
+		// create new material template first
+		for (u32 i = 0; i < i_paramList->get_size(); i++) {
+			const shader_param_t& thisParam = (*i_paramList)[i];
+			floral::crc_string id(thisParam.name);
+			switch (thisParam.data_type) {
+				case param_data_type_e::param_float:
+					{
+						newTemplate.float_param_ids.push_back(id);
+						break;
+					}
+				case param_data_type_e::param_sampler2d:
+					{
+						newTemplate.texture2d_param_ids.push_back(id);
+						break;
+					}
+				default:
+					break;
+			}
+		}
+		s_material_templates.push_back(newTemplate);
+
 		return static_cast<shader_handle_t>(idx);
 	}
 
@@ -369,67 +397,90 @@ namespace renderer {
 		s_shaders[i_hdl].gpu_handle = newShader;
 	}
 
-	/*
-	void compile_material(const material_handle_t& i_matHdl, const shader_handle_t& i_shaderHdl, material_param_list_t& i_paramList)
+	void compile_shader(const shader_handle_t& i_hdl, const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList)
 	{
-		material& thisMat = s_materials[static_cast<s32>(i_matHdl)];
-		GLuint thisShader = s_shaders[static_cast<s32>(i_shaderHdl)].gpu_handle;
+		shader& thisShader = s_shaders[i_hdl];
+		
+		GLuint newShader = 0;
+		GLuint fs = 0, vs = 0;
+		newShader = pxCreateProgram();
+		fs = pxCreateShader(GL_FRAGMENT_SHADER);
+		vs = pxCreateShader(GL_VERTEX_SHADER);
 
-		for (u32 i = 0; i < i_paramList.get_size(); i++) {
-			material_param_t& thisParam = i_paramList[i];
-			GLuint idx = pxGetUniformLocation(thisShader, thisParam.name);
+		// compile vertex shader
+		{
+			GLint result = GL_FALSE;
+			s32 infoLength;
+			pxShaderSource(vs, 1, (const GLchar**)&i_vertStr, nullptr);
+			pxCompileShader(vs);
+			pxGetShaderiv(vs, GL_COMPILE_STATUS, &result);
+			if (!result) {
+				pxGetShaderiv(vs, GL_INFO_LOG_LENGTH, &infoLength);
+				cstr shaderErrorMsg = g_arena_allocator.allocate_array<c8>(infoLength);
+				pxGetShaderInfoLog(vs, infoLength + 1, NULL, shaderErrorMsg);
+				CLOVER_ERROR("Vertex Shader error:\n%s", shaderErrorMsg);
+				pxDeleteShader(vs);
+				pxDeleteShader(fs);
+				return;
+			}
+		}
+
+		// compile fragment shader
+		{
+			GLint result = GL_FALSE;
+			int infoLength;
+			pxShaderSource(fs, 1, (const GLchar**)&i_fragStr, nullptr);
+			pxCompileShader(fs);
+			pxGetShaderiv(fs, GL_COMPILE_STATUS, &result);
+			if (!result) {
+				pxGetShaderiv(fs, GL_INFO_LOG_LENGTH, &infoLength);
+				cstr shaderErrorMsg = g_arena_allocator.allocate_array<c8>(infoLength);
+				pxGetShaderInfoLog(fs, infoLength + 1, NULL, shaderErrorMsg);
+				CLOVER_ERROR("Fragment Shader error:\n%s", shaderErrorMsg);
+				pxDeleteShader(vs);
+				pxDeleteShader(fs);
+				return;
+			}
+		}
+
+		g_arena_allocator.free_all();
+
+		// link them all!
+		pxAttachShader(newShader, vs);
+		pxAttachShader(newShader, fs);
+		pxLinkProgram(newShader);
+
+		// release temp shaders
+		pxDeleteShader(vs);
+		pxDeleteShader(fs);
+
+		// create symbol binding tables
+		for (u32 i = 0; i < i_paramList->get_size(); i++) {
+			const shader_param_t& thisParam = (*i_paramList)[i];
+			GLuint id = pxGetUniformLocation(newShader, thisParam.name);
 			switch (thisParam.data_type) {
-				case material_data_type_e::param_int:
+				case param_data_type_e::param_float:
 					{
-						thisMat.int_params.push_back(param_t(thisParam.name, idx));
+						thisShader.float_params.push_back(id);
 						break;
 					}
-				case material_data_type_e::param_float:
+				case param_data_type_e::param_sampler2d:
 					{
-						thisMat.float_params.push_back(param_t(thisParam.name, idx));
-						break;
-					}
-				case material_data_type_e::param_sampler2d:
-					{
-						thisMat.texture_params.push_back(param_t(thisParam.name, idx));
-						break;
-					}
-				case material_data_type_e::param_sampler_cube:
-					{
-						thisMat.texture_cube_params.push_back(param_t(thisParam.name, idx));
-						break;
-					}
-				case material_data_type_e::param_vec2:
-					{
-						thisMat.vec2_params.push_back(param_t(thisParam.name, idx));
-						break;
-					}
-				case material_data_type_e::param_vec3:
-					{
-						thisMat.vec3_params.push_back(param_t(thisParam.name, idx));
-						break;
-					}
-				case material_data_type_e::param_vec4:
-					{
-						thisMat.vec4_params.push_back(param_t(thisParam.name, idx));
-						break;
-					}
-				case material_data_type_e::param_mat3:
-					{
-						thisMat.mat3_params.push_back(param_t(thisParam.name, idx));
-						break;
-					}
-				case material_data_type_e::param_mat4:
-					{
-						thisMat.mat4_params.push_back(param_t(thisParam.name, idx));
+						thisShader.texture2d_params.push_back(id);
 						break;
 					}
 				default:
 					break;
 			}
 		}
+
+		s_shaders[i_hdl].gpu_handle = newShader;
 	}
-	*/
+
+	const material_template_t& get_material_template(const shader_handle_t& i_shaderHdl)
+	{
+		return s_material_templates[static_cast<s32>(i_shaderHdl)];
+	}
 
 	surface_handle_t create_surface()
 	{

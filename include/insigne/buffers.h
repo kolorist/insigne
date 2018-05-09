@@ -174,6 +174,7 @@ namespace insigne {
 			};
 
 			// material
+			// TODO: remove
 			struct {
 				material_param_list_t*			param_list;
 				material_handle_t				material_idx;
