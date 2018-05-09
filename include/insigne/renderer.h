@@ -39,8 +39,10 @@ namespace renderer {
 	
 	shader_handle_t								create_shader();
 	void										compile_shader(shader_handle_t& i_hdl, const_cstr i_vertstr, const_cstr i_fragstr);
+	/*
 	material_handle_t							create_material();
 	void										compile_material(const material_handle_t& i_matHdl, const shader_handle_t& i_shaderHdl, material_param_list_t& i_paramList);
+	*/
 
 	surface_handle_t							create_surface();
 	void										upload_surface(surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount, s32 i_stride, const draw_type_e i_drawType = draw_type_e::static_surface);

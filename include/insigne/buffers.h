@@ -169,6 +169,7 @@ namespace insigne {
 			struct {
 				const_cstr						vertex_str;
 				const_cstr						fragment_str;
+				const shader_param_list_t*		shader_param_list;
 				shader_handle_t					shader_idx;
 			};
 

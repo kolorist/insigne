@@ -30,12 +30,31 @@ namespace insigne {
 	void										update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount);
 
 	const shader_handle_t						compile_shader(const_cstr i_vertstr, const_cstr i_fragstr);
+	shader_param_list_t*						allocate_shader_param_list(const u32 i_paramCount);
+	const shader_handle_t						compile_shader(const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList);
+
+	/*
+	 * Before creating material, we must create a parameter list so that insigne know how to pullout uniforms from shader
+	 */
 	material_param_list_t*						allocate_material_param_list(const u32 i_paramCount);
+
+	/*
+	 * Using parameter list, we will create a binding table (with place-holder uniform handles) so that user can set
+	 * shader paremeters right after calling create_material()
+	 */
 	const material_handle_t						create_material(const shader_handle_t i_fromShader, material_param_list_t* i_paramList);
+
 	template <class t_param_type>
 	const param_id								get_material_param(const material_handle_t i_hdl, const_cstr i_name);
 	template <class t_param_type>
 	void										set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const t_param_type& i_value);
 
+	/*
+	 * 3 cases:
+	 * 	- the material is identical with previous draw call: just draw the geometry
+	 * 	- the material is different with previous draw call: re-bind it
+	 * 	- the material parameters are different with previous draw call: update them
+	 */
+	void										draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);
 	void										draw_surface(const surface_handle_t i_surfaceHdl, const shader_handle_t i_shaderHdl);
 }

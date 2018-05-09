@@ -9,8 +9,29 @@
 namespace insigne {
 namespace renderer {
 
+	struct param_t {
+		floral::crc_string						name;
+		GLuint									id;
+
+		param_t() { }
+		param_t(const_cstr i_name, const GLuint i_id)
+			: name(i_name)
+			, id(i_id)
+		{ }
+	};
+
 	struct shader {
 		GLuint									gpu_handle;
+
+		floral::inplace_array<param_t, 8u>		int_params;
+		floral::inplace_array<param_t, 8u>		float_params;
+		floral::inplace_array<param_t, 8u>		texture_params;
+		floral::inplace_array<param_t, 4u>		texture_cube_params;
+		floral::inplace_array<param_t, 8u>		vec2_params;
+		floral::inplace_array<param_t, 8u>		vec3_params;
+		floral::inplace_array<param_t, 8u>		vec4_params;
+		floral::inplace_array<param_t, 4u>		mat3_params;
+		floral::inplace_array<param_t, 4u>		mat4_params;
 	};
 
 	struct surface {
@@ -29,40 +50,13 @@ namespace renderer {
 		GLenum									internal_format;
 	};
 
-	struct param_t {
-		floral::crc_string						name;
-		GLuint									id;
-
-		param_t() { }
-		param_t(const_cstr i_name, const GLuint i_id)
-			: name(i_name)
-			, id(i_id)
-		{ }
-	};
-
-	struct material {
-		s32										shader_idx;
-
-		floral::inplace_array<param_t, 8u>		int_params;
-		floral::inplace_array<param_t, 8u>		float_params;
-		floral::inplace_array<param_t, 8u>		texture_params;
-		floral::inplace_array<param_t, 4u>		texture_cube_params;
-		floral::inplace_array<param_t, 8u>		vec2_params;
-		floral::inplace_array<param_t, 8u>		vec3_params;
-		floral::inplace_array<param_t, 8u>		vec4_params;
-		floral::inplace_array<param_t, 4u>		mat3_params;
-		floral::inplace_array<param_t, 4u>		mat4_params;
-	};
-
 	typedef floral::fixed_array<shader, linear_allocator_t>		shader_array_t;
 	typedef floral::fixed_array<texture, linear_allocator_t>	texture_array_t;
 	typedef floral::fixed_array<surface, linear_allocator_t>	surface_array_t;
-	typedef floral::fixed_array<material, linear_allocator_t>	material_array_t;
 
 	static shader_array_t						s_shaders;
 	static texture_array_t						s_textures;
 	static surface_array_t						s_surfaces;
-	static material_array_t						s_materials;
 
 	// -----------------------------------------
 	static GLenum s_draw_types[] = {
@@ -169,7 +163,6 @@ namespace renderer {
 		s_shaders.init(64u, &g_persistance_allocator);
 		s_textures.init(64u, &g_persistance_allocator);
 		s_surfaces.init(256u, &g_persistance_allocator);
-		s_materials.init(128u, &g_persistance_allocator);
 	}
 
 	// -----------------------------------------
@@ -376,13 +369,7 @@ namespace renderer {
 		s_shaders[i_hdl].gpu_handle = newShader;
 	}
 
-	material_handle_t create_material()
-	{
-		u32 idx = s_materials.get_size();
-		s_materials.push_back(material());
-		return static_cast<material_handle_t>(idx);
-	}
-
+	/*
 	void compile_material(const material_handle_t& i_matHdl, const shader_handle_t& i_shaderHdl, material_param_list_t& i_paramList)
 	{
 		material& thisMat = s_materials[static_cast<s32>(i_matHdl)];
@@ -442,6 +429,7 @@ namespace renderer {
 			}
 		}
 	}
+	*/
 
 	surface_handle_t create_surface()
 	{

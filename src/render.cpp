@@ -13,12 +13,19 @@
 
 namespace insigne {
 
-#define MAX_GPU_COMMAND_BUFFERS					3
+#define BUFFERED_FRAMES							3
 
 	// -----------------------------------------
 	typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
 
-	static gpu_command_buffer_t					s_gpu_command_buffer[MAX_GPU_COMMAND_BUFFERS];
+	static gpu_command_buffer_t					s_gpu_command_buffer[BUFFERED_FRAMES];
+	static arena_allocator_t*					s_gpu_frame_allocator[BUFFERED_FRAMES];
+
+#define s_composing_cmdbuff						s_gpu_command_buffer[s_back_cmdbuff]
+#define s_rendering_cmdbuff						s_gpu_command_buffer[s_front_cmdbuff]
+#define s_composing_allocator					(*s_gpu_frame_allocator[s_back_cmdbuff])
+#define s_rendering_allocator					(*s_gpu_frame_allocator[s_front_cmdbuff])
+	
 	static size									s_front_cmdbuff;
 	static size									s_back_cmdbuff;
 	// -----------------------------------------
@@ -28,6 +35,7 @@ namespace insigne {
 	static floral::mutex						s_cmdbuffer_mtx;
 
 	// -----------------------------------------
+	// render state
 	static render_state_t						s_render_state;
 	enum class render_state_changelog_e {
 		depth_test								= 1u << 0,
@@ -39,6 +47,19 @@ namespace insigne {
 	};
 
 	u32											s_render_state_changelog;
+
+	// materials are also render states
+	template <typename t_value>
+	struct id_value_pair_t {
+		floral::crc_string						id;
+		t_value									value;
+	};
+
+	struct material_t {
+		
+	};
+
+	// -----------------------------------------
 
 	void render_thread_func(voidptr i_data)
 	{
@@ -151,7 +172,7 @@ namespace insigne {
 
 								case stream_type::material:
 									{
-										renderer::compile_material(cmd.material_idx, cmd.from_shader, *cmd.param_list);
+										//renderer::compile_material(cmd.material_idx, cmd.from_shader, *cmd.param_list);
 										break;
 									}
 								
@@ -178,8 +199,8 @@ namespace insigne {
 				}
 			}
 
-			s_gpu_command_buffer[s_front_cmdbuff].empty();
-			s_front_cmdbuff = (s_front_cmdbuff + 1) % MAX_GPU_COMMAND_BUFFERS;
+			//s_gpu_command_buffer[s_front_cmdbuff].empty();
+			s_front_cmdbuff = (s_front_cmdbuff + 1) % BUFFERED_FRAMES;
 			swap_buffers();
 		}
 	}
@@ -191,8 +212,12 @@ namespace insigne {
 		FLORAL_ASSERT_MSG(sizeof(render_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		FLORAL_ASSERT_MSG(sizeof(stream_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		FLORAL_ASSERT_MSG(sizeof(render_state_toggle_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-		for (size i = 0; i < MAX_GPU_COMMAND_BUFFERS; i++)
+		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
 			s_gpu_command_buffer[i].init(GPU_COMMAND_BUFFER_SIZE, &g_persistance_allocator);
+
+		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
+			s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(8));
+
 		s_front_cmdbuff = 0;
 		s_back_cmdbuff = 2;
 		s_render_state_changelog = 0;
@@ -213,7 +238,8 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_init_state;
 		newCmd.deserialize(i_cmd);
-		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
+		//s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
+		s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void push_command(const render_command& i_cmd)
@@ -221,7 +247,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::draw_geom;
 		newCmd.deserialize(i_cmd);
-		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
+		s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void push_command(const stream_command& i_cmd)
@@ -229,7 +255,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::stream_data;
 		newCmd.deserialize(i_cmd);
-		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
+		s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void push_command(const render_state_toggle_command& i_cmd)
@@ -237,7 +263,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_render_state_toggle;
 		newCmd.deserialize(i_cmd);
-		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
+		s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	// -----------------------------------------
@@ -350,13 +376,16 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_framebuffer;
 		newCmd.deserialize(cmd);
-		s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
+		s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void end_frame()
 	{
-		while ((s_back_cmdbuff + 1) % MAX_GPU_COMMAND_BUFFERS == s_front_cmdbuff);
-		s_back_cmdbuff = (s_back_cmdbuff + 1) % MAX_GPU_COMMAND_BUFFERS;
+		while ((s_back_cmdbuff + 1) % BUFFERED_FRAMES == s_front_cmdbuff);
+
+		s_back_cmdbuff = (s_back_cmdbuff + 1) % BUFFERED_FRAMES;
+		s_composing_cmdbuff.empty();
+		s_composing_allocator.free_all();
 	}
 
 	void dispatch_frame()
@@ -435,6 +464,24 @@ namespace insigne {
 		return cmd.shader_idx;
 	}
 
+	shader_param_list_t* allocate_shader_param_list(const u32 i_paramCount)
+	{
+		return s_composing_allocator.allocate<shader_param_list_t>(i_paramCount, &s_composing_allocator);
+	}
+
+	const shader_handle_t compile_shader(const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList)
+	{
+		stream_command cmd;
+		cmd.data_type = stream_type::shader;
+		cmd.vertex_str = i_vertStr;
+		cmd.fragment_str = i_fragStr;
+		cmd.shader_idx = renderer::create_shader();
+		cmd.shader_param_list = i_paramList;
+
+		push_command(cmd);
+		return cmd.shader_idx;
+	}
+
 	material_param_list_t* allocate_material_param_list(const u32 i_paramCount)
 	{
 		return g_stream_allocator.allocate<material_param_list_t>(i_paramCount, &g_stream_allocator);
@@ -446,7 +493,7 @@ namespace insigne {
 		cmd.data_type = stream_type::material;
 		cmd.from_shader = i_fromShader;
 		cmd.param_list = i_paramList;			// trigger copy constructor for deep copy
-		cmd.material_idx = renderer::create_material();
+		//cmd.material_idx = renderer::create_material();
 
 		push_command(cmd);
 		return cmd.material_idx;

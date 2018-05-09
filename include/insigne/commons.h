@@ -94,6 +94,18 @@ namespace insigne {
 		param_mat4
 	};
 
+	enum class param_data_type_e {
+		param_int = 0,
+		param_float,
+		param_sampler2d,
+		param_sampler_cube,
+		param_vec2,
+		param_vec3,
+		param_vec4,
+		param_mat3,
+		param_mat4
+	};
+
 	struct render_state_t {
 		u32										toggles;
 
@@ -132,7 +144,22 @@ namespace insigne {
 		}
 	};
 
+	struct shader_param_t {
+		c8										name[128];
+		param_data_type_e						data_type;
+
+		shader_param_t()
+		{ }
+
+		shader_param_t(const_cstr i_name, param_data_type_e i_dataType)
+			: data_type(i_dataType)
+		{
+			strcpy(name, i_name);
+		}
+	};
+
 	typedef floral::fixed_array<material_param_t, freelist_allocator_t>	material_param_list_t;
+	typedef floral::fixed_array<shader_param_t, arena_allocator_t>	shader_param_list_t;
 
 	enum class texture_format_e {
 		rgb = 0,
