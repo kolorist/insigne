@@ -1,5 +1,6 @@
 #include "insigne/renderer.h"
 
+#include <floral.h>
 #include <clover.h>
 
 #include "memory.h"
@@ -25,6 +26,7 @@ namespace renderer {
 
 		//floral::inplace_array<param_t, 8u>		int_params;
 		floral::inplace_array<GLuint, 8u>		float_params;
+		floral::inplace_array<GLuint, 8u>		vec3_params;
 		floral::inplace_array<GLuint, 4u>		texture2d_params;
 		/*
 		floral::inplace_array<param_t, 4u>		texture_cube_params;
@@ -323,6 +325,11 @@ namespace renderer {
 						newTemplate.float_param_ids.push_back(id);
 						break;
 					}
+				case param_data_type_e::param_vec3:
+					{
+						newTemplate.vec3_param_ids.push_back(id);
+						break;
+					}
 				case param_data_type_e::param_sampler2d:
 					{
 						newTemplate.texture2d_param_ids.push_back(id);
@@ -464,6 +471,11 @@ namespace renderer {
 						thisShader.float_params.push_back(id);
 						break;
 					}
+				case param_data_type_e::param_vec3:
+					{
+						thisShader.vec3_params.push_back(id);
+						break;
+					}
 				case param_data_type_e::param_sampler2d:
 					{
 						thisShader.texture2d_params.push_back(id);
@@ -539,15 +551,31 @@ namespace renderer {
 		s_surfaces[i_hdl].icount = i_icount;
 	}
 
-	void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const shader_handle_t& i_shaderHdl)
+	void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_matSnapshot)
 	{
 		surface surf = s_surfaces[i_surfaceHdl];
-		shader shdr = s_shaders[i_shaderHdl];
+		shader& shdr = s_shaders[i_matSnapshot.shader_handle];
 
+		pxUseProgram(shdr.gpu_handle);
+		// setup material
+		for (u32 i = 0; i < i_matSnapshot.float_params.get_size(); i++)
+			pxUniform1f(shdr.float_params[i], i_matSnapshot.float_params[i].value);
+		for (u32 i = 0; i < i_matSnapshot.vec3_params.get_size(); i++)
+			pxUniform3fv(shdr.vec3_params[i], 1, &i_matSnapshot.vec3_params[i].value.x);
+		for (u32 i = 0; i < i_matSnapshot.texture2d_params.get_size(); i++) {
+			texture& tex = s_textures[static_cast<s32>(i_matSnapshot.texture2d_params[i].value)];
+			pxActiveTexture(GL_TEXTURE0 + i);
+			pxBindTexture(GL_TEXTURE_2D, tex.gpu_handle);
+			pxUniform1i(shdr.texture2d_params[i], i);
+		}
+
+		// draw
 		pxBindBuffer(GL_ARRAY_BUFFER, surf.vbo);
 		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surf.ibo);
 		pxEnableVertexAttribArray(0);
+		pxEnableVertexAttribArray(1);
 		pxVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, surf.stride, 0);
+		pxVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, surf.stride, (GLvoid*)12);
 		pxDrawElements(GL_TRIANGLES, surf.icount, GL_UNSIGNED_INT, 0);
 	}
 }

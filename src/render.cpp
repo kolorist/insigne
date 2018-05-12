@@ -47,26 +47,12 @@ namespace insigne {
 		stencil_test							= 1u << 6
 	};
 
-	u32											s_render_state_changelog;
+	static u32									s_render_state_changelog;
 
 	// materials are also render states
-	template <typename t_value>
-	struct id_value_pair_t {
-		floral::crc_string						id;
-		t_value									value;
-	};
-
-	template <typename t_value, u32 t_capacity>
-	using param_array_t = floral::inplace_array<id_value_pair_t<t_value>, t_capacity>;
-
-	struct material_t {
-		shader_handle_t							shader_handle;
-		param_array_t<f32, 8u>					float_params;
-		param_array_t<texture_handle_t, 4u>		texture2d_params;
-	};
-
 	// TODO: this should be a memory pool of materials
 	static floral::fixed_array<material_t, linear_allocator_t>	s_materials;
+	static material_handle_t					s_current_material;
 
 	// -----------------------------------------
 
@@ -88,7 +74,7 @@ namespace insigne {
 						{
 							render_command cmd;
 							gpuCmd.serialize(cmd);
-							renderer::draw_surface_idx(cmd.surface_handle, cmd.shader_handle);
+							renderer::draw_surface_idx(cmd.surface_handle, *cmd.material_snapshot);
 							break;
 						}
 
@@ -376,6 +362,7 @@ namespace insigne {
 
 		// after this, the render state will be clean
 		s_render_state_changelog = 0;
+
 	}
 	
 	// -----------------------------------------
@@ -496,6 +483,13 @@ namespace insigne {
 			newMaterial.float_params.push_back(newParam);
 		}
 
+		for (u32 i = 0; i < matTemplate.vec3_param_ids.get_size(); i++) {
+			id_value_pair_t<floral::vec3f> newParam;
+			newParam.id = matTemplate.float_param_ids[i];
+			newParam.value = floral::vec3f(0.0f);
+			newMaterial.vec3_params.push_back(newParam);
+		}
+
 		for (u32 i = 0; i < matTemplate.texture2d_param_ids.get_size(); i++) {
 			id_value_pair_t<texture_handle_t> newParam;
 			newParam.id = matTemplate.texture2d_param_ids[i];
@@ -508,13 +502,90 @@ namespace insigne {
 		return newMatHdl;
 	}
 
+	template <>
+	const param_id get_material_param<f32>(const material_handle_t i_hdl, const_cstr i_name)
+	{
+		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
+		floral::crc_string idToSearch(i_name);
+
+		for (u32 i = 0; i < thisMaterial.float_params.get_size(); i++) {
+			if (thisMaterial.float_params[i].id == idToSearch)
+				return i;
+		}
+
+		return param_id(-1);
+	}
+
+	template <>
+	const param_id get_material_param<floral::vec3f>(const material_handle_t i_hdl, const_cstr i_name)
+	{
+		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
+		floral::crc_string idToSearch(i_name);
+
+		for (u32 i = 0; i < thisMaterial.vec3_params.get_size(); i++) {
+			if (thisMaterial.vec3_params[i].id == idToSearch)
+				return i;
+		}
+
+		return param_id(-1);
+	}
+
+	template <>
+	const param_id get_material_param<texture_handle_t>(const material_handle_t i_hdl, const_cstr i_name)
+	{
+		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
+		floral::crc_string idToSearch(i_name);
+
+		for (u32 i = 0; i < thisMaterial.texture2d_params.get_size(); i++) {
+			if (thisMaterial.texture2d_params[i].id == idToSearch)
+				return i;
+		}
+
+		return param_id(-1);
+	}
+
+	template <>
+	void set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const f32& i_value)
+	{
+		s32 pidx = static_cast<s32>(i_paramId);
+		if (pidx < 0) return;
+
+		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
+		thisMaterial.float_params[pidx].value = i_value;
+	}
+
+	template <>
+	void set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const floral::vec3f& i_value)
+	{
+		s32 pidx = static_cast<s32>(i_paramId);
+		if (pidx < 0) return;
+
+		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
+		thisMaterial.vec3_params[pidx].value = i_value;
+	}
+
+	template <>
+	void set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const texture_handle_t& i_value)
+	{
+		s32 pidx = static_cast<s32>(i_paramId);
+		if (pidx < 0) return;
+
+		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
+		thisMaterial.texture2d_params[pidx].value = i_value;
+	}
+
 	// state dependant
-	void draw_surface(const surface_handle_t i_surfaceHdl, const shader_handle_t i_shaderHdl)
+	void draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl)
 	{
 		commit_render_state();
+
+		s_current_material = i_matHdl;
+		material_t* matSnapshot = s_composing_allocator.allocate<material_t>();
+		(*matSnapshot) = s_materials[static_cast<s32>(s_current_material)];
+
 		render_command cmd;
+		cmd.material_snapshot = matSnapshot;
 		cmd.surface_handle = i_surfaceHdl;
-		cmd.shader_handle = i_shaderHdl;
 
 		push_command(cmd);
 	}

@@ -6,6 +6,7 @@
 
 #include "buffers.h"
 #include "commons.h"
+#include "internal_commons.h"
 
 namespace insigne {
 
@@ -129,8 +130,8 @@ namespace insigne {
 	};
 
 	struct render_command {
+		material_t*								material_snapshot;
 		surface_handle_t						surface_handle;
-		shader_handle_t							shader_handle;
 	};
 
 	enum class stream_type {
@@ -173,13 +174,6 @@ namespace insigne {
 				shader_handle_t					shader_idx;
 			};
 
-			// material
-			// TODO: remove
-			struct {
-				material_param_list_t*			param_list;
-				material_handle_t				material_idx;
-				shader_handle_t					from_shader;
-			};
 		};
 
 		stream_command() {}

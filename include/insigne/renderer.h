@@ -51,7 +51,7 @@ namespace renderer {
 	surface_handle_t							create_surface();
 	void										upload_surface(surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount, s32 i_stride, const draw_type_e i_drawType = draw_type_e::static_surface);
 	void										update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount);
-	void										draw_surface_idx(const surface_handle_t& i_surfaceHdl, const shader_handle_t& i_shaderHdl);
+	void										draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_matSnapshot);
 
 }
 }
