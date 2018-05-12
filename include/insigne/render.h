@@ -26,8 +26,13 @@ namespace insigne {
 	voidptr										create_stream_texture2d(texture_format_e i_format);
 	void										update_stream_texture2d();
 
-	const surface_handle_t						upload_surface(voidptr i_vertices, voidptr i_indices, s32 i_stride, const u32 i_vcount, const u32 i_icount);
-	void										update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount);
+	const surface_handle_t						upload_surface(voidptr i_vertices, voidptr i_indices,
+													s32 i_stride, const u32 i_vcount, const u32 i_icount);
+	const surface_handle_t						upload_surface(voidptr i_vertices, voidptr i_indices,
+													s32 i_stride, const u32 i_vcount, const u32 i_icount, const draw_type_e i_drawType);
+	void										update_surface(const surface_handle_t& i_hdl,
+													voidptr i_vertices, voidptr i_indices,
+													const u32 i_vcount, const u32 i_icount);
 
 	shader_param_list_t*						allocate_shader_param_list(const u32 i_paramCount);
 	const shader_handle_t						compile_shader(const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList);

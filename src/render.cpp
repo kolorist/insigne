@@ -140,9 +140,9 @@ namespace insigne {
 							break;
 						}
 
-					case command::stream_data:
+					case command::load_data:
 						{
-							stream_command cmd;
+							load_command cmd;
 							gpuCmd.serialize(cmd);
 							switch (cmd.data_type) {
 								case stream_type::texture:
@@ -155,7 +155,8 @@ namespace insigne {
 								
 								case stream_type::geometry:
 									{
-										renderer::upload_surface(cmd.surface_idx, cmd.vertices, cmd.indices, cmd.vcount, cmd.icount, cmd.stride);
+										renderer::upload_surface(cmd.surface_idx, cmd.vertices, cmd.indices,
+												cmd.vcount, cmd.icount, cmd.stride, cmd.draw_type);
 										break;
 									}
 
@@ -165,12 +166,23 @@ namespace insigne {
 										break;
 									}
 
-								case stream_type::material:
+								default:
+									break;
+							}
+							break;
+						}
+
+					case command::stream_data:
+						{
+							stream_command cmd;
+							gpuCmd.serialize(cmd);
+							switch (cmd.data_type) {
+								case stream_type::geometry:
 									{
-										//renderer::compile_material(cmd.material_idx, cmd.from_shader, *cmd.param_list);
+										renderer::update_surface(cmd.surface_idx, cmd.vertices, cmd.indices,
+												cmd.vcount, cmd.icount);
 										break;
 									}
-								
 								default:
 									break;
 							}
@@ -182,7 +194,8 @@ namespace insigne {
 							init_command cmd;
 							gpuCmd.serialize(cmd);
 							renderer::clear_color(cmd.clear_color);
-						};
+							break;
+						}
 
 					case command::invalid:
 						{
@@ -205,7 +218,7 @@ namespace insigne {
 	{
 		FLORAL_ASSERT_MSG(sizeof(init_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		FLORAL_ASSERT_MSG(sizeof(render_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-		FLORAL_ASSERT_MSG(sizeof(stream_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
+		FLORAL_ASSERT_MSG(sizeof(load_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		FLORAL_ASSERT_MSG(sizeof(render_state_toggle_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
@@ -244,6 +257,14 @@ namespace insigne {
 	{
 		gpu_command newCmd;
 		newCmd.opcode = command::draw_geom;
+		newCmd.deserialize(i_cmd);
+		s_composing_cmdbuff.push_back(newCmd);
+	}
+
+	void push_command(const load_command& i_cmd)
+	{
+		gpu_command newCmd;
+		newCmd.opcode = command::load_data;
 		newCmd.deserialize(i_cmd);
 		s_composing_cmdbuff.push_back(newCmd);
 	}
@@ -420,7 +441,7 @@ namespace insigne {
 			data_type_e::elem_unsigned_int_24_8
 		};
 
-		stream_command cmd;
+		load_command cmd;
 		cmd.data_type = stream_type::texture;
 		cmd.data = i_data;
 		cmd.format = i_format;
@@ -434,12 +455,14 @@ namespace insigne {
 		return cmd.texture_idx;
 	}
 
-	const surface_handle_t upload_surface(voidptr i_vertices, voidptr i_indices, s32 i_stride, const u32 i_vcount, const u32 i_icount)
+	const surface_handle_t upload_surface(voidptr i_vertices, voidptr i_indices,
+			s32 i_stride, const u32 i_vcount, const u32 i_icount)
 	{
-		stream_command cmd;
+		load_command cmd;
 		cmd.data_type = stream_type::geometry;
 		cmd.vertices = i_vertices;
 		cmd.indices = i_indices;
+		cmd.draw_type = draw_type_e::static_surface;
 		cmd.stride = i_stride;
 		cmd.vcount = i_vcount;
 		cmd.icount = i_icount;
@@ -451,6 +474,40 @@ namespace insigne {
 		return cmd.surface_idx;
 	}
 
+	const surface_handle_t upload_surface(voidptr i_vertices, voidptr i_indices,
+			s32 i_stride, const u32 i_vcount, const u32 i_icount, const draw_type_e i_drawType)
+	{
+		load_command cmd;
+		cmd.data_type = stream_type::geometry;
+		cmd.vertices = i_vertices;
+		cmd.indices = i_indices;
+		cmd.draw_type = i_drawType;
+		cmd.stride = i_stride;
+		cmd.vcount = i_vcount;
+		cmd.icount = i_icount;
+		cmd.has_indices = true;
+		cmd.surface_idx = renderer::create_surface();
+
+		push_command(cmd);
+
+		return cmd.surface_idx;
+	}
+
+	void update_surface(const surface_handle_t& i_hdl,
+			voidptr i_vertices, voidptr i_indices,
+			const u32 i_vcount, const u32 i_icount)
+	{
+		stream_command cmd;
+		cmd.data_type = stream_type::geometry;
+		cmd.vertices = i_vertices;
+		cmd.indices = i_indices;
+		cmd.vcount = i_vcount;
+		cmd.icount = i_icount;
+		cmd.surface_idx = i_hdl;
+
+		push_command(cmd);
+	}
+
 	shader_param_list_t* allocate_shader_param_list(const u32 i_paramCount)
 	{
 		return s_composing_allocator.allocate<shader_param_list_t>(i_paramCount, &s_composing_allocator);
@@ -458,7 +515,7 @@ namespace insigne {
 
 	const shader_handle_t compile_shader(const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList)
 	{
-		stream_command cmd;
+		load_command cmd;
 		cmd.data_type = stream_type::shader;
 		cmd.vertex_str = i_vertStr;
 		cmd.fragment_str = i_fragStr;

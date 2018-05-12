@@ -21,6 +21,7 @@ namespace insigne {
 		setup_scissor_state,
 		setup_framebuffer,
 		draw_geom,
+		load_data,
 		stream_data
 	};
 
@@ -138,11 +139,10 @@ namespace insigne {
 		invalid = 0,
 		texture,
 		geometry,
-		shader,
-		material
+		shader
 	};
 
-	struct stream_command {
+	struct load_command {
 		stream_type								data_type;
 		union {
 			// texture
@@ -159,6 +159,7 @@ namespace insigne {
 			struct {
 				voidptr							vertices;
 				voidptr							indices;
+				draw_type_e						draw_type;
 				s32								stride;
 				u32								vcount;
 				u32								icount;
@@ -176,8 +177,22 @@ namespace insigne {
 
 		};
 
-		stream_command() {}
-		~stream_command() {}
+		load_command() {}
+		~load_command() {}
+	};
+
+	struct stream_command {
+		stream_type								data_type;
+		union {
+			// geom
+			struct {
+				voidptr							vertices;
+				voidptr							indices;
+				u32								vcount;
+				u32								icount;
+				surface_handle_t				surface_idx;
+			};
+		};
 	};
 
 }

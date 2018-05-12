@@ -528,7 +528,8 @@ namespace renderer {
 		s_surfaces[i_hdl].ibo = ibo;
 	}
 
-	void update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices, const u32 i_vcount, const u32 i_icount)
+	void update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices,
+			const u32 i_vcount, const u32 i_icount)
 	{
 		s32 stride = s_surfaces[i_hdl].stride;
 		GLenum drawType = s_draw_types[static_cast<s32>(s_surfaces[i_hdl].draw_type)];
