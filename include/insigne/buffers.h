@@ -72,32 +72,28 @@ namespace insigne {
 
 	struct render_state_toggle_command {
 		render_state_togglemask_e				toggle;
+		bool									to_value;
 		union {
 			// depth_test
 			struct {
 				compare_func_e					depth_func;
-				bool							to_value;
 			};
 			// depth_write
 			struct {
-				bool							to_value;
 			};
 			// cull_face
 			struct {
 				front_face_e					front_face;
-				bool							to_value;
 			};
 			// blending
 			struct {
 				blend_equation_e				blend_equation;
 				factor_e						blend_func_sfactor;
 				factor_e						blend_func_dfactor;
-				bool							to_value;
 			};
 			// scissor_test
 			struct {
 				s32								x, y, width, height;
-				bool							to_value;
 			};
 			// stencil_test
 			struct {
@@ -107,7 +103,6 @@ namespace insigne {
 				operation_e						stencil_op_sfail;
 				operation_e						stencil_op_dpfail;
 				operation_e						stencil_op_dppass;
-				bool							to_value;
 			};
 		};
 	};
@@ -132,7 +127,9 @@ namespace insigne {
 
 	struct render_command {
 		material_t*								material_snapshot;
+		voidptr									segment_offset;
 		surface_handle_t						surface_handle;
+		s32										segment_size;
 	};
 
 	enum class stream_type {

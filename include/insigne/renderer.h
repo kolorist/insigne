@@ -54,7 +54,8 @@ namespace renderer {
 													const draw_type_e i_drawType = draw_type_e::static_surface);
 	void										update_surface(const surface_handle_t& i_hdl, voidptr i_vertices,
 													voidptr i_indices, const u32 i_vcount, const u32 i_icount);
-	void										draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_matSnapshot);
+	void										draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_matSnapshot,
+													const s32 i_segSize, const voidptr i_segOffset);
 
 }
 }

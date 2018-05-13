@@ -27,6 +27,7 @@ namespace renderer {
 		//floral::inplace_array<param_t, 8u>		int_params;
 		floral::inplace_array<GLuint, 8u>		float_params;
 		floral::inplace_array<GLuint, 8u>		vec3_params;
+		floral::inplace_array<GLuint, 4u>		mat4_params;
 		floral::inplace_array<GLuint, 4u>		texture2d_params;
 		/*
 		floral::inplace_array<param_t, 4u>		texture_cube_params;
@@ -86,7 +87,7 @@ namespace renderer {
 	};
 
 	static GLenum s_blend_equations[] = {
-		GL_ADD,
+		GL_FUNC_ADD,
 		GL_FUNC_SUBTRACT,
 		GL_FUNC_REVERSE_SUBTRACT,
 		GL_MIN,
@@ -330,6 +331,11 @@ namespace renderer {
 						newTemplate.vec3_param_ids.push_back(id);
 						break;
 					}
+				case param_data_type_e::param_mat4:
+					{
+						newTemplate.mat4_param_ids.push_back(id);
+						break;
+					}
 				case param_data_type_e::param_sampler2d:
 					{
 						newTemplate.texture2d_param_ids.push_back(id);
@@ -476,6 +482,11 @@ namespace renderer {
 						thisShader.vec3_params.push_back(id);
 						break;
 					}
+				case param_data_type_e::param_mat4:
+					{
+						thisShader.mat4_params.push_back(id);
+						break;
+					}
 				case param_data_type_e::param_sampler2d:
 					{
 						thisShader.texture2d_params.push_back(id);
@@ -552,10 +563,13 @@ namespace renderer {
 		s_surfaces[i_hdl].icount = i_icount;
 	}
 
-	void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_matSnapshot)
+	void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_matSnapshot, const s32 i_segSize, const voidptr i_segOffset)
 	{
 		surface surf = s_surfaces[i_surfaceHdl];
 		shader& shdr = s_shaders[i_matSnapshot.shader_handle];
+
+		s32 iCount = 0;
+		if (i_segSize < 0) iCount = surf.icount; else iCount = i_segSize;
 
 		pxUseProgram(shdr.gpu_handle);
 		// setup material
@@ -563,6 +577,8 @@ namespace renderer {
 			pxUniform1f(shdr.float_params[i], i_matSnapshot.float_params[i].value);
 		for (u32 i = 0; i < i_matSnapshot.vec3_params.get_size(); i++)
 			pxUniform3fv(shdr.vec3_params[i], 1, &i_matSnapshot.vec3_params[i].value.x);
+		for (u32 i = 0; i < i_matSnapshot.mat4_params.get_size(); i++)
+			pxUniformMatrix4fv(shdr.mat4_params[i], 1, GL_FALSE, &(i_matSnapshot.mat4_params[i].value[0][0]));
 		for (u32 i = 0; i < i_matSnapshot.texture2d_params.get_size(); i++) {
 			texture& tex = s_textures[static_cast<s32>(i_matSnapshot.texture2d_params[i].value)];
 			pxActiveTexture(GL_TEXTURE0 + i);
@@ -575,9 +591,11 @@ namespace renderer {
 		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surf.ibo);
 		pxEnableVertexAttribArray(0);
 		pxEnableVertexAttribArray(1);
-		pxVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, surf.stride, 0);
-		pxVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, surf.stride, (GLvoid*)12);
-		pxDrawElements(GL_TRIANGLES, surf.icount, GL_UNSIGNED_INT, 0);
+		pxEnableVertexAttribArray(2);
+		pxVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, surf.stride, 0);
+		pxVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, surf.stride, (GLvoid*)8);
+		pxVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, surf.stride, (GLvoid*)16);
+		pxDrawElements(GL_TRIANGLES, iCount, GL_UNSIGNED_INT, i_segOffset);
 	}
 }
 }

@@ -17,6 +17,14 @@ namespace insigne {
 	void										set_depth_test(const bool i_enable);
 	void										set_depth_write(const bool i_enable);
 	void										set_depth_func(const compare_func_e i_func);
+	void										set_cull_face(const bool i_enable);
+	void										set_front_face(const front_face_e i_frontFace);
+	//TODO: add stencil
+	void										set_blend(const bool i_enable);
+	void										set_blend_equation(const blend_equation_e i_blendEqu);
+	void										set_blend_function(const factor_e i_sfactor, const factor_e i_dfactor);
+	void										set_scissor(const bool i_enable);
+	void										set_scissor_rect(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
 
 	void										set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha);
 
@@ -32,6 +40,10 @@ namespace insigne {
 													s32 i_stride, const u32 i_vcount, const u32 i_icount, const draw_type_e i_drawType);
 	void										update_surface(const surface_handle_t& i_hdl,
 													voidptr i_vertices, voidptr i_indices,
+													const u32 i_vcount, const u32 i_icount);
+	const surface_handle_t						create_streamed_surface(const s32 i_stride);
+	void										update_streamed_surface(const surface_handle_t& i_hdl,
+													voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
 													const u32 i_vcount, const u32 i_icount);
 
 	shader_param_list_t*						allocate_shader_param_list(const u32 i_paramCount);
@@ -50,6 +62,8 @@ namespace insigne {
 	 * 	- the material parameters are different with previous draw call: update them
 	 */
 	void										draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);
+	void										draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
+													const s32 i_segSize, const voidptr i_segOffset);
 }
 
 //#include "render.hpp"

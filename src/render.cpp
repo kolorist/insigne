@@ -74,7 +74,7 @@ namespace insigne {
 						{
 							render_command cmd;
 							gpuCmd.serialize(cmd);
-							renderer::draw_surface_idx(cmd.surface_handle, *cmd.material_snapshot);
+							renderer::draw_surface_idx(cmd.surface_handle, *cmd.material_snapshot, cmd.segment_size, cmd.segment_offset);
 							break;
 						}
 
@@ -308,6 +308,54 @@ namespace insigne {
 		s_render_state.depth_func = i_func;
 	}
 
+	void set_cull_face(const bool i_enable)
+	{
+		if (i_enable != TEST_BIT_BOOL(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::cull_face))) {
+			SET_BIT(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::cull_face));
+			SET_BIT(s_render_state_changelog, static_cast<u32>(render_state_changelog_e::cull_face));
+		}
+	}
+
+	void set_front_face(const front_face_e i_frontFace)
+	{
+		s_render_state.front_face = i_frontFace;
+	}
+
+	void set_blend(const bool i_enable)
+	{
+		if (i_enable != TEST_BIT_BOOL(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::blending))) {
+			SET_BIT(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::blending));
+			SET_BIT(s_render_state_changelog, static_cast<u32>(render_state_changelog_e::blending));
+		}
+	}
+
+	void set_blend_equation(const blend_equation_e i_blendEqu)
+	{
+		s_render_state.blend_equation = i_blendEqu;
+	}
+
+	void set_blend_function(const factor_e i_sfactor, const factor_e i_dfactor)
+	{
+		s_render_state.blend_func_sfactor = i_sfactor;
+		s_render_state.blend_func_dfactor = i_dfactor;
+	}
+
+	void set_scissor(const bool i_enable)
+	{
+		if (i_enable != TEST_BIT_BOOL(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::scissor_test))) {
+			SET_BIT(s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::scissor_test));
+			SET_BIT(s_render_state_changelog, static_cast<u32>(render_state_changelog_e::scissor_test));
+		}
+	}
+
+	void set_scissor_rect(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
+	{
+		s_render_state.scissor_x = i_x;
+		s_render_state.scissor_y = i_y;
+		s_render_state.scissor_width = i_width;
+		s_render_state.scissor_height = i_height;
+	}
+
 	void commit_render_state()
 	{
 		// quick quit
@@ -317,6 +365,8 @@ namespace insigne {
 		u32 rst = s_render_state.toggles;
 		render_state_t rs = s_render_state;
 		u32 cl = s_render_state_changelog;
+
+		//FIXME: cannot update render state properties while the state is ON
 
 		// depth_test
 		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::depth_test))) {
@@ -508,6 +558,44 @@ namespace insigne {
 		push_command(cmd);
 	}
 
+	const surface_handle_t create_streamed_surface(const s32 i_stride)
+	{
+		load_command cmd;
+		cmd.data_type = stream_type::geometry;
+		cmd.vertices = nullptr;
+		cmd.indices = nullptr;
+		cmd.draw_type = draw_type_e::dynamic_surface;
+		cmd.stride = i_stride;
+		cmd.vcount = 0;
+		cmd.icount = 0;
+		cmd.has_indices = true;
+		cmd.surface_idx = renderer::create_surface();
+
+		push_command(cmd);
+
+		return cmd.surface_idx;
+	}
+
+	void update_streamed_surface(const surface_handle_t& i_hdl,
+			voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
+			const u32 i_vcount, const u32 i_icount)
+	{
+		voidptr vdata = s_composing_allocator.allocate(i_vsize);
+		voidptr idata = s_composing_allocator.allocate(i_isize);
+		memcpy(vdata, i_vertices, i_vsize);
+		memcpy(idata, i_indices, i_isize);
+
+		stream_command cmd;
+		cmd.data_type = stream_type::geometry;
+		cmd.vertices = vdata;
+		cmd.indices = idata;
+		cmd.vcount = i_vcount;
+		cmd.icount = i_icount;
+		cmd.surface_idx = i_hdl;
+
+		push_command(cmd);
+	}
+
 	shader_param_list_t* allocate_shader_param_list(const u32 i_paramCount)
 	{
 		return s_composing_allocator.allocate<shader_param_list_t>(i_paramCount, &s_composing_allocator);
@@ -542,9 +630,16 @@ namespace insigne {
 
 		for (u32 i = 0; i < matTemplate.vec3_param_ids.get_size(); i++) {
 			id_value_pair_t<floral::vec3f> newParam;
-			newParam.id = matTemplate.float_param_ids[i];
+			newParam.id = matTemplate.vec3_param_ids[i];
 			newParam.value = floral::vec3f(0.0f);
 			newMaterial.vec3_params.push_back(newParam);
+		}
+
+		for (u32 i = 0; i < matTemplate.mat4_param_ids.get_size(); i++) {
+			id_value_pair_t<floral::mat4x4f> newParam;
+			newParam.id = matTemplate.mat4_param_ids[i];
+			newParam.value = floral::mat4x4f();
+			newMaterial.mat4_params.push_back(newParam);
 		}
 
 		for (u32 i = 0; i < matTemplate.texture2d_param_ids.get_size(); i++) {
@@ -588,6 +683,20 @@ namespace insigne {
 	}
 
 	template <>
+	const param_id get_material_param<floral::mat4x4f>(const material_handle_t i_hdl, const_cstr i_name)
+	{
+		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
+		floral::crc_string idToSearch(i_name);
+
+		for (u32 i = 0; i < thisMaterial.mat4_params.get_size(); i++) {
+			if (thisMaterial.mat4_params[i].id == idToSearch)
+				return i;
+		}
+
+		return param_id(-1);
+	}
+
+	template <>
 	const param_id get_material_param<texture_handle_t>(const material_handle_t i_hdl, const_cstr i_name)
 	{
 		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
@@ -622,6 +731,16 @@ namespace insigne {
 	}
 
 	template <>
+	void set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const floral::mat4x4f& i_value)
+	{
+		s32 pidx = static_cast<s32>(i_paramId);
+		if (pidx < 0) return;
+
+		material_t& thisMaterial = s_materials[static_cast<s32>(i_hdl)];
+		thisMaterial.mat4_params[pidx].value = i_value;
+	}
+
+	template <>
 	void set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const texture_handle_t& i_value)
 	{
 		s32 pidx = static_cast<s32>(i_paramId);
@@ -643,6 +762,26 @@ namespace insigne {
 		render_command cmd;
 		cmd.material_snapshot = matSnapshot;
 		cmd.surface_handle = i_surfaceHdl;
+		cmd.segment_offset = (voidptr)0;
+		cmd.segment_size = -1;					// -1 means all of the surface
+
+		push_command(cmd);
+	}
+
+	void draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
+			const s32 i_segSize, const voidptr i_segOffset)
+	{
+		commit_render_state();
+
+		s_current_material = i_matHdl;
+		material_t* matSnapshot = s_composing_allocator.allocate<material_t>();
+		(*matSnapshot) = s_materials[static_cast<s32>(s_current_material)];
+
+		render_command cmd;
+		cmd.material_snapshot = matSnapshot;
+		cmd.segment_offset = i_segOffset;
+		cmd.surface_handle = i_surfaceHdl;
+		cmd.segment_size = i_segSize;
 
 		push_command(cmd);
 	}
