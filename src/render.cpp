@@ -3,32 +3,22 @@
 #include <floral.h>
 #include <clover.h>
 
-#include "insigne/commons.h"
-#include "insigne/internal_commons.h"
 #include "insigne/context.h"
 #include "insigne/driver.h"
-#include "insigne/buffers.h"
-#include "insigne/memory.h"
-
 #include "insigne/renderer.h"
 
 namespace insigne {
 
-#define BUFFERED_FRAMES							3
-
 	// -----------------------------------------
-	typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
 
-	static gpu_command_buffer_t					s_gpu_command_buffer[BUFFERED_FRAMES];
-	static arena_allocator_t*					s_gpu_frame_allocator[BUFFERED_FRAMES];
+	gpu_command_buffer_t					s_generic_command_buffer[BUFFERED_FRAMES];
+	arena_allocator_t*					s_gpu_frame_allocator[BUFFERED_FRAMES];
 
-#define s_composing_cmdbuff						s_gpu_command_buffer[s_back_cmdbuff]
-#define s_rendering_cmdbuff						s_gpu_command_buffer[s_front_cmdbuff]
 #define s_composing_allocator					(*s_gpu_frame_allocator[s_back_cmdbuff])
 #define s_rendering_allocator					(*s_gpu_frame_allocator[s_front_cmdbuff])
 	
-	static size									s_front_cmdbuff;
-	static size									s_back_cmdbuff;
+	size									s_front_cmdbuff;
+	size									s_back_cmdbuff;
 	// -----------------------------------------
 	static floral::condition_variable			s_init_condvar;
 	static floral::mutex						s_init_mtx;
@@ -37,7 +27,7 @@ namespace insigne {
 
 	// -----------------------------------------
 	// render state
-	static render_state_t						s_render_state;
+	render_state_t						s_render_state;
 	enum class render_state_changelog_e {
 		depth_test								= 1u << 0,
 		depth_write								= 1u << 2,
@@ -47,15 +37,15 @@ namespace insigne {
 		stencil_test							= 1u << 6
 	};
 
-	static u32									s_render_state_changelog;
+	u32									s_render_state_changelog;
 
 	// materials are also render states
 	// TODO: this should be a memory pool of materials
-	static floral::fixed_array<material_t, linear_allocator_t>	s_materials;
-	static material_handle_t					s_current_material;
+	floral::fixed_array<material_t, linear_allocator_t>	s_materials;
+	material_handle_t					s_current_material;
 
 	// -----------------------------------------
-
+#if 0
 	void render_thread_func(voidptr i_data)
 	{
 		create_main_context();
@@ -212,32 +202,9 @@ namespace insigne {
 			swap_buffers();
 		}
 	}
+#endif
 
 	// -----------------------------------------
-	void initialize_render_thread()
-	{
-		FLORAL_ASSERT_MSG(sizeof(init_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-		FLORAL_ASSERT_MSG(sizeof(render_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-		FLORAL_ASSERT_MSG(sizeof(load_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-		FLORAL_ASSERT_MSG(sizeof(render_state_toggle_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-
-		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			s_gpu_command_buffer[i].init(GPU_COMMAND_BUFFER_SIZE, &g_persistance_allocator);
-
-		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(8));
-
-		s_materials.init(32, &g_persistance_allocator);
-
-		s_front_cmdbuff = 0;
-		s_back_cmdbuff = 2;
-		s_render_state_changelog = 0;
-
-		g_render_thread.entry_point = &insigne::render_thread_func;
-		g_render_thread.ptr_data = nullptr;
-		g_render_thread.start();
-	}
-
 	void wait_for_initialization()
 	{
 		s_init_condvar.wait(s_init_mtx);
@@ -249,8 +216,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_init_state;
 		newCmd.deserialize(i_cmd);
-		//s_gpu_command_buffer[s_back_cmdbuff].push_back(newCmd);
-		s_composing_cmdbuff.push_back(newCmd);
+		//s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void push_command(const render_command& i_cmd)
@@ -258,7 +224,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::draw_geom;
 		newCmd.deserialize(i_cmd);
-		s_composing_cmdbuff.push_back(newCmd);
+		//s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void push_command(const load_command& i_cmd)
@@ -266,7 +232,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::load_data;
 		newCmd.deserialize(i_cmd);
-		s_composing_cmdbuff.push_back(newCmd);
+		//s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void push_command(const stream_command& i_cmd)
@@ -274,7 +240,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::stream_data;
 		newCmd.deserialize(i_cmd);
-		s_composing_cmdbuff.push_back(newCmd);
+		//s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void push_command(const render_state_toggle_command& i_cmd)
@@ -282,7 +248,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_render_state_toggle;
 		newCmd.deserialize(i_cmd);
-		s_composing_cmdbuff.push_back(newCmd);
+		//s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	// -----------------------------------------
@@ -446,7 +412,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_framebuffer;
 		newCmd.deserialize(cmd);
-		s_composing_cmdbuff.push_back(newCmd);
+		//s_composing_cmdbuff.push_back(newCmd);
 	}
 
 	void end_frame()
@@ -454,7 +420,7 @@ namespace insigne {
 		while ((s_back_cmdbuff + 1) % BUFFERED_FRAMES == s_front_cmdbuff);
 
 		s_back_cmdbuff = (s_back_cmdbuff + 1) % BUFFERED_FRAMES;
-		s_composing_cmdbuff.empty();
+		//s_composing_cmdbuff.empty();
 		s_composing_allocator.free_all();
 	}
 
