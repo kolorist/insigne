@@ -40,11 +40,11 @@ namespace insigne {
 	static render_state_t						s_render_state;
 	enum class render_state_changelog_e {
 		depth_test								= 1u << 0,
-		depth_write								= 1u << 2,
-		cull_face								= 1u << 3,
-		blending								= 1u << 4,
-		scissor_test							= 1u << 5,
-		stencil_test							= 1u << 6
+		depth_write								= 1u << 1,
+		cull_face								= 1u << 2,
+		blending								= 1u << 3,
+		scissor_test							= 1u << 4,
+		stencil_test							= 1u << 5
 	};
 
 	static u32									s_render_state_changelog;
