@@ -1,65 +1,108 @@
+#include "detail/render.hpp"
+
+#include "renderer.h"
+
 namespace insigne {
 
-	// -----------------------------------------
-	// rendering
-	template <int t_n, typename t_surface_list>
-	struct internal_surface_iterator {
-		static void setup_states_and_render()
-		{
-			typedef tl_type_at_t<t_n, t_surface_list> surface_type_t;
-			surface_type_t::setup_states_and_render();
-			internal_surface_iterator<t_n - 1, t_surface_list>::setup_states_and_render();
-		}
-	};
-
-	template <typename t_surface_list>
-	struct internal_surface_iterator<0, t_surface_list> {
-		static void setup_states_and_render()
-		{
-			typedef tl_type_at_t<0, t_surface_list> surface_type_t;
-			surface_type_t::setup_states_and_render();
-		}
-	};
-	
-	template <typename t_surface_list>
-	void internal_render_surfaces()
-	{
-		internal_surface_iterator<tl_length<t_surface_list>::value - 1, t_surface_list>::setup_states_and_render();
-	}
-
-	// init gpu command buffer
-	template <int t_n, typename t_surface_list>
-	struct internal_buffer_iterator {
-		static void init_buffer(linear_allocator_t *i_allocator)
-		{
-			typedef tl_type_at_t<t_n, t_surface_list> surface_type_t;
-			surface_type_t::init_buffer(i_allocator);
-			internal_buffer_iterator<t_n - 1, t_surface_list>::init_buffer(i_allocator);
-		}
-	};
-
-	template <typename t_surface_list>
-	struct internal_buffer_iterator<0, t_surface_list> {
-		static void init_buffer(linear_allocator_t *i_allocator)
-		{
-			typedef tl_type_at_t<0, t_surface_list> surface_type_t;
-			surface_type_t::init_buffer(i_allocator);
-		}
-	};
-
-	template <typename t_surface_list>
-	void internal_init_buffer(linear_allocator_t *i_allocator)
-	{
-		internal_buffer_iterator<tl_length<t_surface_list>::value - 1, t_surface_list>::init_buffer(i_allocator);
-	}
-	
 	// -----------------------------------------
 	template <typename t_surface_list>
 	void render_thread_func(voidptr i_data)
 	{
-		// buffer setup phase
-		// render phase
-		internal_render_surfaces<t_surface_list>();
+		create_main_context();
+		renderer::initialize_renderer();
+		s_init_condvar.notify_one();
+
+		while (true) {
+			while (s_front_cmdbuff == s_back_cmdbuff)
+				s_cmdbuffer_condvar.wait(s_cmdbuffer_mtx);
+
+			// generic phase
+			for (u32 i = 0; i < s_generic_command_buffer[s_front_cmdbuff].get_size(); i++) {
+				gpu_command& gpuCmd = s_generic_command_buffer[s_front_cmdbuff][i];
+				gpuCmd.reset_cursor();
+				switch (gpuCmd.opcode) {
+					case command::setup_framebuffer:
+						{
+							framebuffer_command cmd;
+							gpuCmd.serialize(cmd);
+							renderer::clear_framebuffer(cmd.clear_color_buffer, cmd.clear_depth_buffer);
+							break;
+						}
+
+					case command::load_data:
+						{
+							load_command cmd;
+							gpuCmd.serialize(cmd);
+							switch (cmd.data_type) {
+								case stream_type::texture:
+									{
+										renderer::upload_texture2d(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
+												cmd.internal_format, cmd.pixel_data_type, cmd.data);
+										break;
+									}
+								
+								case stream_type::geometry:
+									{
+										renderer::upload_surface(cmd.surface_idx, cmd.vertices, cmd.indices,
+												cmd.vcount, cmd.icount, cmd.stride, cmd.draw_type);
+										break;
+									}
+
+								case stream_type::shader:
+									{
+										renderer::compile_shader(cmd.shader_idx, cmd.vertex_str, cmd.fragment_str, cmd.shader_param_list);
+										break;
+									}
+
+								default:
+									break;
+							}
+							break;
+						}
+
+					case command::stream_data:
+						{
+							stream_command cmd;
+							gpuCmd.serialize(cmd);
+							switch (cmd.data_type) {
+								case stream_type::geometry:
+									{
+										renderer::update_surface(cmd.surface_idx, cmd.vertices, cmd.indices,
+												cmd.vcount, cmd.icount);
+										break;
+									}
+								default:
+									break;
+							}
+							break;
+						}
+
+					case command::setup_init_state:
+						{
+							init_command cmd;
+							gpuCmd.serialize(cmd);
+							renderer::clear_color(cmd.clear_color);
+							break;
+						}
+
+					case command::invalid:
+						{
+							break;
+						}
+
+					default:
+						break;
+				}
+			}
+
+			// geometry render phase
+			detail::internal_render_surfaces<t_surface_list>();
+			detail::internal_clear_buffer<t_surface_list>(s_front_cmdbuff);
+			s_generic_command_buffer[s_front_cmdbuff].empty();
+
+			s_front_cmdbuff = (s_front_cmdbuff + 1) % BUFFERED_FRAMES;
+			swap_buffers();
+		}
 	}
 
 	template <typename t_surface_list>
@@ -70,7 +113,11 @@ namespace insigne {
 		FLORAL_ASSERT_MSG(sizeof(load_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		FLORAL_ASSERT_MSG(sizeof(render_state_toggle_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 
-		internal_init_buffer<t_surface_list>(&g_persistance_allocator);
+		// generic buffer init
+		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
+			s_generic_command_buffer[i].init(64u, &g_persistance_allocator);
+		// draw buffer init
+		detail::internal_init_buffer<t_surface_list>(&g_persistance_allocator);
 
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
 			s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(8));
@@ -84,5 +131,31 @@ namespace insigne {
 		g_render_thread.entry_point = &insigne::render_thread_func<t_surface_list>;
 		g_render_thread.ptr_data = nullptr;
 		g_render_thread.start();
+	}
+
+	// -----------------------------------------
+	template <typename t_surface>
+	void push_draw_command(const render_command& i_cmd)
+	{
+		gpu_command newCmd;
+		newCmd.opcode = command::draw_geom;
+		newCmd.deserialize(i_cmd);
+		draw_command_buffer_t<t_surface>::command_buffer[s_back_cmdbuff].push_back(newCmd);
+	}
+	// -----------------------------------------
+	template <typename t_surface>
+	void draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
+			const s32 i_segSize, const voidptr i_segOffset)
+	{
+		material_t* matSnapshot = s_gpu_frame_allocator[s_back_cmdbuff]->allocate<material_t>();
+		(*matSnapshot) = s_materials[static_cast<s32>(i_matHdl)];
+
+		render_command cmd;
+		cmd.material_snapshot = matSnapshot;
+		cmd.segment_offset = i_segOffset;
+		cmd.surface_handle = i_surfaceHdl;
+		cmd.segment_size = i_segSize;
+
+		push_draw_command<t_surface>(cmd);
 	}
 }

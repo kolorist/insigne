@@ -18,6 +18,12 @@ namespace insigne {
 	struct draw_command_buffer_t {
 		static gpu_command_buffer_t				command_buffer[BUFFERED_FRAMES];
 	};
+	extern gpu_command_buffer_t					s_generic_command_buffer[BUFFERED_FRAMES];
+
+	extern floral::condition_variable			s_init_condvar;
+	extern floral::mutex						s_init_mtx;
+	extern floral::condition_variable			s_cmdbuffer_condvar;
+	extern floral::mutex						s_cmdbuffer_mtx;
 
 	extern arena_allocator_t*					s_gpu_frame_allocator[BUFFERED_FRAMES];
 	extern size									s_front_cmdbuff;
@@ -65,11 +71,12 @@ namespace insigne {
 	void										update_surface(const surface_handle_t& i_hdl,
 													voidptr i_vertices, voidptr i_indices,
 													const u32 i_vcount, const u32 i_icount);
+#endif
+
 	const surface_handle_t						create_streamed_surface(const s32 i_stride);
 	void										update_streamed_surface(const surface_handle_t& i_hdl,
 													voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
 													const u32 i_vcount, const u32 i_icount);
-#endif
 
 	shader_param_list_t*						allocate_shader_param_list(const u32 i_paramCount);
 	const shader_handle_t						compile_shader(const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList);
@@ -91,7 +98,11 @@ namespace insigne {
 	void										draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
 													const s32 i_segSize, const voidptr i_segOffset);
 													*/
-	
+	template <typename TSurface>
+	void										draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);
+	template <typename TSurface>
+	void										draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
+													const s32 i_segSize, const voidptr i_segOffset);
 }
 
 #include "render.hpp"

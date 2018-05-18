@@ -5,14 +5,13 @@
 
 #include "insigne/context.h"
 #include "insigne/driver.h"
-#include "insigne/renderer.h"
 
 namespace insigne {
 
 	// -----------------------------------------
 
-	gpu_command_buffer_t					s_generic_command_buffer[BUFFERED_FRAMES];
-	arena_allocator_t*					s_gpu_frame_allocator[BUFFERED_FRAMES];
+	gpu_command_buffer_t						s_generic_command_buffer[BUFFERED_FRAMES];
+	arena_allocator_t*							s_gpu_frame_allocator[BUFFERED_FRAMES];
 
 #define s_composing_allocator					(*s_gpu_frame_allocator[s_back_cmdbuff])
 #define s_rendering_allocator					(*s_gpu_frame_allocator[s_front_cmdbuff])
@@ -20,10 +19,10 @@ namespace insigne {
 	size									s_front_cmdbuff;
 	size									s_back_cmdbuff;
 	// -----------------------------------------
-	static floral::condition_variable			s_init_condvar;
-	static floral::mutex						s_init_mtx;
-	static floral::condition_variable			s_cmdbuffer_condvar;
-	static floral::mutex						s_cmdbuffer_mtx;
+	floral::condition_variable			s_init_condvar;
+	floral::mutex						s_init_mtx;
+	floral::condition_variable			s_cmdbuffer_condvar;
+	floral::mutex						s_cmdbuffer_mtx;
 
 	// -----------------------------------------
 	// render state
@@ -216,15 +215,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_init_state;
 		newCmd.deserialize(i_cmd);
-		//s_composing_cmdbuff.push_back(newCmd);
-	}
-
-	void push_command(const render_command& i_cmd)
-	{
-		gpu_command newCmd;
-		newCmd.opcode = command::draw_geom;
-		newCmd.deserialize(i_cmd);
-		//s_composing_cmdbuff.push_back(newCmd);
+		s_generic_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 
 	void push_command(const load_command& i_cmd)
@@ -232,7 +223,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::load_data;
 		newCmd.deserialize(i_cmd);
-		//s_composing_cmdbuff.push_back(newCmd);
+		s_generic_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 
 	void push_command(const stream_command& i_cmd)
@@ -240,7 +231,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::stream_data;
 		newCmd.deserialize(i_cmd);
-		//s_composing_cmdbuff.push_back(newCmd);
+		s_generic_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 
 	void push_command(const render_state_toggle_command& i_cmd)
@@ -248,7 +239,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_render_state_toggle;
 		newCmd.deserialize(i_cmd);
-		//s_composing_cmdbuff.push_back(newCmd);
+		s_generic_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 
 	// -----------------------------------------
@@ -412,7 +403,7 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::setup_framebuffer;
 		newCmd.deserialize(cmd);
-		//s_composing_cmdbuff.push_back(newCmd);
+		s_generic_command_buffer[s_back_cmdbuff].push_back(newCmd);
 	}
 
 	void end_frame()
@@ -420,7 +411,6 @@ namespace insigne {
 		while ((s_back_cmdbuff + 1) % BUFFERED_FRAMES == s_front_cmdbuff);
 
 		s_back_cmdbuff = (s_back_cmdbuff + 1) % BUFFERED_FRAMES;
-		//s_composing_cmdbuff.empty();
 		s_composing_allocator.free_all();
 	}
 
@@ -716,6 +706,7 @@ namespace insigne {
 		thisMaterial.texture2d_params[pidx].value = i_value;
 	}
 
+#if 0
 	// state dependant
 	void draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl)
 	{
@@ -751,5 +742,6 @@ namespace insigne {
 
 		push_command(cmd);
 	}
+#endif
 
 }
