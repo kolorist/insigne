@@ -10,7 +10,8 @@ namespace insigne {
 			static void setup_states_and_render()
 			{
 				typedef tl_type_at_t<t_n, t_surface_list> surface_type_t;
-				surface_type_t::setup_states_and_render();
+				surface_type_t::setup_states();
+				surface_type_t::render();
 				internal_surface_iterator<t_n - 1, t_surface_list>::setup_states_and_render();
 			}
 		};
@@ -20,7 +21,8 @@ namespace insigne {
 			static void setup_states_and_render()
 			{
 				typedef tl_type_at_t<0, t_surface_list> surface_type_t;
-				surface_type_t::setup_states_and_render();
+				surface_type_t::setup_states();
+				surface_type_t::render();
 			}
 		};
 

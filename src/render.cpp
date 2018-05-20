@@ -408,7 +408,7 @@ namespace insigne {
 
 	void end_frame()
 	{
-		while ((s_back_cmdbuff + 1) % BUFFERED_FRAMES == s_front_cmdbuff);
+		while ((s_back_cmdbuff + 1) % BUFFERED_FRAMES == s_front_cmdbuff) Sleep(1);
 
 		s_back_cmdbuff = (s_back_cmdbuff + 1) % BUFFERED_FRAMES;
 		s_composing_allocator.free_all();

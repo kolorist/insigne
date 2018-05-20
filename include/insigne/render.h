@@ -6,9 +6,11 @@
 #include "internal_commons.h"
 #include "buffers.h"
 #include "memory.h"
+#include "renderer.h"
 #include "generated_code/proxy.h"
 
 namespace insigne {
+
 	// -----------------------------------------
 	typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
 
@@ -19,6 +21,35 @@ namespace insigne {
 		static gpu_command_buffer_t				command_buffer[BUFFERED_FRAMES];
 	};
 	extern gpu_command_buffer_t					s_generic_command_buffer[BUFFERED_FRAMES];
+
+	template <typename t_surface>
+	struct renderable_surface_t {
+		static void render()
+		{
+			for (u32 i = 0; i < draw_command_buffer_t<t_surface>::command_buffer[s_front_cmdbuff].get_size(); i++) {
+				gpu_command& gpuCmd = draw_command_buffer_t<t_surface>::command_buffer[s_front_cmdbuff][i];
+				gpuCmd.reset_cursor();
+				switch (gpuCmd.opcode) {
+					case command::draw_geom:
+						{
+							render_command cmd;
+							gpuCmd.serialize(cmd);
+							renderer::draw_surface_idx(cmd.surface_handle, *cmd.material_snapshot, cmd.segment_size, cmd.segment_offset);
+							break;
+						}
+					default:
+						break;
+				}
+			}
+		}
+
+		static void init_buffer(insigne::linear_allocator_t* i_allocator)
+		{
+			using namespace insigne;
+			for (u32 i = 0; i < BUFFERED_FRAMES; i++)
+				draw_command_buffer_t<t_surface>::command_buffer[i].init(64u, &g_persistance_allocator);
+		}
+	};
 
 	extern floral::condition_variable			s_init_condvar;
 	extern floral::mutex						s_init_mtx;
