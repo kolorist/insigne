@@ -561,8 +561,14 @@ namespace insigne {
 	{
 		load_command cmd;
 		cmd.data_type = stream_type::shader;
-		cmd.vertex_str = i_vertStr;
-		cmd.fragment_str = i_fragStr;
+		size vertStrLen = strlen(i_vertStr);
+		size fragStrLen = strlen(i_fragStr);
+		cstr vertStr = (cstr)s_composing_allocator.allocate(vertStrLen + 1);
+		cstr fragStr = (cstr)s_composing_allocator.allocate(fragStrLen + 1);
+		strcpy(vertStr, i_vertStr);
+		strcpy(fragStr, i_fragStr);
+		cmd.vertex_str = vertStr;
+		cmd.fragment_str = fragStr;
 		cmd.shader_idx = renderer::create_shader(i_paramList);
 		cmd.shader_param_list = i_paramList;
 
