@@ -449,6 +449,7 @@ namespace insigne {
 
 		load_command cmd;
 		cmd.data_type = stream_type::texture;
+		// FIXME: what if user delete the i_data right after this call?
 		cmd.data = i_data;
 		cmd.format = i_format;
 		cmd.width = i_width;
