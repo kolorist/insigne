@@ -96,14 +96,14 @@ namespace insigne {
 
 #if 0
 	const surface_handle_t						upload_surface(voidptr i_vertices, voidptr i_indices,
-													s32 i_stride, const u32 i_vcount, const u32 i_icount);
-	const surface_handle_t						upload_surface(voidptr i_vertices, voidptr i_indices,
 													s32 i_stride, const u32 i_vcount, const u32 i_icount, const draw_type_e i_drawType);
 	void										update_surface(const surface_handle_t& i_hdl,
 													voidptr i_vertices, voidptr i_indices,
 													const u32 i_vcount, const u32 i_icount);
 #endif
 
+	const surface_handle_t						upload_surface(voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
+													const s32 i_stride, const u32 i_vcount, const u32 i_icount);
 	const surface_handle_t						create_streamed_surface(const s32 i_stride);
 	void										update_streamed_surface(const surface_handle_t& i_hdl,
 													voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
