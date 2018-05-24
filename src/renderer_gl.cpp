@@ -5,65 +5,14 @@
 
 #include "memory.h"
 #include "insigne/generated_code/proxy.h"
-#include "insigne/gl/identifiers.h"
 
 namespace insigne {
 namespace renderer {
 
-	struct param_t {
-		floral::crc_string						name;
-		GLuint									id;
-
-		param_t() { }
-		param_t(const_cstr i_name, const GLuint i_id)
-			: name(i_name)
-			, id(i_id)
-		{ }
-	};
-
-	struct shader {
-		GLuint									gpu_handle;
-
-		//floral::inplace_array<param_t, 8u>		int_params;
-		floral::inplace_array<GLuint, 8u>		float_params;
-		floral::inplace_array<GLuint, 8u>		vec3_params;
-		floral::inplace_array<GLuint, 4u>		mat4_params;
-		floral::inplace_array<GLuint, 4u>		texture2d_params;
-		/*
-		floral::inplace_array<param_t, 4u>		texture_cube_params;
-		floral::inplace_array<param_t, 8u>		vec2_params;
-		floral::inplace_array<param_t, 8u>		vec3_params;
-		floral::inplace_array<param_t, 8u>		vec4_params;
-		floral::inplace_array<param_t, 4u>		mat3_params;
-		floral::inplace_array<param_t, 4u>		mat4_params;
-		*/
-	};
-
-	struct surface {
-		s32										stride;
-		draw_type_e								draw_type;
-		u32										icount;
-		GLuint									vbo;
-		GLuint									ibo;
-	};
-
-	struct texture {
-		GLuint									gpu_handle;
-		u32										width;
-		u32										height;
-		GLenum									format;
-		GLenum									internal_format;
-	};
-
-	typedef floral::fixed_array<shader, linear_allocator_t>					shader_array_t;
-	typedef floral::fixed_array<material_template_t, linear_allocator_t>	material_template_array_t;
-	typedef floral::fixed_array<texture, linear_allocator_t>				texture_array_t;
-	typedef floral::fixed_array<surface, linear_allocator_t>				surface_array_t;
-
-	static shader_array_t						s_shaders;
-	static material_template_array_t			s_material_templates;
-	static texture_array_t						s_textures;
-	static surface_array_t						s_surfaces;
+	shader_array_t						s_shaders;
+	material_template_array_t			s_material_templates;
+	texture_array_t						s_textures;
+	surface_array_t						s_surfaces;
 
 	// -----------------------------------------
 	static GLenum s_draw_types[] = {
@@ -253,10 +202,14 @@ namespace renderer {
 		pxDisable(GL_STENCIL_TEST);
 	}
 
-	void enable_vertex_attrib(const u32 i_location, const s32 i_size,
-			const data_type_e i_type, const bool i_normalized, const s32 i_stride, const voidptr offset)
+	void enable_vertex_attrib(const u32 i_location)
 	{
 		pxEnableVertexAttribArray(i_location);
+	}
+
+	void describe_vertex_data(const u32 i_location, const s32 i_size,
+			const data_type_e i_type, const bool i_normalized, const s32 i_stride, const voidptr offset)
+	{
 		pxVertexAttribPointer(i_location, i_size, s_data_types[static_cast<s32>(i_type)],
 				i_normalized? GL_TRUE : GL_FALSE,
 				i_stride, (const GLvoid*)offset);

@@ -34,7 +34,8 @@ namespace insigne {
 						{
 							render_command cmd;
 							gpuCmd.serialize(cmd);
-							renderer::draw_surface_idx(cmd.surface_handle, *cmd.material_snapshot, cmd.segment_size, cmd.segment_offset);
+							renderer::draw_surface_idx<t_surface>(cmd.surface_handle, *cmd.material_snapshot,
+									cmd.segment_size, cmd.segment_offset);
 							break;
 						}
 					default:
