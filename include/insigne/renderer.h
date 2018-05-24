@@ -25,6 +25,7 @@ namespace renderer {
 	void										set_scissor_test(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
 	template <typename t_switch>
 	void										set_stencil_test(const compare_func_e i_func, const u32 i_mask, const s32 i_ref, const operation_e i_sfail, const operation_e i_dpfail, const operation_e i_dppass);
+	void										enable_vertex_attrib(const u32 i_location, const s32 i_size, const data_type_e i_type, const bool i_normalized, const s32 i_stride, const voidptr offset);
 
 	// -----------------------------------------
 	void										clear_color(const floral::vec4f& i_color);

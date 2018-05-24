@@ -144,6 +144,21 @@ namespace insigne {
 	}
 	// -----------------------------------------
 	template <typename t_surface>
+	void draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl)
+	{
+		material_t* matSnapshot = s_gpu_frame_allocator[s_back_cmdbuff]->allocate<material_t>();
+		(*matSnapshot) = s_materials[static_cast<s32>(i_matHdl)];
+
+		render_command cmd;
+		cmd.material_snapshot = matSnapshot;
+		cmd.segment_offset = 0;
+		cmd.surface_handle = i_surfaceHdl;
+		cmd.segment_size = -1;
+
+		push_draw_command<t_surface>(cmd);
+	}
+	
+	template <typename t_surface>
 	void draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
 			const s32 i_segSize, const voidptr i_segOffset)
 	{

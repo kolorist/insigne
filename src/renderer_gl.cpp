@@ -252,6 +252,15 @@ namespace renderer {
 	{
 		pxDisable(GL_STENCIL_TEST);
 	}
+
+	void enable_vertex_attrib(const u32 i_location, const s32 i_size,
+			const data_type_e i_type, const bool i_normalized, const s32 i_stride, const voidptr offset)
+	{
+		pxEnableVertexAttribArray(i_location);
+		pxVertexAttribPointer(i_location, i_size, s_data_types[static_cast<s32>(i_type)],
+				i_normalized? GL_TRUE : GL_FALSE,
+				i_stride, (const GLvoid*)offset);
+	}
 	// -----------------------------------------
 
 	void clear_color(const floral::vec4f& i_color)
@@ -589,12 +598,14 @@ namespace renderer {
 		// draw
 		pxBindBuffer(GL_ARRAY_BUFFER, surf.vbo);
 		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surf.ibo);
+		/*
 		pxEnableVertexAttribArray(0);
 		pxEnableVertexAttribArray(1);
 		pxEnableVertexAttribArray(2);
 		pxVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, surf.stride, 0);
 		pxVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, surf.stride, (GLvoid*)8);
 		pxVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, surf.stride, (GLvoid*)16);
+		*/
 		pxDrawElements(GL_TRIANGLES, iCount, GL_UNSIGNED_INT, i_segOffset);
 	}
 }
