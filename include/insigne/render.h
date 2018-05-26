@@ -3,67 +3,17 @@
 #include <floral.h>
 
 #include "commons.h"
-#include "internal_commons.h"
 #include "buffers.h"
 #include "memory.h"
-#include "renderer.h"
-#include "generated_code/proxy.h"
 
 namespace insigne {
 
 	// -----------------------------------------
-	typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
-
-#define BUFFERED_FRAMES							3
-
-	template <typename t_surface>
-	struct draw_command_buffer_t {
-		static gpu_command_buffer_t				command_buffer[BUFFERED_FRAMES];
-	};
-	extern gpu_command_buffer_t					s_generic_command_buffer[BUFFERED_FRAMES];
-
 	template <typename t_surface>
 	struct renderable_surface_t {
-		static void render()
-		{
-			for (u32 i = 0; i < draw_command_buffer_t<t_surface>::command_buffer[s_front_cmdbuff].get_size(); i++) {
-				gpu_command& gpuCmd = draw_command_buffer_t<t_surface>::command_buffer[s_front_cmdbuff][i];
-				gpuCmd.reset_cursor();
-				switch (gpuCmd.opcode) {
-					case command::draw_geom:
-						{
-							render_command cmd;
-							gpuCmd.serialize(cmd);
-							renderer::draw_surface_idx<t_surface>(cmd.surface_handle, *cmd.material_snapshot,
-									cmd.segment_size, cmd.segment_offset);
-							break;
-						}
-					default:
-						break;
-				}
-			}
-		}
-
-		static void init_buffer(insigne::linear_allocator_t* i_allocator)
-		{
-			using namespace insigne;
-			for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-				draw_command_buffer_t<t_surface>::command_buffer[i].init(64u, &g_persistance_allocator);
-		}
+		static void								render();
+		static void								init_buffer(insigne::linear_allocator_t* i_allocator);
 	};
-
-	extern floral::condition_variable			s_init_condvar;
-	extern floral::mutex						s_init_mtx;
-	extern floral::condition_variable			s_cmdbuffer_condvar;
-	extern floral::mutex						s_cmdbuffer_mtx;
-
-	extern arena_allocator_t*					s_gpu_frame_allocator[BUFFERED_FRAMES];
-	extern size									s_front_cmdbuff;
-	extern size									s_back_cmdbuff;
-	extern render_state_t						s_render_state;
-	extern u32									s_render_state_changelog;
-	extern floral::fixed_array<material_t, linear_allocator_t>	s_materials;
-	extern material_handle_t					s_current_material;
 
 	// -----------------------------------------
 	template <typename t_surface_list>
@@ -95,14 +45,6 @@ namespace insigne {
 	voidptr										create_stream_texture2d(texture_format_e i_format);
 	void										update_stream_texture2d();
 
-#if 0
-	const surface_handle_t						upload_surface(voidptr i_vertices, voidptr i_indices,
-													s32 i_stride, const u32 i_vcount, const u32 i_icount, const draw_type_e i_drawType);
-	void										update_surface(const surface_handle_t& i_hdl,
-													voidptr i_vertices, voidptr i_indices,
-													const u32 i_vcount, const u32 i_icount);
-#endif
-
 	const surface_handle_t						upload_surface(voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
 													const s32 i_stride, const u32 i_vcount, const u32 i_icount);
 	const surface_handle_t						create_streamed_surface(const s32 i_stride);
@@ -119,17 +61,6 @@ namespace insigne {
 	template <typename t_param_type>
 	void										set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const t_param_type& i_value);
 
-	/*
-	 * 3 cases:
-	 * 	- the material is identical with previous draw call: just draw the geometry
-	 * 	- the material is different with previous draw call: re-bind it
-	 * 	- the material parameters are different with previous draw call: update them
-	 */
-	/*
-	void										draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);
-	void										draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
-													const s32 i_segSize, const voidptr i_segOffset);
-													*/
 	template <typename TSurface>
 	void										draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);
 	template <typename TSurface>

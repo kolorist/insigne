@@ -1,9 +1,14 @@
+#pragma once
+
+#include <floral.h>
+
 namespace insigne {
 
 	template <typename>
 	struct draw_command_buffer_t;
 
 	namespace detail {
+
 		// rendering
 		template <int t_n, typename t_surface_list>
 		struct internal_surface_iterator {

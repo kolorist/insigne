@@ -5,14 +5,10 @@
 
 #include "memory.h"
 #include "insigne/generated_code/proxy.h"
+#include "insigne/detail/renderer_states_gl.h"
 
 namespace insigne {
 namespace renderer {
-
-	shader_array_t						s_shaders;
-	material_template_array_t			s_material_templates;
-	texture_array_t						s_textures;
-	surface_array_t						s_surfaces;
 
 	// -----------------------------------------
 	static GLenum s_draw_types[] = {
@@ -116,10 +112,10 @@ namespace renderer {
 
 	void initialize_renderer()
 	{
-		s_shaders.init(64u, &g_persistance_allocator);
-		s_material_templates.init(64u, &g_persistance_allocator);
-		s_textures.init(64u, &g_persistance_allocator);
-		s_surfaces.init(256u, &g_persistance_allocator);
+		detail::s_shaders.init(64u, &g_persistance_allocator);
+		detail::s_material_templates.init(64u, &g_persistance_allocator);
+		detail::s_textures.init(64u, &g_persistance_allocator);
+		detail::s_surfaces.init(256u, &g_persistance_allocator);
 	}
 
 	// -----------------------------------------
@@ -234,8 +230,8 @@ namespace renderer {
 
 	texture_handle_t create_texture()
 	{
-		u32 idx = s_textures.get_size();
-		s_textures.push_back(texture());
+		u32 idx = detail::s_textures.get_size();
+		detail::s_textures.push_back(detail::texture());
 		return static_cast<texture_handle_t>(idx);
 	}
 
@@ -246,7 +242,7 @@ namespace renderer {
 			const data_type_e i_dataType, voidptr i_data,
 			const filtering_e i_minFil /* = filtering_e::nearest */, const filtering_e i_magFil /* = filtering_e::nearest */)
 	{
-		texture& thisTexture = s_textures[i_hdl];
+		detail::texture& thisTexture = detail::s_textures[i_hdl];
 		GLuint newTexture = 0;
 		
 		pxGenTextures(1, &newTexture);
@@ -277,8 +273,8 @@ namespace renderer {
 
 	shader_handle_t create_shader(const shader_param_list_t* i_paramList)
 	{
-		u32 idx = s_shaders.get_size();
-		s_shaders.push_back(shader());
+		u32 idx = detail::s_shaders.get_size();
+		detail::s_shaders.push_back(detail::shader());
 		material_template_t newTemplate;
 
 		// create new material template first
@@ -310,14 +306,14 @@ namespace renderer {
 					break;
 			}
 		}
-		s_material_templates.push_back(newTemplate);
+		detail::s_material_templates.push_back(newTemplate);
 
 		return static_cast<shader_handle_t>(idx);
 	}
 
 	void compile_shader(shader_handle_t& i_hdl, const_cstr i_vertstr, const_cstr i_fragstr)
 	{
-		shader& thisShader = s_shaders[i_hdl];
+		detail::shader& thisShader = detail::s_shaders[i_hdl];
 		
 		GLuint newShader = 0;
 		GLuint fs = 0, vs = 0;
@@ -372,12 +368,12 @@ namespace renderer {
 		pxDeleteShader(vs);
 		pxDeleteShader(fs);
 
-		s_shaders[i_hdl].gpu_handle = newShader;
+		detail::s_shaders[i_hdl].gpu_handle = newShader;
 	}
 
 	void compile_shader(const shader_handle_t& i_hdl, const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList)
 	{
-		shader& thisShader = s_shaders[i_hdl];
+		detail::shader& thisShader = detail::s_shaders[i_hdl];
 		
 		GLuint newShader = 0;
 		GLuint fs = 0, vs = 0;
@@ -462,18 +458,18 @@ namespace renderer {
 			}
 		}
 
-		s_shaders[i_hdl].gpu_handle = newShader;
+		detail::s_shaders[i_hdl].gpu_handle = newShader;
 	}
 
 	const material_template_t& get_material_template(const shader_handle_t& i_shaderHdl)
 	{
-		return s_material_templates[static_cast<s32>(i_shaderHdl)];
+		return detail::s_material_templates[static_cast<s32>(i_shaderHdl)];
 	}
 
 	surface_handle_t create_surface()
 	{
-		u32 idx = s_surfaces.get_size();
-		s_surfaces.push_back(surface());
+		u32 idx = detail::s_surfaces.get_size();
+		detail::s_surfaces.push_back(detail::surface());
 		return static_cast<surface_handle_t>(idx);
 	}
 
@@ -497,20 +493,20 @@ namespace renderer {
 				drawType);
 		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		s_surfaces[i_hdl].stride = i_stride;
-		s_surfaces[i_hdl].draw_type = i_drawType;
-		s_surfaces[i_hdl].icount = i_icount;
-		s_surfaces[i_hdl].vbo = vbo;
-		s_surfaces[i_hdl].ibo = ibo;
+		detail::s_surfaces[i_hdl].stride = i_stride;
+		detail::s_surfaces[i_hdl].draw_type = i_drawType;
+		detail::s_surfaces[i_hdl].icount = i_icount;
+		detail::s_surfaces[i_hdl].vbo = vbo;
+		detail::s_surfaces[i_hdl].ibo = ibo;
 	}
 
 	void update_surface(const surface_handle_t& i_hdl, voidptr i_vertices, voidptr i_indices,
 			const u32 i_vcount, const u32 i_icount)
 	{
-		s32 stride = s_surfaces[i_hdl].stride;
-		GLenum drawType = s_draw_types[static_cast<s32>(s_surfaces[i_hdl].draw_type)];
-		GLuint vbo = s_surfaces[i_hdl].vbo;
-		GLuint ibo = s_surfaces[i_hdl].ibo;
+		s32 stride = detail::s_surfaces[i_hdl].stride;
+		GLenum drawType = s_draw_types[static_cast<s32>(detail::s_surfaces[i_hdl].draw_type)];
+		GLuint vbo = detail::s_surfaces[i_hdl].vbo;
+		GLuint ibo = detail::s_surfaces[i_hdl].ibo;
 
 		pxBindBuffer(GL_ARRAY_BUFFER, vbo);
 		pxBufferData(GL_ARRAY_BUFFER,
@@ -525,7 +521,7 @@ namespace renderer {
 				(const GLvoid*)(i_indices),
 				drawType);
 		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		s_surfaces[i_hdl].icount = i_icount;
+		detail::s_surfaces[i_hdl].icount = i_icount;
 	}
 }
 }

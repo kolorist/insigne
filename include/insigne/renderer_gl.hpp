@@ -1,3 +1,5 @@
+#include "detail/renderer_states_gl.h"
+
 namespace insigne {
 namespace renderer {
 
@@ -5,8 +7,8 @@ namespace renderer {
 	void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_matSnapshot,
 			const s32 i_segSize, const voidptr i_segOffset)
 	{
-		surface surf = s_surfaces[i_surfaceHdl];
-		shader& shdr = s_shaders[i_matSnapshot.shader_handle];
+		detail::surface surf = detail::s_surfaces[i_surfaceHdl];
+		detail::shader& shdr = detail::s_shaders[i_matSnapshot.shader_handle];
 
 		s32 iCount = 0;
 		if (i_segSize < 0) iCount = surf.icount; else iCount = i_segSize;
@@ -20,7 +22,7 @@ namespace renderer {
 		for (u32 i = 0; i < i_matSnapshot.mat4_params.get_size(); i++)
 			pxUniformMatrix4fv(shdr.mat4_params[i], 1, GL_FALSE, &(i_matSnapshot.mat4_params[i].value[0][0]));
 		for (u32 i = 0; i < i_matSnapshot.texture2d_params.get_size(); i++) {
-			texture& tex = s_textures[static_cast<s32>(i_matSnapshot.texture2d_params[i].value)];
+			detail::texture& tex = detail::s_textures[static_cast<s32>(i_matSnapshot.texture2d_params[i].value)];
 			pxActiveTexture(GL_TEXTURE0 + i);
 			pxBindTexture(GL_TEXTURE_2D, tex.gpu_handle);
 			pxUniform1i(shdr.texture2d_params[i], i);

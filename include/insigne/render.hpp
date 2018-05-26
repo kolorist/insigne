@@ -1,8 +1,39 @@
-#include "detail/render.hpp"
+#include "detail/render.h"
+#include "detail/render_states.h"
 
 #include "renderer.h"
 
 namespace insigne {
+
+	// -----------------------------------------
+	template <typename t_surface>
+	void renderable_surface_t<t_surface>::render()
+	{
+		for (u32 i = 0; i < detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_front_cmdbuff].get_size(); i++) {
+			gpu_command& gpuCmd = detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_front_cmdbuff][i];
+			gpuCmd.reset_cursor();
+			switch (gpuCmd.opcode) {
+				case command::draw_geom:
+					{
+						render_command cmd;
+						gpuCmd.serialize(cmd);
+						renderer::draw_surface_idx<t_surface>(cmd.surface_handle, *cmd.material_snapshot,
+								cmd.segment_size, cmd.segment_offset);
+						break;
+					}
+				default:
+					break;
+			}
+		}
+	}
+
+	template <typename t_surface>
+	void renderable_surface_t<t_surface>::init_buffer(insigne::linear_allocator_t* i_allocator)
+	{
+		using namespace insigne;
+		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
+			detail::draw_command_buffer_t<t_surface>::command_buffer[i].init(64u, &g_persistance_allocator);
+	}
 
 	// -----------------------------------------
 	template <typename t_surface_list>
@@ -10,15 +41,15 @@ namespace insigne {
 	{
 		create_main_context();
 		renderer::initialize_renderer();
-		s_init_condvar.notify_one();
+		detail::s_init_condvar.notify_one();
 
 		while (true) {
-			while (s_front_cmdbuff == s_back_cmdbuff)
-				s_cmdbuffer_condvar.wait(s_cmdbuffer_mtx);
+			while (detail::s_front_cmdbuff == detail::s_back_cmdbuff)
+				detail::s_cmdbuffer_condvar.wait(detail::s_cmdbuffer_mtx);
 
 			// generic phase
-			for (u32 i = 0; i < s_generic_command_buffer[s_front_cmdbuff].get_size(); i++) {
-				gpu_command& gpuCmd = s_generic_command_buffer[s_front_cmdbuff][i];
+			for (u32 i = 0; i < detail::s_generic_command_buffer[detail::s_front_cmdbuff].get_size(); i++) {
+				gpu_command& gpuCmd = detail::s_generic_command_buffer[detail::s_front_cmdbuff][i];
 				gpuCmd.reset_cursor();
 				switch (gpuCmd.opcode) {
 					case command::setup_framebuffer:
@@ -97,10 +128,10 @@ namespace insigne {
 
 			// geometry render phase
 			detail::internal_render_surfaces<t_surface_list>();
-			detail::internal_clear_buffer<t_surface_list>(s_front_cmdbuff);
-			s_generic_command_buffer[s_front_cmdbuff].empty();
+			detail::internal_clear_buffer<t_surface_list>(detail::s_front_cmdbuff);
+			detail::s_generic_command_buffer[detail::s_front_cmdbuff].empty();
 
-			s_front_cmdbuff = (s_front_cmdbuff + 1) % BUFFERED_FRAMES;
+			detail::s_front_cmdbuff = (detail::s_front_cmdbuff + 1) % BUFFERED_FRAMES;
 			swap_buffers();
 		}
 	}
@@ -115,18 +146,18 @@ namespace insigne {
 
 		// generic buffer init
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			s_generic_command_buffer[i].init(64u, &g_persistance_allocator);
+			detail::s_generic_command_buffer[i].init(64u, &g_persistance_allocator);
 		// draw buffer init
 		detail::internal_init_buffer<t_surface_list>(&g_persistance_allocator);
 
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(8));
+			detail::s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(8));
 
-		s_materials.init(32, &g_persistance_allocator);
+		detail::s_materials.init(32, &g_persistance_allocator);
 
-		s_front_cmdbuff = 0;
-		s_back_cmdbuff = 2;
-		s_render_state_changelog = 0;
+		detail::s_front_cmdbuff = 0;
+		detail::s_back_cmdbuff = 2;
+		detail::s_render_state_changelog = 0;
 
 		g_render_thread.entry_point = &insigne::render_thread_func<t_surface_list>;
 		g_render_thread.ptr_data = nullptr;
@@ -140,14 +171,14 @@ namespace insigne {
 		gpu_command newCmd;
 		newCmd.opcode = command::draw_geom;
 		newCmd.deserialize(i_cmd);
-		draw_command_buffer_t<t_surface>::command_buffer[s_back_cmdbuff].push_back(newCmd);
+		detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
 	}
 	// -----------------------------------------
 	template <typename t_surface>
 	void draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl)
 	{
-		material_t* matSnapshot = s_gpu_frame_allocator[s_back_cmdbuff]->allocate<material_t>();
-		(*matSnapshot) = s_materials[static_cast<s32>(i_matHdl)];
+		material_t* matSnapshot = detail::s_gpu_frame_allocator[detail::s_back_cmdbuff]->allocate<material_t>();
+		(*matSnapshot) = detail::s_materials[static_cast<s32>(i_matHdl)];
 
 		render_command cmd;
 		cmd.material_snapshot = matSnapshot;
@@ -162,8 +193,8 @@ namespace insigne {
 	void draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
 			const s32 i_segSize, const voidptr i_segOffset)
 	{
-		material_t* matSnapshot = s_gpu_frame_allocator[s_back_cmdbuff]->allocate<material_t>();
-		(*matSnapshot) = s_materials[static_cast<s32>(i_matHdl)];
+		material_t* matSnapshot = detail::s_gpu_frame_allocator[detail::s_back_cmdbuff]->allocate<material_t>();
+		(*matSnapshot) = detail::s_materials[static_cast<s32>(i_matHdl)];
 
 		render_command cmd;
 		cmd.material_snapshot = matSnapshot;

@@ -6,6 +6,8 @@
 
 namespace insigne {
 
+#define BUFFERED_FRAMES							3
+
 	enum class render_state_togglemask_e {
 		depth_test								= 1u << 0,
 		depth_write								= 1u << 1,
