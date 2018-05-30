@@ -249,6 +249,15 @@ namespace insigne {
 		push_command(cmd);
 	}
 
+	const texture_handle_t create_texture2d(const s32 i_width, const s32 i_height,
+			const texture_format_e i_format, const size i_dataSize, voidptr& o_placeholderData)
+	{
+		voidptr placeholderData = s_composing_allocator.allocate(i_dataSize);
+		texture_handle_t texHdl = upload_texture2d(i_width, i_height, i_format, placeholderData);
+		o_placeholderData = placeholderData;
+		return texHdl;
+	}
+
 	const texture_handle_t upload_texture2d(const s32 i_width, const s32 i_height, const texture_format_e i_format, voidptr i_data)
 	{
 		static texture_internal_format_e s_internal_formats[] = {

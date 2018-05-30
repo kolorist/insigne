@@ -40,7 +40,9 @@ namespace insigne {
 	void										set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha);
 
 	// normal upload
+	const texture_handle_t						create_texture2d(const s32 i_width, const s32 i_height, const texture_format_e i_format, const size i_dataSize, voidptr& o_placeholderData);
 	const texture_handle_t						upload_texture2d(const s32 i_width, const s32 i_height, const texture_format_e i_format, voidptr i_data);
+
 	// streaming
 	voidptr										create_stream_texture2d(texture_format_e i_format);
 	void										update_stream_texture2d();
