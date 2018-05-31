@@ -149,7 +149,10 @@ namespace insigne {
 				texture_format_e				format;
 				texture_internal_format_e		internal_format;
 				data_type_e						pixel_data_type;
+				filtering_e						min_filter;
+				filtering_e						mag_filter;
 				s32								width, height;
+				bool							has_builtin_mipmaps;
 			};
 
 			// geom

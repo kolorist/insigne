@@ -250,15 +250,23 @@ namespace insigne {
 	}
 
 	const texture_handle_t create_texture2d(const s32 i_width, const s32 i_height,
-			const texture_format_e i_format, const size i_dataSize, voidptr& o_placeholderData)
+			const texture_format_e i_format,
+			const filtering_e i_minFilter, const filtering_e i_magFilter,
+			const size i_dataSize, voidptr& o_placeholderData, const bool i_hasMM /* = false */)
 	{
 		voidptr placeholderData = s_composing_allocator.allocate(i_dataSize);
-		texture_handle_t texHdl = upload_texture2d(i_width, i_height, i_format, placeholderData);
+		texture_handle_t texHdl = upload_texture2d(i_width, i_height,
+				i_format,
+				i_minFilter, i_magFilter,
+				placeholderData, i_hasMM);
 		o_placeholderData = placeholderData;
 		return texHdl;
 	}
 
-	const texture_handle_t upload_texture2d(const s32 i_width, const s32 i_height, const texture_format_e i_format, voidptr i_data)
+	const texture_handle_t upload_texture2d(const s32 i_width, const s32 i_height,
+			const texture_format_e i_format,
+			const filtering_e i_minFilter, const filtering_e i_magFilter,
+			voidptr i_data, const bool i_hasMM /* = false */)
 	{
 		static texture_internal_format_e s_internal_formats[] = {
 			texture_internal_format_e::rgb8,
@@ -288,6 +296,9 @@ namespace insigne {
 		cmd.height = i_height;
 		cmd.internal_format = s_internal_formats[static_cast<s32>(i_format)];
 		cmd.pixel_data_type = s_data_types[static_cast<s32>(i_format)];
+		cmd.min_filter = i_minFilter;
+		cmd.mag_filter = i_magFilter;
+		cmd.has_builtin_mipmaps = i_hasMM;
 		cmd.texture_idx = renderer::create_texture();
 		push_command(cmd);
 

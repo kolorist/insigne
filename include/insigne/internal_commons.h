@@ -2,6 +2,7 @@
 
 #include <floral.h>
 
+//TODO: move these to 'detail'
 namespace insigne {
 
 namespace renderer {

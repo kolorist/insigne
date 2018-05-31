@@ -67,8 +67,14 @@ namespace insigne {
 							switch (cmd.data_type) {
 								case stream_type::texture:
 									{
-										renderer::upload_texture2d(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
-												cmd.internal_format, cmd.pixel_data_type, cmd.data);
+										if (cmd.has_builtin_mipmaps)
+											renderer::upload_texture2d_mm(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
+													cmd.internal_format, cmd.pixel_data_type, cmd.data,
+													cmd.min_filter, cmd.mag_filter);
+										else
+											renderer::upload_texture2d(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
+													cmd.internal_format, cmd.pixel_data_type, cmd.data,
+													cmd.min_filter, cmd.mag_filter);
 										break;
 									}
 								
