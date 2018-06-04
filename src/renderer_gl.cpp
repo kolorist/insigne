@@ -116,6 +116,7 @@ namespace renderer {
 		detail::s_material_templates.init(64u, &g_persistance_allocator);
 		detail::s_textures.init(64u, &g_persistance_allocator);
 		detail::s_surfaces.init(256u, &g_persistance_allocator);
+		detail::s_framebuffers.init(32u, &g_persistance_allocator);
 	}
 
 	// -----------------------------------------
@@ -228,11 +229,43 @@ namespace renderer {
 		pxClear(clearBit);
 	}
 
+	const framebuffer_handle_t create_framebuffer(const s32 i_colorAttachsCount)
+	{
+		u32 idx = detail::s_framebuffers.get_size();
+		detail::framebuffer newFramebuffer;
+		for (s32 i = 0; i < i_colorAttachsCount; i++) {
+			newFramebuffer.color_attachments[i] = create_texture();
+		}
+		newFramebuffer.color_attachments_count = i_colorAttachsCount;
+		detail::s_framebuffers.push_back(detail::framebuffer());
+		return (framebuffer_handle_t)idx;
+	}
+
+	void init_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_width, const s32 i_height, const f32 i_scale,
+			const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs)
+	{
+		detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_hdl];
+		// at this point, we already have color attachments count
+		u32 colorAttachsCount = i_colorAttachs->get_size();
+		// TODO: assertion to check colorAttachsCount and thisFramebuffer.color_attachments_count
+
+		GLuint newFBO = 0;
+		pxGenFramebuffers(1, &newFBO);
+		pxBindFramebuffer(GL_FRAMEBUFFER, newFBO);
+
+		for (u32 i = 0; i < colorAttachsCount; i++) {
+			// TODO: use upload_texture2d
+		}
+
+		thisFramebuffer.width = i_width;
+		thisFramebuffer.height = i_height;
+	}
+
 	texture_handle_t create_texture()
 	{
 		u32 idx = detail::s_textures.get_size();
 		detail::s_textures.push_back(detail::texture());
-		return static_cast<texture_handle_t>(idx);
+		return (texture_handle_t)idx;
 	}
 
 	// we should gather all standalone 2d textures and upload them in one go

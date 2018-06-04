@@ -212,3 +212,6 @@ typedef void									GLvoid;
 #define GL_TEXTURE29                      0x84DD
 #define GL_TEXTURE30                      0x84DE
 #define GL_TEXTURE31                      0x84DF
+
+/* Framebuffer */
+#define GL_FRAMEBUFFER                    0x8D40

@@ -220,11 +220,11 @@ namespace insigne {
 	// state-dependant
 	void begin_frame()
 	{
-		framebuffer_command cmd;
+		framebuffer_refresh_command cmd;
 		cmd.clear_color_buffer = true;
 		cmd.clear_depth_buffer = true;
 		gpu_command newCmd;
-		newCmd.opcode = command::setup_framebuffer;
+		newCmd.opcode = command::refresh_framebuffer;
 		newCmd.deserialize(cmd);
 		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
 	}

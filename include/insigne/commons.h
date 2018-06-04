@@ -132,37 +132,6 @@ namespace insigne {
 		s32										scissor_height;
 	};
 
-	struct material_param_t {
-		c8										name[128];
-		material_data_type_e					data_type;
-
-		material_param_t()
-		{ }
-
-		material_param_t(const_cstr i_name, material_data_type_e i_dataType)
-		{
-			strcpy(name, i_name);
-			data_type = i_dataType;
-		}
-	};
-
-	struct shader_param_t {
-		c8										name[128];
-		param_data_type_e						data_type;
-
-		shader_param_t()
-		{ }
-
-		shader_param_t(const_cstr i_name, param_data_type_e i_dataType)
-			: data_type(i_dataType)
-		{
-			strcpy(name, i_name);
-		}
-	};
-
-	typedef floral::fixed_array<material_param_t, freelist_allocator_t>	material_param_list_t;
-	typedef floral::fixed_array<shader_param_t, arena_allocator_t>	shader_param_list_t;
-
 	enum class texture_format_e {
 		rgb = 0,
 		hdr_rgb,
@@ -195,10 +164,64 @@ namespace insigne {
 		linear_mipmap_linear
 	};
 
+
+	struct material_param_t {
+		c8										name[128];
+		material_data_type_e					data_type;
+
+		material_param_t()
+		{ }
+
+		material_param_t(const_cstr i_name, material_data_type_e i_dataType)
+		{
+			strcpy(name, i_name);
+			data_type = i_dataType;
+		}
+	};
+
+	struct shader_param_t {
+		c8										name[128];
+		param_data_type_e						data_type;
+
+		shader_param_t()
+		{ }
+
+		shader_param_t(const_cstr i_name, param_data_type_e i_dataType)
+			: data_type(i_dataType)
+		{
+			strcpy(name, i_name);
+		}
+	};
+
+	struct color_attachment_t {
+		c8										name[128];
+		s32										width, height;
+		f32										scale;
+		texture_format_e						texture_format;
+		
+		color_attachment_t()
+		{ }
+
+		color_attachment_t(const_cstr i_name, const s32 i_width, const s32 i_height,
+				const texture_format_e i_texFormat)
+			: width(i_width)
+			, height(i_height)
+			, texture_format(i_texFormat)
+		{
+			strcpy(name, i_name);
+		}
+	};
+
+	typedef floral::fixed_array<material_param_t, freelist_allocator_t>	material_param_list_t;
+	typedef floral::fixed_array<shader_param_t, arena_allocator_t>	shader_param_list_t;
+	typedef floral::fixed_array<color_attachment_t, arena_allocator_t> color_attachment_list_t;
+
 	typedef s32									shader_handle_t;
 	typedef s32									texture_handle_t;
 	typedef s32									surface_handle_t;
 	typedef s32									material_handle_t;
+	typedef s32									framebuffer_handle_t;
 	typedef s32									param_id;
+	typedef s32									color_attachment_id;
 
 }

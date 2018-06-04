@@ -52,9 +52,19 @@ namespace insigne {
 				gpu_command& gpuCmd = detail::s_generic_command_buffer[detail::s_front_cmdbuff][i];
 				gpuCmd.reset_cursor();
 				switch (gpuCmd.opcode) {
+					case command::init_framebuffer:
+						{
+							break;
+						}
+
 					case command::setup_framebuffer:
 						{
-							framebuffer_command cmd;
+							break;
+						}
+
+					case command::refresh_framebuffer:
+						{
+							framebuffer_refresh_command cmd;
 							gpuCmd.serialize(cmd);
 							renderer::clear_framebuffer(cmd.clear_color_buffer, cmd.clear_depth_buffer);
 							break;

@@ -4,7 +4,6 @@
 
 #include <string.h>
 
-#include "buffers.h"
 #include "commons.h"
 #include "internal_commons.h"
 
@@ -19,7 +18,9 @@ namespace insigne {
 		setup_render_state_toggle,
 		setup_blending_state,
 		setup_scissor_state,
+		init_framebuffer,
 		setup_framebuffer,
+		refresh_framebuffer,
 		draw_geom,
 		load_data,
 		stream_data
@@ -120,9 +121,15 @@ namespace insigne {
 		bool									scissor_test;
 	};
 
-	struct framebuffer_command {
+	struct framebuffer_refresh_command {
 		bool									clear_color_buffer;
 		bool									clear_depth_buffer;
+	};
+
+	struct framebuffer_setup_command {
+	};
+
+	struct framebuffer_init_command {
 	};
 
 	struct render_command {

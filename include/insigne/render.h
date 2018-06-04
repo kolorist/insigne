@@ -22,8 +22,11 @@ namespace insigne {
 	void										wait_for_initialization();
 
 	void										begin_frame();
+	void										begin_frame(const framebuffer_handle_t i_fb);
 	void										end_frame();
+	void										end_frame(const framebuffer_handle_t i_fb);
 	void										dispatch_frame();
+	void										dispatch_frame(const framebuffer_handle_t i_fb);
 
 	void										set_depth_test(const bool i_enable);
 	void										set_depth_write(const bool i_enable);
@@ -38,6 +41,11 @@ namespace insigne {
 	void										set_scissor_rect(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
 
 	void										set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha);
+
+	// framebuffer
+	color_attachment_list_t*					allocate_color_attachment_list(const u32 i_attachCount);
+	const framebuffer_handle_t					create_framebuffer(const s32 i_width, const s32 i_height,
+													const f32 i_scale, const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs);
 
 	// normal upload
 	const texture_handle_t						create_texture2d(const s32 i_width, const s32 i_height,

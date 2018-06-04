@@ -7,6 +7,7 @@ namespace detail {
 	material_template_array_t					s_material_templates;
 	texture_array_t								s_textures;
 	surface_array_t								s_surfaces;
+	framebuffer_array_t							s_framebuffers;
 }
 }
 }
