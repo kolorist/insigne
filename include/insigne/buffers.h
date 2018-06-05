@@ -130,6 +130,11 @@ namespace insigne {
 	};
 
 	struct framebuffer_init_command {
+		const color_attachment_list_t*			color_attachment_list;
+		framebuffer_handle_t					framebuffer_idx;
+		s32										width, height;
+		f32										scale;
+		bool									has_depth;
 	};
 
 	struct render_command {

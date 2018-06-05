@@ -195,18 +195,13 @@ namespace insigne {
 
 	struct color_attachment_t {
 		c8										name[128];
-		s32										width, height;
-		f32										scale;
 		texture_format_e						texture_format;
 		
 		color_attachment_t()
 		{ }
 
-		color_attachment_t(const_cstr i_name, const s32 i_width, const s32 i_height,
-				const texture_format_e i_texFormat)
-			: width(i_width)
-			, height(i_height)
-			, texture_format(i_texFormat)
+		color_attachment_t(const_cstr i_name, const texture_format_e i_texFormat)
+			: texture_format(i_texFormat)
 		{
 			strcpy(name, i_name);
 		}

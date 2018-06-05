@@ -54,6 +54,10 @@ namespace insigne {
 				switch (gpuCmd.opcode) {
 					case command::init_framebuffer:
 						{
+							framebuffer_init_command cmd;
+							gpuCmd.serialize(cmd);
+							renderer::init_framebuffer(cmd.framebuffer_idx, cmd.width, cmd.height, cmd.scale,
+									cmd.has_depth, cmd.color_attachment_list);
 							break;
 						}
 

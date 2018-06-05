@@ -253,12 +253,44 @@ namespace renderer {
 		pxGenFramebuffers(1, &newFBO);
 		pxBindFramebuffer(GL_FRAMEBUFFER, newFBO);
 
+		s32 swidth = (s32)((f32)i_width * i_scale);
+		s32 sheight = (s32)((f32)i_height * i_scale);
+
 		for (u32 i = 0; i < colorAttachsCount; i++) {
 			// TODO: use upload_texture2d
+			static texture_internal_format_e s_internal_formats[] = {
+				texture_internal_format_e::rgb8,
+				texture_internal_format_e::rgb16f,
+				texture_internal_format_e::srgb8,
+				texture_internal_format_e::rgba8,
+				texture_internal_format_e::rgba16f,
+				texture_internal_format_e::depth24,
+				texture_internal_format_e::depth24_stencil8
+			};
+			static data_type_e s_data_types[] = {
+				data_type_e::elem_unsigned_byte,
+				data_type_e::elem_signed_float,
+				data_type_e::elem_unsigned_byte,
+				data_type_e::elem_unsigned_byte,
+				data_type_e::elem_signed_float,
+				data_type_e::elem_unsigned_int,
+				data_type_e::elem_unsigned_int_24_8
+			};
+
+			texture_format_e texFormat = i_colorAttachs->at(i).texture_format;
+			texture_internal_format_e internalFormat = s_internal_formats[(s32)texFormat];
+			data_type_e dataType = s_data_types[(s32)texFormat];
+			texture_handle_t thisTexture = thisFramebuffer.color_attachments[i];
+			upload_texture2d(thisTexture,
+					swidth, sheight, texFormat, internalFormat, dataType, nullptr,
+					filtering_e::linear_mipmap_linear, filtering_e::linear);
+			// attach texture to fbo
+			detail::texture& colorTex = detail::s_textures[thisTexture];
+			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorTex.gpu_handle, 0);
 		}
 
-		thisFramebuffer.width = i_width;
-		thisFramebuffer.height = i_height;
+		thisFramebuffer.width = swidth;
+		thisFramebuffer.height = sheight;
 	}
 
 	texture_handle_t create_texture()

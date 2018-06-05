@@ -33,6 +33,14 @@ namespace insigne {
 	}
 
 	// -----------------------------------------
+	void push_command(const framebuffer_init_command& i_cmd)
+	{
+		gpu_command newCmd;
+		newCmd.opcode = command::init_framebuffer;
+		newCmd.deserialize(i_cmd);
+		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+	}
+
 	void push_command(const init_command& i_cmd)
 	{
 		gpu_command newCmd;
@@ -247,6 +255,26 @@ namespace insigne {
 		init_command cmd;
 		cmd.clear_color = floral::vec4f(i_red, i_green, i_blue, i_alpha);
 		push_command(cmd);
+	}
+
+	color_attachment_list_t* allocate_color_attachment_list(const u32 i_attachCount)
+	{
+		return s_composing_allocator.allocate<color_attachment_list_t>(i_attachCount, &s_composing_allocator);
+	}
+
+	const framebuffer_handle_t create_framebuffer(const s32 i_width, const s32 i_height,
+			const f32 i_scale, const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs)
+	{
+		framebuffer_init_command cmd;
+		cmd.color_attachment_list = i_colorAttachs;
+		cmd.framebuffer_idx = renderer::create_framebuffer(i_colorAttachs->get_size());
+		cmd.width = i_width;
+		cmd.height = i_height;
+		cmd.scale = i_scale;
+		cmd.has_depth = i_hasDepth;
+
+		push_command(cmd);
+		return cmd.framebuffer_idx;
 	}
 
 	const texture_handle_t create_texture2d(const s32 i_width, const s32 i_height,
