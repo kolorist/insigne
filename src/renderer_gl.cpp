@@ -237,7 +237,7 @@ namespace renderer {
 			newFramebuffer.color_attachments[i] = create_texture();
 		}
 		newFramebuffer.color_attachments_count = i_colorAttachsCount;
-		detail::s_framebuffers.push_back(detail::framebuffer());
+		detail::s_framebuffers.push_back(newFramebuffer);
 		return (framebuffer_handle_t)idx;
 	}
 
@@ -256,26 +256,27 @@ namespace renderer {
 		s32 swidth = (s32)((f32)i_width * i_scale);
 		s32 sheight = (s32)((f32)i_height * i_scale);
 
+		static texture_internal_format_e s_internal_formats[] = {
+			texture_internal_format_e::rgb8,
+			texture_internal_format_e::rgb16f,
+			texture_internal_format_e::srgb8,
+			texture_internal_format_e::rgba8,
+			texture_internal_format_e::rgba16f,
+			texture_internal_format_e::depth24,
+			texture_internal_format_e::depth24_stencil8
+		};
+		static data_type_e s_data_types[] = {
+			data_type_e::elem_unsigned_byte,
+			data_type_e::elem_signed_float,
+			data_type_e::elem_unsigned_byte,
+			data_type_e::elem_unsigned_byte,
+			data_type_e::elem_signed_float,
+			data_type_e::elem_unsigned_int,
+			data_type_e::elem_unsigned_int_24_8
+		};
+
 		for (u32 i = 0; i < colorAttachsCount; i++) {
 			// TODO: use upload_texture2d
-			static texture_internal_format_e s_internal_formats[] = {
-				texture_internal_format_e::rgb8,
-				texture_internal_format_e::rgb16f,
-				texture_internal_format_e::srgb8,
-				texture_internal_format_e::rgba8,
-				texture_internal_format_e::rgba16f,
-				texture_internal_format_e::depth24,
-				texture_internal_format_e::depth24_stencil8
-			};
-			static data_type_e s_data_types[] = {
-				data_type_e::elem_unsigned_byte,
-				data_type_e::elem_signed_float,
-				data_type_e::elem_unsigned_byte,
-				data_type_e::elem_unsigned_byte,
-				data_type_e::elem_signed_float,
-				data_type_e::elem_unsigned_int,
-				data_type_e::elem_unsigned_int_24_8
-			};
 
 			texture_format_e texFormat = i_colorAttachs->at(i).texture_format;
 			texture_internal_format_e internalFormat = s_internal_formats[(s32)texFormat];
@@ -289,8 +290,27 @@ namespace renderer {
 			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorTex.gpu_handle, 0);
 		}
 
+		// TODO: depth texture
+
+		assert_framebuffer_completed();
+
+		thisFramebuffer.gpu_handle = newFBO;
 		thisFramebuffer.width = swidth;
 		thisFramebuffer.height = sheight;
+	}
+
+	void setup_framebuffer(const framebuffer_handle_t i_hdl)
+	{
+		detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_hdl];
+		pxBindFramebuffer(GL_FRAMEBUFFER, thisFramebuffer.gpu_handle);
+		static GLenum drawBuffers[] = {
+			GL_COLOR_ATTACHMENT0,
+			GL_COLOR_ATTACHMENT1,
+			GL_COLOR_ATTACHMENT2,
+			GL_COLOR_ATTACHMENT3
+		};
+		pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
+		pxViewport(0, 0, thisFramebuffer.width, thisFramebuffer.height);
 	}
 
 	texture_handle_t create_texture()

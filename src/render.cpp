@@ -237,6 +237,17 @@ namespace insigne {
 		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
 	}
 
+	void begin_frame(const framebuffer_handle_t i_fb)
+	{
+		framebuffer_setup_command cmd;
+		cmd.framebuffer_idx = i_fb;
+		gpu_command newCmd;
+		newCmd.opcode = command::setup_framebuffer;
+		newCmd.deserialize(cmd);
+		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+		begin_frame();
+	}
+
 	void end_frame()
 	{
 		while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff) Sleep(1);

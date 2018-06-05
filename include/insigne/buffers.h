@@ -127,6 +127,7 @@ namespace insigne {
 	};
 
 	struct framebuffer_setup_command {
+		framebuffer_handle_t					framebuffer_idx;
 	};
 
 	struct framebuffer_init_command {

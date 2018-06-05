@@ -63,6 +63,9 @@ namespace insigne {
 
 					case command::setup_framebuffer:
 						{
+							framebuffer_setup_command cmd;
+							gpuCmd.serialize(cmd);
+							renderer::setup_framebuffer(cmd.framebuffer_idx);
 							break;
 						}
 

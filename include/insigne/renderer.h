@@ -37,6 +37,7 @@ namespace renderer {
 	void										init_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_width, const s32 i_height,
 													const f32 i_scale, const bool i_hasDepth,
 													const color_attachment_list_t* i_colorAttachs);
+	void										setup_framebuffer(const framebuffer_handle_t i_hdl);
 
 	texture_handle_t							create_texture();
 	void										upload_texture2d(const texture_handle_t& i_hdl, const s32 i_width,

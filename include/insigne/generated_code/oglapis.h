@@ -25,7 +25,6 @@
 #endif
 
 namespace insigne {
-
 typedef APICALL void (APIENTRY *glActiveTexture_t)(GLenum texture);
 extern glActiveTexture_t glActiveTexture;
 

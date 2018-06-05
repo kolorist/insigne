@@ -9,3 +9,5 @@
 #include "oglapis.h"
 
 namespace insigne {
+
+void assert_framebuffer_completed();

@@ -36,6 +36,32 @@ void assert_driver_no_error()
 	}
 }
 
+void assert_framebuffer_completed()
+{
+	GLenum status = pxCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+	switch (status) {
+		case GL_FRAMEBUFFER_UNDEFINED:
+			CLOVER_DEBUG("Error in Framebuffer: GL_FRAMEBUFFER_UNDEFINED\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+			CLOVER_DEBUG("Error in Framebuffer: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+			CLOVER_DEBUG("Error in Framebuffer: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");
+			break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:
+			CLOVER_DEBUG("Error in Framebuffer: GL_FRAMEBUFFER_UNSUPPORTED\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+			CLOVER_DEBUG("Error in Framebuffer: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE\n");
+			break;
+		case GL_FRAMEBUFFER_COMPLETE:
+			break;
+		default:
+			CLOVER_DEBUG("Some error happened with Framebuffer\n");
+	}
+}
+
 void pxActiveTexture(GLenum texture)
 {
 	glActiveTexture(texture);

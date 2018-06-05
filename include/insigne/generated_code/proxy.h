@@ -10,6 +10,8 @@
 
 namespace insigne {
 
+void assert_framebuffer_completed();
+
 void pxActiveTexture(GLenum texture);
 
 void pxAttachShader(GLuint program, GLuint shader);
