@@ -11,7 +11,6 @@ namespace insigne {
 
 	// -----------------------------------------
 
-
 #define s_composing_allocator					(*detail::s_gpu_frame_allocator[detail::s_back_cmdbuff])
 #define s_rendering_allocator					(*detail::s_gpu_frame_allocator[detail::s_front_cmdbuff])
 	
@@ -228,27 +227,35 @@ namespace insigne {
 	// state-dependant
 	void begin_frame()
 	{
-		framebuffer_refresh_command cmd;
-		cmd.clear_color_buffer = true;
-		cmd.clear_depth_buffer = true;
-		gpu_command newCmd;
-		newCmd.opcode = command::refresh_framebuffer;
-		newCmd.deserialize(cmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+		begin_frame(-1);
 	}
 
 	void begin_frame(const framebuffer_handle_t i_fb)
 	{
-		framebuffer_setup_command cmd;
-		cmd.framebuffer_idx = i_fb;
-		gpu_command newCmd;
-		newCmd.opcode = command::setup_framebuffer;
-		newCmd.deserialize(cmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
-		begin_frame();
+		// setup the framebuffer
+		framebuffer_setup_command setupCmd;
+		setupCmd.framebuffer_idx = i_fb;
+		gpu_command newSetupCmd;
+		newSetupCmd.opcode = command::setup_framebuffer;
+		newSetupCmd.deserialize(setupCmd);
+		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newSetupCmd);
+
+		// refresh it
+		framebuffer_refresh_command refreshCmd;
+		refreshCmd.clear_color_buffer = true;
+		refreshCmd.clear_depth_buffer = true;
+		gpu_command newRefreshCmd;
+		newRefreshCmd.opcode = command::refresh_framebuffer;
+		newRefreshCmd.deserialize(refreshCmd);
+		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newRefreshCmd);
 	}
 
 	void end_frame()
+	{
+		end_frame(-1);
+	}
+
+	void end_frame(const framebuffer_handle_t i_fb)
 	{
 		while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff) Sleep(1);
 
@@ -257,6 +264,11 @@ namespace insigne {
 	}
 
 	void dispatch_frame()
+	{
+		dispatch_frame(-1);
+	}
+
+	void dispatch_frame(const framebuffer_handle_t i_fb)
 	{
 		detail::s_cmdbuffer_condvar.notify_one();
 	}

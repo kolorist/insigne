@@ -67,7 +67,7 @@ namespace renderer {
 		GL_INVERT
 	};
 
-	static GLenum s_texture_formats[] = {
+	static GLenum s_gl_texture_formats[] = {
 		GL_RGB,
 		GL_RGB,
 		GL_RGB,
@@ -77,7 +77,7 @@ namespace renderer {
 		GL_DEPTH_STENCIL
 	};
 
-	static GLenum s_internal_formats[] = {
+	static GLenum s_gl_internal_formats[] = {
 		GL_RG16F,
 		GL_RGB16F,
 		GL_RGBA16F,
@@ -90,7 +90,7 @@ namespace renderer {
 		GL_DEPTH24_STENCIL8
 	};
 
-	static GLenum s_data_types[] = {
+	static GLenum s_gl_data_types[] = {
 		GL_UNSIGNED_BYTE,
 		GL_BYTE,
 		GL_UNSIGNED_INT,
@@ -207,7 +207,7 @@ namespace renderer {
 	void describe_vertex_data(const u32 i_location, const s32 i_size,
 			const data_type_e i_type, const bool i_normalized, const s32 i_stride, const voidptr offset)
 	{
-		pxVertexAttribPointer(i_location, i_size, s_data_types[static_cast<s32>(i_type)],
+		pxVertexAttribPointer(i_location, i_size, s_gl_data_types[static_cast<s32>(i_type)],
 				i_normalized? GL_TRUE : GL_FALSE,
 				i_stride, (const GLvoid*)offset);
 	}
@@ -236,6 +236,7 @@ namespace renderer {
 		for (s32 i = 0; i < i_colorAttachsCount; i++) {
 			newFramebuffer.color_attachments[i] = create_texture();
 		}
+		newFramebuffer.depthstencil_attachment = create_texture();
 		newFramebuffer.color_attachments_count = i_colorAttachsCount;
 		detail::s_framebuffers.push_back(newFramebuffer);
 		return (framebuffer_handle_t)idx;
@@ -284,13 +285,32 @@ namespace renderer {
 			texture_handle_t thisTexture = thisFramebuffer.color_attachments[i];
 			upload_texture2d(thisTexture,
 					swidth, sheight, texFormat, internalFormat, dataType, nullptr,
-					filtering_e::linear_mipmap_linear, filtering_e::linear);
+					filtering_e::linear, filtering_e::linear);
 			// attach texture to fbo
 			detail::texture& colorTex = detail::s_textures[thisTexture];
 			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorTex.gpu_handle, 0);
 		}
 
 		// TODO: depth texture
+		{
+			texture_format_e texFormat = texture_format_e::depth;
+			texture_internal_format_e internalFormat = s_internal_formats[(s32)texFormat];
+			data_type_e dataType = s_data_types[(s32)texFormat];
+			texture_handle_t depthTexture = thisFramebuffer.depthstencil_attachment;
+
+			GLuint depthRenderBuffer;
+			pxGenRenderbuffers(1, &depthRenderBuffer);
+			pxBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+			pxRenderbufferStorage(GL_RENDERBUFFER, s_gl_internal_formats[(s32)internalFormat], swidth, sheight);
+			pxFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+			pxBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+			upload_texture2d(depthTexture,
+					swidth, sheight, texFormat, internalFormat, dataType, nullptr,
+					filtering_e::linear, filtering_e::linear);
+			detail::texture& depthTex = detail::s_textures[depthTexture];
+			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex.gpu_handle, 0);
+		}
 
 		assert_framebuffer_completed();
 
@@ -301,16 +321,20 @@ namespace renderer {
 
 	void setup_framebuffer(const framebuffer_handle_t i_hdl)
 	{
-		detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_hdl];
-		pxBindFramebuffer(GL_FRAMEBUFFER, thisFramebuffer.gpu_handle);
-		static GLenum drawBuffers[] = {
-			GL_COLOR_ATTACHMENT0,
-			GL_COLOR_ATTACHMENT1,
-			GL_COLOR_ATTACHMENT2,
-			GL_COLOR_ATTACHMENT3
-		};
-		pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
-		pxViewport(0, 0, thisFramebuffer.width, thisFramebuffer.height);
+		if (i_hdl >= 0) {
+			detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_hdl];
+			pxBindFramebuffer(GL_FRAMEBUFFER, thisFramebuffer.gpu_handle);
+			static GLenum drawBuffers[] = {
+				GL_COLOR_ATTACHMENT0,
+				GL_COLOR_ATTACHMENT1,
+				GL_COLOR_ATTACHMENT2,
+				GL_COLOR_ATTACHMENT3
+			};
+			pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
+			pxViewport(0, 0, thisFramebuffer.width, thisFramebuffer.height);
+		} else {
+			pxBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
 	}
 
 	texture_handle_t create_texture()
@@ -345,15 +369,15 @@ namespace renderer {
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		pxTexImage2D(GL_TEXTURE_2D, 0,
-				s_internal_formats[static_cast<s32>(i_internalFormat)], i_width, i_height, 0,
-				s_texture_formats[static_cast<s32>(i_format)], s_data_types[static_cast<s32>(i_dataType)], (GLvoid*)i_data);
+				s_gl_internal_formats[static_cast<s32>(i_internalFormat)], i_width, i_height, 0,
+				s_gl_texture_formats[static_cast<s32>(i_format)], s_gl_data_types[static_cast<s32>(i_dataType)], (GLvoid*)i_data);
 
 		pxBindTexture(GL_TEXTURE_2D, 0);
 		thisTexture.gpu_handle = newTexture;
 		thisTexture.width = i_width;
 		thisTexture.height = i_height;
-		thisTexture.format = s_texture_formats[static_cast<s32>(i_format)];
-		thisTexture.internal_format = s_internal_formats[static_cast<s32>(i_internalFormat)];
+		thisTexture.format = s_gl_texture_formats[static_cast<s32>(i_format)];
+		thisTexture.internal_format = s_gl_internal_formats[static_cast<s32>(i_internalFormat)];
 	}
 
 	void upload_texture2d_mm(const texture_handle_t& i_hdl,
@@ -398,8 +422,8 @@ namespace renderer {
 			// NOTE: please remember that: when loading mipmaps, the width and height is
 			// resolution of the mipmap, not the resolution of the largest mip
 			pxTexImage2D(GL_TEXTURE_2D, mipIdx,
-					s_internal_formats[(s32)i_internalFormat], width, width, 0,
-					s_texture_formats[(s32)i_format], s_data_types[(s32)i_dataType],
+					s_gl_internal_formats[(s32)i_internalFormat], width, width, 0,
+					s_gl_texture_formats[(s32)i_format], s_gl_data_types[(s32)i_dataType],
 					(GLvoid*)((aptr)i_data + (aptr)offset));
 			offset += width * width * s_num_channels[(s32)i_internalFormat];
 			width >>= 1;
@@ -410,8 +434,8 @@ namespace renderer {
 		thisTexture.gpu_handle = newTexture;
 		thisTexture.width = i_width;
 		thisTexture.height = i_height;
-		thisTexture.format = s_texture_formats[static_cast<s32>(i_format)];
-		thisTexture.internal_format = s_internal_formats[static_cast<s32>(i_internalFormat)];
+		thisTexture.format = s_gl_texture_formats[static_cast<s32>(i_format)];
+		thisTexture.internal_format = s_gl_internal_formats[static_cast<s32>(i_internalFormat)];
 	}
 
 	shader_handle_t create_shader(const shader_param_list_t* i_paramList)
