@@ -28,6 +28,12 @@ namespace insigne {
 typedef APICALL void (APIENTRY *glActiveTexture_t)(GLenum texture);
 extern glActiveTexture_t glActiveTexture;
 
+typedef APICALL void (APIENTRY *glClearDepthf_t)(GLfloat depth);
+extern glClearDepthf_t glClearDepthf;
+
+typedef APICALL void (APIENTRY *glColorMask_t)(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+extern glColorMask_t glColorMask;
+
 typedef APICALL void (APIENTRY *glAttachShader_t)(GLuint program, GLuint shader);
 extern glAttachShader_t glAttachShader;
 

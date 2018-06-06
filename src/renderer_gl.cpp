@@ -23,6 +23,7 @@ namespace renderer {
 		GL_LEQUAL,
 		GL_GREATER,
 		GL_NOTEQUAL,
+		GL_GEQUAL,
 		GL_ALWAYS
 	};
 
@@ -223,10 +224,11 @@ namespace renderer {
 		GLbitfield clearBit = 0;
 		if (i_clearcolor) clearBit |= GL_COLOR_BUFFER_BIT;
 		if (i_cleardepth) {
-			set_depth_write<true_type>();
+			//set_depth_write<true_type>();
 			clearBit |= GL_DEPTH_BUFFER_BIT;
 		}
-		pxClear(clearBit);
+		//pxClearDepthf(1.0f);
+		//pxClear(clearBit);
 	}
 
 	const framebuffer_handle_t create_framebuffer(const s32 i_colorAttachsCount)
@@ -322,6 +324,7 @@ namespace renderer {
 	void setup_framebuffer(const framebuffer_handle_t i_hdl)
 	{
 		if (i_hdl >= 0) {
+		//if (false) {
 			detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_hdl];
 			pxBindFramebuffer(GL_FRAMEBUFFER, thisFramebuffer.gpu_handle);
 			static GLenum drawBuffers[] = {
@@ -332,8 +335,22 @@ namespace renderer {
 			};
 			pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
 			pxViewport(0, 0, thisFramebuffer.width, thisFramebuffer.height);
+			pxDepthMask(GL_TRUE);
+			//pxClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			pxEnable(GL_DEPTH_TEST);
+			pxDepthFunc(GL_ALWAYS);
+			pxDisable(GL_BLEND);
+			pxDisable(GL_CULL_FACE);
 		} else {
 			pxBindFramebuffer(GL_FRAMEBUFFER, 0);
+			pxDepthMask(GL_TRUE);
+			pxClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			pxEnable(GL_DEPTH_TEST);
+			pxDepthFunc(GL_ALWAYS);
+			pxDisable(GL_BLEND);
+			pxDisable(GL_CULL_FACE);
 		}
 	}
 

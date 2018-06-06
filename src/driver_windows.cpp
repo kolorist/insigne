@@ -48,8 +48,7 @@ namespace insigne {
 		pxFormatDesc.dwFlags = PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL;
 		pxFormatDesc.iPixelType = PFD_TYPE_RGBA;
 		pxFormatDesc.cColorBits = 32;
-		pxFormatDesc.cDepthBits = 24;
-		pxFormatDesc.cStencilBits = 8;
+		pxFormatDesc.cDepthBits = 32;
 
 		int pf = ChoosePixelFormat(hDC, &pxFormatDesc);
 		BOOL spxRel = SetPixelFormat(hDC, pf, &pxFormatDesc);

@@ -154,6 +154,7 @@ typedef void									GLvoid;
 #define GL_SRGB8_ALPHA8                   0x8C43
 #define GL_DEPTH_COMPONENT16              0x81A5
 #define GL_DEPTH_COMPONENT24              0x81A6
+#define GL_DEPTH_COMPONENT32F             0x8CAC
 #define GL_DEPTH24_STENCIL8               0x88F0
 #define GL_UNSIGNED_INT_24_8              0x84FA
 

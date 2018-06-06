@@ -9,6 +9,10 @@ namespace insigne {
 
 glActiveTexture_t glActiveTexture;
 
+glClearDepthf_t glClearDepthf;
+
+glColorMask_t glColorMask;
+
 glAttachShader_t glAttachShader;
 
 glBindBuffer_t glBindBuffer;

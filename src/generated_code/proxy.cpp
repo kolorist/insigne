@@ -68,6 +68,18 @@ void pxActiveTexture(GLenum texture)
 	assert_driver_no_error();
 }
 
+void pxClearDepthf(GLfloat depth)
+{
+	glClearDepthf(depth);
+	assert_driver_no_error();
+}
+
+void pxColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+{
+	glColorMask(red, green, blue, alpha);
+	assert_driver_no_error();
+}
+
 void pxAttachShader(GLuint program, GLuint shader)
 {
 	glAttachShader(program, shader);

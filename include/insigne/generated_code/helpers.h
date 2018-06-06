@@ -6,6 +6,10 @@
 
 API_HELPER(void, ActiveTexture);
 
+API_HELPER(void, ClearDepthf);
+
+API_HELPER(void, ColorMask);
+
 API_HELPER(void, AttachShader);
 
 API_HELPER(void, BindBuffer);

@@ -14,6 +14,10 @@ void assert_framebuffer_completed();
 
 void pxActiveTexture(GLenum texture);
 
+void pxClearDepthf(GLfloat depth);
+
+void pxColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+
 void pxAttachShader(GLuint program, GLuint shader);
 
 void pxBindBuffer(GLenum target, GLuint buffer);
