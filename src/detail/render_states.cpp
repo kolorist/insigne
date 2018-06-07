@@ -15,6 +15,7 @@ namespace insigne {
 		gpu_command_buffer_t					s_generic_command_buffer[BUFFERED_FRAMES];
 		size									s_front_cmdbuff;
 		size									s_back_cmdbuff;
+		bool									s_waiting_for_swap;
 
 		// frame rendering states
 		render_state_t							s_render_state;

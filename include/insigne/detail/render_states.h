@@ -29,6 +29,8 @@ namespace insigne {
 		extern size								s_front_cmdbuff;
 		extern size								s_back_cmdbuff;
 
+		extern bool								s_waiting_for_swap;
+
 		// frame rendering states
 		extern render_state_t					s_render_state;
 		extern u32								s_render_state_changelog;

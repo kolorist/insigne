@@ -22,24 +22,12 @@ namespace insigne {
 	void										wait_for_initialization();
 
 	void										begin_frame();
-	void										begin_frame(const framebuffer_handle_t i_fb);
 	void										end_frame();
-	void										end_frame(const framebuffer_handle_t i_fb);
-	void										dispatch_frame();
-	void										dispatch_frame(const framebuffer_handle_t i_fb);
-	void										present_render();
 
-	void										set_depth_test(const bool i_enable);
-	void										set_depth_write(const bool i_enable);
-	void										set_depth_func(const compare_func_e i_func);
-	void										set_cull_face(const bool i_enable);
-	void										set_front_face(const front_face_e i_frontFace);
-	//TODO: add stencil
-	void										set_blend(const bool i_enable);
-	void										set_blend_equation(const blend_equation_e i_blendEqu);
-	void										set_blend_function(const factor_e i_sfactor, const factor_e i_dfactor);
-	void										set_scissor(const bool i_enable);
-	void										set_scissor_rect(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
+	void										begin_render_pass(const framebuffer_handle_t i_fb);
+	void										end_render_pass(const framebuffer_handle_t i_fb);
+	void										mark_present_render();
+	void										dispatch_render_pass();
 
 	void										set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha);
 

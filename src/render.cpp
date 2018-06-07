@@ -73,198 +73,58 @@ namespace insigne {
 	}
 
 	// -----------------------------------------
-	// render state
-	void set_depth_test(const bool i_enable)
-	{
-		if (i_enable != TEST_BIT_BOOL(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::depth_test))) {
-			SET_BIT(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::depth_test));		// update state
-			SET_BIT(detail::s_render_state_changelog, static_cast<u32>(render_state_changelog_e::depth_test));	// update change log
-		}
-	}
-
-	void set_depth_write(const bool i_enable)
-	{
-		if (i_enable != TEST_BIT_BOOL(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::depth_write))) {
-			SET_BIT(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::depth_write));	// update state
-			SET_BIT(detail::s_render_state_changelog, static_cast<u32>(render_state_changelog_e::depth_write));	// update change log
-		}
-	}
-
-	void set_depth_func(const compare_func_e i_func)
-	{
-		detail::s_render_state.depth_func = i_func;
-	}
-
-	void set_cull_face(const bool i_enable)
-	{
-		if (i_enable != TEST_BIT_BOOL(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::cull_face))) {
-			SET_BIT(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::cull_face));
-			SET_BIT(detail::s_render_state_changelog, static_cast<u32>(render_state_changelog_e::cull_face));
-		}
-	}
-
-	void set_front_face(const front_face_e i_frontFace)
-	{
-		detail::s_render_state.front_face = i_frontFace;
-	}
-
-	void set_blend(const bool i_enable)
-	{
-		if (i_enable != TEST_BIT_BOOL(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::blending))) {
-			SET_BIT(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::blending));
-			SET_BIT(detail::s_render_state_changelog, static_cast<u32>(render_state_changelog_e::blending));
-		}
-	}
-
-	void set_blend_equation(const blend_equation_e i_blendEqu)
-	{
-		detail::s_render_state.blend_equation = i_blendEqu;
-	}
-
-	void set_blend_function(const factor_e i_sfactor, const factor_e i_dfactor)
-	{
-		detail::s_render_state.blend_func_sfactor = i_sfactor;
-		detail::s_render_state.blend_func_dfactor = i_dfactor;
-	}
-
-	void set_scissor(const bool i_enable)
-	{
-		if (i_enable != TEST_BIT_BOOL(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::scissor_test))) {
-			SET_BIT(detail::s_render_state.toggles, static_cast<u32>(render_state_togglemask_e::scissor_test));
-			SET_BIT(detail::s_render_state_changelog, static_cast<u32>(render_state_changelog_e::scissor_test));
-		}
-	}
-
-	void set_scissor_rect(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
-	{
-		detail::s_render_state.scissor_x = i_x;
-		detail::s_render_state.scissor_y = i_y;
-		detail::s_render_state.scissor_width = i_width;
-		detail::s_render_state.scissor_height = i_height;
-	}
-
-	void commit_render_state()
-	{
-		// quick quit
-		if (!detail::s_render_state_changelog)
-			return;
-
-		u32 rst = detail::s_render_state.toggles;
-		render_state_t rs = detail::s_render_state;
-		u32 cl = detail::s_render_state_changelog;
-
-		//FIXME: cannot update render state properties while the state is ON
-
-		// depth_test
-		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::depth_test))) {
-			render_state_toggle_command cmd;
-			cmd.toggle = render_state_togglemask_e::depth_test;
-			cmd.depth_func = rs.depth_func;
-			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::depth_test));
-			push_command(cmd);
-		}
-
-		// depth_write
-		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::depth_write))) {
-			render_state_toggle_command cmd;
-			cmd.toggle = render_state_togglemask_e::depth_write;
-			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::depth_write));
-			push_command(cmd);
-		}
-
-		// cull_face
-		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::cull_face))) {
-			render_state_toggle_command cmd;
-			cmd.toggle = render_state_togglemask_e::cull_face;
-			cmd.front_face = rs.front_face;
-			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::cull_face));
-			push_command(cmd);
-		}
-
-		// blending
-		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::blending))) {
-			render_state_toggle_command cmd;
-			cmd.toggle = render_state_togglemask_e::blending;
-			cmd.blend_equation = rs.blend_equation;
-			cmd.blend_func_sfactor = rs.blend_func_sfactor;
-			cmd.blend_func_dfactor = rs.blend_func_dfactor;
-			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::blending));
-			push_command(cmd);
-		}
-
-		// scissor_test
-		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::scissor_test))) {
-			render_state_toggle_command cmd;
-			cmd.toggle = render_state_togglemask_e::scissor_test;
-			cmd.x = rs.scissor_x;
-			cmd.y = rs.scissor_y;
-			cmd.width = rs.scissor_width;
-			cmd.height = rs.scissor_height;
-			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::scissor_test));
-			push_command(cmd);
-		}
-
-		// stencil_test
-		if (TEST_BIT(rst, static_cast<u32>(render_state_togglemask_e::stencil_test))) {
-			render_state_toggle_command cmd;
-			cmd.toggle = render_state_togglemask_e::stencil_test;
-			cmd.stencil_func = rs.stencil_func;
-			cmd.stencil_mask = rs.stencil_mask;
-			cmd.stencil_ref = rs.stencil_ref;
-			cmd.stencil_op_sfail = rs.stencil_op_sfail;
-			cmd.stencil_op_dpfail = rs.stencil_op_dpfail;
-			cmd.stencil_op_dppass = rs.stencil_op_dppass;
-			cmd.to_value = TEST_BIT_BOOL(rst, static_cast<u32>(render_state_togglemask_e::stencil_test));
-			push_command(cmd);
-		}
-
-		// after this, the render state will be clean
-		detail::s_render_state_changelog = 0;
-
-	}
-	
-	// -----------------------------------------
-	// state-dependant
 	void begin_frame()
 	{
-		begin_frame(-1);
-	}
-
-	void begin_frame(const framebuffer_handle_t i_fb)
-	{
-		// setup the framebuffer
-		framebuffer_setup_command setupCmd;
-		setupCmd.framebuffer_idx = i_fb;
-		gpu_command newSetupCmd;
-		newSetupCmd.opcode = command::setup_framebuffer;
-		newSetupCmd.deserialize(setupCmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newSetupCmd);
-
-		// refresh it
-		framebuffer_refresh_command refreshCmd;
-		refreshCmd.clear_color_buffer = true;
-		refreshCmd.clear_depth_buffer = true;
-		gpu_command newRefreshCmd;
-		newRefreshCmd.opcode = command::refresh_framebuffer;
-		newRefreshCmd.deserialize(refreshCmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newRefreshCmd);
+		detail::s_waiting_for_swap = true;
 	}
 
 	void end_frame()
 	{
-		end_frame(-1);
+		// wait for swap present here
+		// spin spin spin spin
+		while (detail::s_waiting_for_swap);
 	}
 
-	void end_frame(const framebuffer_handle_t i_fb)
+	// -----------------------------------------
+	void begin_render_pass(const framebuffer_handle_t i_fb)
 	{
+		// setup framebuffer
+		{
+			framebuffer_setup_command cmd;
+			cmd.framebuffer_idx = i_fb;
+			gpu_command newGPUCmd;
+			newGPUCmd.opcode = command::setup_framebuffer;
+			newGPUCmd.deserialize(cmd);
+			detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
+		}
+		// clear framebuffer
+		{
+			framebuffer_refresh_command cmd;
+			cmd.clear_color_buffer = true;
+			cmd.clear_depth_buffer = true;
+			gpu_command newGPUCmd;
+			newGPUCmd.opcode = command::refresh_framebuffer;
+			newGPUCmd.deserialize(cmd);
+			detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
+		}
 	}
 
-	void dispatch_frame()
+	void end_render_pass(const framebuffer_handle_t i_fb)
 	{
-		dispatch_frame(-1);
+		// nothing, LUL
 	}
 
-	void dispatch_frame(const framebuffer_handle_t i_fb)
+	void mark_present_render()
+	{
+		present_render_command cmd;
+		cmd.placeholder = 1;
+		gpu_command newGPUCmd;
+		newGPUCmd.opcode = command::present_render;
+		newGPUCmd.deserialize(cmd);
+		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
+	}
+
+	void dispatch_render_pass()
 	{
 		while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff) Sleep(1);
 
@@ -274,17 +134,7 @@ namespace insigne {
 		detail::s_cmdbuffer_condvar.notify_one();
 	}
 
-	void present_render()
-	{
-		present_render_command cmd;
-		cmd.placeholder = 1;
-		gpu_command newCmd;
-		newCmd.opcode = command::present_render;
-		newCmd.deserialize(cmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
-		
-		// wait for presentation here
-	}
+	// -----------------------------------------
 
 	void set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha)
 	{

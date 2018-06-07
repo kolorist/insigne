@@ -335,22 +335,8 @@ namespace renderer {
 			};
 			pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
 			pxViewport(0, 0, thisFramebuffer.width, thisFramebuffer.height);
-			//pxDepthMask(GL_TRUE);
-			//pxClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//pxEnable(GL_DEPTH_TEST);
-			//pxDepthFunc(GL_ALWAYS);
-			//pxDisable(GL_BLEND);
-			//pxDisable(GL_CULL_FACE);
 		} else {
 			pxBindFramebuffer(GL_FRAMEBUFFER, 0);
-			//pxDepthMask(GL_TRUE);
-			//pxClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//pxEnable(GL_DEPTH_TEST);
-			//pxDepthFunc(GL_ALWAYS);
-			//pxDisable(GL_BLEND);
-			//pxDisable(GL_CULL_FACE);
 		}
 	}
 

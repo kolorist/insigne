@@ -47,6 +47,7 @@ namespace insigne {
 			while (detail::s_front_cmdbuff == detail::s_back_cmdbuff)
 				detail::s_cmdbuffer_condvar.wait(detail::s_cmdbuffer_mtx);
 
+			bool swapThisRenderPass = false;
 			// generic phase
 			for (u32 i = 0; i < detail::s_generic_command_buffer[detail::s_front_cmdbuff].get_size(); i++) {
 				gpu_command& gpuCmd = detail::s_generic_command_buffer[detail::s_front_cmdbuff][i];
@@ -139,6 +140,12 @@ namespace insigne {
 							break;
 						}
 
+					case command::present_render:
+						{
+							swapThisRenderPass = true;
+							break;
+						}
+
 					case command::invalid:
 						{
 							break;
@@ -155,7 +162,10 @@ namespace insigne {
 			detail::s_generic_command_buffer[detail::s_front_cmdbuff].empty();
 
 			detail::s_front_cmdbuff = (detail::s_front_cmdbuff + 1) % BUFFERED_FRAMES;
-			swap_buffers();
+			if (swapThisRenderPass) {
+				swap_buffers();
+				detail::s_waiting_for_swap = false;
+			}
 		}
 	}
 
@@ -181,6 +191,7 @@ namespace insigne {
 		detail::s_front_cmdbuff = 0;
 		detail::s_back_cmdbuff = 2;
 		detail::s_render_state_changelog = 0;
+		detail::s_waiting_for_swap = true;
 
 		g_render_thread.entry_point = &insigne::render_thread_func<t_surface_list>;
 		g_render_thread.ptr_data = nullptr;
