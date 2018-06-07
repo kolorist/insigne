@@ -224,11 +224,11 @@ namespace renderer {
 		GLbitfield clearBit = 0;
 		if (i_clearcolor) clearBit |= GL_COLOR_BUFFER_BIT;
 		if (i_cleardepth) {
-			//set_depth_write<true_type>();
+			set_depth_write<true_type>();
 			clearBit |= GL_DEPTH_BUFFER_BIT;
 		}
-		//pxClearDepthf(1.0f);
-		//pxClear(clearBit);
+		pxClearDepthf(1.0f);
+		pxClear(clearBit);
 	}
 
 	const framebuffer_handle_t create_framebuffer(const s32 i_colorAttachsCount)
@@ -335,23 +335,29 @@ namespace renderer {
 			};
 			pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
 			pxViewport(0, 0, thisFramebuffer.width, thisFramebuffer.height);
-			pxDepthMask(GL_TRUE);
+			//pxDepthMask(GL_TRUE);
 			//pxClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			pxEnable(GL_DEPTH_TEST);
-			pxDepthFunc(GL_ALWAYS);
-			pxDisable(GL_BLEND);
-			pxDisable(GL_CULL_FACE);
+			//pxEnable(GL_DEPTH_TEST);
+			//pxDepthFunc(GL_ALWAYS);
+			//pxDisable(GL_BLEND);
+			//pxDisable(GL_CULL_FACE);
 		} else {
 			pxBindFramebuffer(GL_FRAMEBUFFER, 0);
-			pxDepthMask(GL_TRUE);
-			pxClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//pxDepthMask(GL_TRUE);
+			//pxClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			pxEnable(GL_DEPTH_TEST);
-			pxDepthFunc(GL_ALWAYS);
-			pxDisable(GL_BLEND);
-			pxDisable(GL_CULL_FACE);
+			//pxEnable(GL_DEPTH_TEST);
+			//pxDepthFunc(GL_ALWAYS);
+			//pxDisable(GL_BLEND);
+			//pxDisable(GL_CULL_FACE);
 		}
+	}
+
+	const texture_handle_t extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx)
+	{
+		detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_fbHdl];
+		return thisFramebuffer.color_attachments[i_idx];
 	}
 
 	texture_handle_t create_texture()

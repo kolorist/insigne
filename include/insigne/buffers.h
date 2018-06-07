@@ -23,7 +23,8 @@ namespace insigne {
 		refresh_framebuffer,
 		draw_geom,
 		load_data,
-		stream_data
+		stream_data,
+		present_render
 	};
 
 	// this struct is copyable
@@ -206,6 +207,11 @@ namespace insigne {
 				surface_handle_t				surface_idx;
 			};
 		};
+	};
+
+	struct present_render_command {
+		u32										placeholder;
+		// nothing
 	};
 
 }

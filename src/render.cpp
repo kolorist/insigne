@@ -257,10 +257,6 @@ namespace insigne {
 
 	void end_frame(const framebuffer_handle_t i_fb)
 	{
-		while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff) Sleep(1);
-
-		detail::s_back_cmdbuff = (detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES;
-		s_composing_allocator.free_all();
 	}
 
 	void dispatch_frame()
@@ -270,7 +266,24 @@ namespace insigne {
 
 	void dispatch_frame(const framebuffer_handle_t i_fb)
 	{
+		while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff) Sleep(1);
+
+		detail::s_back_cmdbuff = (detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES;
+		s_composing_allocator.free_all();
+
 		detail::s_cmdbuffer_condvar.notify_one();
+	}
+
+	void present_render()
+	{
+		present_render_command cmd;
+		cmd.placeholder = 1;
+		gpu_command newCmd;
+		newCmd.opcode = command::present_render;
+		newCmd.deserialize(cmd);
+		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+		
+		// wait for presentation here
 	}
 
 	void set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha)
@@ -298,6 +311,11 @@ namespace insigne {
 
 		push_command(cmd);
 		return cmd.framebuffer_idx;
+	}
+
+	const texture_handle_t extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx)
+	{
+		return renderer::extract_color_attachment(i_fbHdl, i_idx);
 	}
 
 	const texture_handle_t create_texture2d(const s32 i_width, const s32 i_height,
