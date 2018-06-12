@@ -23,7 +23,8 @@ set (lib_list
 	calyx
 	clover
 	imgui
-	helich)
+	helich
+	lotus)
 
 if (${ANDROID_BUILD})
 	message(STATUS ${PROJECT_NAME} " will be built using Android configs")

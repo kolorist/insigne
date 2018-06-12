@@ -1,6 +1,8 @@
 #include "detail/render.h"
 #include "detail/render_states.h"
 
+#include <lotus/profiler.h>
+
 #include "renderer.h"
 
 namespace insigne {
@@ -39,6 +41,9 @@ namespace insigne {
 	template <typename t_surface_list>
 	void render_thread_func(voidptr i_data)
 	{
+		// profiler init
+		lotus::init_capture_for_this_thread(1, "render_thread");
+		//
 		create_main_context();
 		renderer::initialize_renderer();
 		detail::s_init_condvar.notify_one();
