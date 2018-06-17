@@ -43,14 +43,16 @@ namespace insigne {
 	{
 		// profiler init
 		lotus::init_capture_for_this_thread(1, "render_thread");
-		//
 		create_main_context();
 		renderer::initialize_renderer();
 		detail::s_init_condvar.notify_one();
 
 		while (true) {
-			while (detail::s_front_cmdbuff == detail::s_back_cmdbuff)
-				detail::s_cmdbuffer_condvar.wait(detail::s_cmdbuffer_mtx);
+			{
+				PROFILE_SCOPE(WaitForCommandBuffer);
+				while (detail::s_front_cmdbuff == detail::s_back_cmdbuff)
+					detail::s_cmdbuffer_condvar.wait(detail::s_cmdbuffer_mtx);
+			}
 
 			bool swapThisRenderPass = false;
 			// generic phase
@@ -69,6 +71,7 @@ namespace insigne {
 
 					case command::setup_framebuffer:
 						{
+							PROFILE_SCOPE(SetupFramebuffer);
 							framebuffer_setup_command cmd;
 							gpuCmd.serialize(cmd);
 							renderer::setup_framebuffer(cmd.framebuffer_idx);
@@ -77,6 +80,7 @@ namespace insigne {
 
 					case command::refresh_framebuffer:
 						{
+							PROFILE_SCOPE(RefreshFramebuffer);
 							framebuffer_refresh_command cmd;
 							gpuCmd.serialize(cmd);
 							renderer::clear_framebuffer(cmd.clear_color_buffer, cmd.clear_depth_buffer);
@@ -168,6 +172,7 @@ namespace insigne {
 
 			detail::s_front_cmdbuff = (detail::s_front_cmdbuff + 1) % BUFFERED_FRAMES;
 			if (swapThisRenderPass) {
+				PROFILE_SCOPE(SwapBuffers);
 				swap_buffers();
 				detail::s_waiting_for_swap = false;
 			}
