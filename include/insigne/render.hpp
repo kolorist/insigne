@@ -11,12 +11,15 @@ namespace insigne {
 	template <typename t_surface>
 	void renderable_surface_t<t_surface>::render()
 	{
+		PROFILE_SCOPE(render);
+
 		for (u32 i = 0; i < detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_front_cmdbuff].get_size(); i++) {
 			gpu_command& gpuCmd = detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_front_cmdbuff][i];
 			gpuCmd.reset_cursor();
 			switch (gpuCmd.opcode) {
 				case command::draw_geom:
 					{
+						PROFILE_SCOPE(draw_geom);
 						render_command cmd;
 						gpuCmd.serialize(cmd);
 						renderer::draw_surface_idx<t_surface>(cmd.surface_handle, *cmd.material_snapshot,

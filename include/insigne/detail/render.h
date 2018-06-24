@@ -1,6 +1,7 @@
 #pragma once
 
 #include <floral.h>
+#include <lotus/profiler.h>
 
 namespace insigne {
 
@@ -14,6 +15,8 @@ namespace insigne {
 		struct internal_surface_iterator {
 			static void setup_states_and_render()
 			{
+				PROFILE_SCOPE(setup_states_and_render);
+
 				typedef tl_type_at_t<t_n, t_surface_list> surface_type_t;
 				surface_type_t::setup_states();
 				surface_type_t::render();
@@ -25,6 +28,8 @@ namespace insigne {
 		struct internal_surface_iterator<0, t_surface_list> {
 			static void setup_states_and_render()
 			{
+				PROFILE_SCOPE(setup_states_and_render);
+
 				typedef tl_type_at_t<0, t_surface_list> surface_type_t;
 				surface_type_t::setup_states();
 				surface_type_t::render();
