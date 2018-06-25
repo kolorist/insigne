@@ -75,11 +75,13 @@ namespace insigne {
 	// -----------------------------------------
 	void begin_frame()
 	{
+		PROFILE_SCOPE(begin_frame);
 		detail::s_waiting_for_swap = true;
 	}
 
 	void end_frame()
 	{
+		PROFILE_SCOPE(end_frame);
 		// wait for swap present here
 		// spin spin spin spin
 		while (detail::s_waiting_for_swap);
