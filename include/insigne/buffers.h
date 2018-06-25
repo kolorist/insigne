@@ -148,7 +148,8 @@ namespace insigne {
 
 	enum class stream_type {
 		invalid = 0,
-		texture,
+		texture2d,
+		texture_cube,
 		geometry,
 		shader
 	};

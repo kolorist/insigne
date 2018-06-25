@@ -47,9 +47,22 @@ namespace renderer {
 													const data_type_e i_dataType, voidptr i_data,
 													const filtering_e i_minFil = filtering_e::nearest,
 													const filtering_e i_magFil = filtering_e::nearest);
-
 	// with built-in mipmaps
 	void										upload_texture2d_mm(const texture_handle_t& i_hdl, const s32 i_width,
+													const s32 i_height, const texture_format_e i_format,
+													const texture_internal_format_e i_internalFormat,
+													const data_type_e i_dataType, voidptr i_data,
+													const filtering_e i_minFil = filtering_e::nearest,
+													const filtering_e i_magFil = filtering_e::nearest);
+
+	void										upload_texturecube(const texture_handle_t& i_hdl, const s32 i_width,
+													const s32 i_height, const texture_format_e i_format,
+													const texture_internal_format_e i_internalFormat,
+													const data_type_e i_dataType, voidptr i_data,
+													const filtering_e i_minFil = filtering_e::nearest,
+													const filtering_e i_magFil = filtering_e::nearest);
+	// with built-in mipmaps
+	void										upload_texturecube_mm(const texture_handle_t& i_hdl, const s32 i_width,
 													const s32 i_height, const texture_format_e i_format,
 													const texture_internal_format_e i_internalFormat,
 													const data_type_e i_dataType, voidptr i_data,

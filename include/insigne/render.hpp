@@ -95,7 +95,7 @@ namespace insigne {
 							load_command cmd;
 							gpuCmd.serialize(cmd);
 							switch (cmd.data_type) {
-								case stream_type::texture:
+								case stream_type::texture2d:
 									{
 										if (cmd.has_builtin_mipmaps)
 											renderer::upload_texture2d_mm(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
@@ -103,6 +103,19 @@ namespace insigne {
 													cmd.min_filter, cmd.mag_filter);
 										else
 											renderer::upload_texture2d(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
+													cmd.internal_format, cmd.pixel_data_type, cmd.data,
+													cmd.min_filter, cmd.mag_filter);
+										break;
+									}
+
+								case stream_type::texture_cube:
+									{
+										if (cmd.has_builtin_mipmaps)
+											renderer::upload_texturecube_mm(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
+													cmd.internal_format, cmd.pixel_data_type, cmd.data,
+													cmd.min_filter, cmd.mag_filter);
+										else
+											renderer::upload_texturecube(cmd.texture_idx, cmd.width, cmd.height, cmd.format,
 													cmd.internal_format, cmd.pixel_data_type, cmd.data,
 													cmd.min_filter, cmd.mag_filter);
 										break;

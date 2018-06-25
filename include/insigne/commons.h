@@ -164,7 +164,6 @@ namespace insigne {
 		linear_mipmap_linear
 	};
 
-
 	struct material_param_t {
 		c8										name[128];
 		material_data_type_e					data_type;
@@ -208,8 +207,8 @@ namespace insigne {
 	};
 
 	typedef floral::fixed_array<material_param_t, freelist_allocator_t>	material_param_list_t;
-	typedef floral::fixed_array<shader_param_t, arena_allocator_t>	shader_param_list_t;
-	typedef floral::fixed_array<color_attachment_t, arena_allocator_t> color_attachment_list_t;
+	typedef floral::fixed_array<shader_param_t, arena_allocator_t>		shader_param_list_t;
+	typedef floral::fixed_array<color_attachment_t, arena_allocator_t>	color_attachment_list_t;
 
 	typedef s32									shader_handle_t;
 	typedef s32									texture_handle_t;

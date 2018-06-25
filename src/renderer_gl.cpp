@@ -447,6 +447,99 @@ namespace renderer {
 		thisTexture.internal_format = s_gl_internal_formats[static_cast<s32>(i_internalFormat)];
 	}
 
+	void upload_texturecube(const texture_handle_t& i_hdl,
+			const s32 i_width, const s32 i_height,
+			const texture_format_e i_format, const texture_internal_format_e i_internalFormat,
+			const data_type_e i_dataType, voidptr i_data,
+			const filtering_e i_minFil /* = filtering_e::nearest */, const filtering_e i_magFil /* = filtering_e::nearest */)
+	{
+		detail::texture& thisTexture = detail::s_textures[i_hdl];
+		GLuint newTexture = 0;
+		
+		pxGenTextures(1, &newTexture);
+		pxBindTexture(GL_TEXTURE_2D, newTexture);
+
+		// unpacking settings
+		pxPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+		pxPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s_filterings[static_cast<s32>(i_magFil)]);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s_filterings[static_cast<s32>(i_minFil)]);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		pxTexImage2D(GL_TEXTURE_2D, 0,
+				s_gl_internal_formats[static_cast<s32>(i_internalFormat)], i_width, i_height, 0,
+				s_gl_texture_formats[static_cast<s32>(i_format)], s_gl_data_types[static_cast<s32>(i_dataType)], (GLvoid*)i_data);
+
+		pxBindTexture(GL_TEXTURE_2D, 0);
+		thisTexture.gpu_handle = newTexture;
+		thisTexture.width = i_width;
+		thisTexture.height = i_height;
+		thisTexture.format = s_gl_texture_formats[static_cast<s32>(i_format)];
+		thisTexture.internal_format = s_gl_internal_formats[static_cast<s32>(i_internalFormat)];
+	}
+
+	void upload_texturecube_mm(const texture_handle_t& i_hdl,
+			const s32 i_width, const s32 i_height,
+			const texture_format_e i_format, const texture_internal_format_e i_internalFormat,
+			const data_type_e i_dataType, voidptr i_data,
+			const filtering_e i_minFil /* = filtering_e::nearest */, const filtering_e i_magFil /* = filtering_e::nearest */)
+	{
+		detail::texture& thisTexture = detail::s_textures[i_hdl];
+		GLuint newTexture = 0;
+		
+		pxGenTextures(1, &newTexture);
+		pxBindTexture(GL_TEXTURE_2D, newTexture);
+
+		// unpacking settings
+		pxPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+		pxPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s_filterings[static_cast<s32>(i_magFil)]);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s_filterings[static_cast<s32>(i_minFil)]);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		s32 width = i_width;
+		static size s_num_channels[] = {		// from i_internalFormat
+			2, //GL_RG16F,
+			3, //GL_RGB16F,
+			4, //GL_RGBA16F,
+			3, //GL_RGB8,
+			4, //GL_RGBA8,
+			3, //GL_SRGB8,
+			4, //GL_SRGB8_ALPHA8,
+			1, //GL_DEPTH_COMPONENT16,
+			1, //GL_DEPTH_COMPONENT24,
+			1 //GL_DEPTH24_STENCIL8
+		};
+		int mipIdx = 0;
+		size offset = 0;
+		while (width >= 1) {
+			// NOTE: please remember that: when loading mipmaps, the width and height is
+			// resolution of the mipmap, not the resolution of the largest mip
+			pxTexImage2D(GL_TEXTURE_2D, mipIdx,
+					s_gl_internal_formats[(s32)i_internalFormat], width, width, 0,
+					s_gl_texture_formats[(s32)i_format], s_gl_data_types[(s32)i_dataType],
+					(GLvoid*)((aptr)i_data + (aptr)offset));
+			offset += width * width * s_num_channels[(s32)i_internalFormat];
+			width >>= 1;
+			mipIdx++;
+		}
+
+		pxBindTexture(GL_TEXTURE_2D, 0);
+		thisTexture.gpu_handle = newTexture;
+		thisTexture.width = i_width;
+		thisTexture.height = i_height;
+		thisTexture.format = s_gl_texture_formats[static_cast<s32>(i_format)];
+		thisTexture.internal_format = s_gl_internal_formats[static_cast<s32>(i_internalFormat)];
+	}
+
 	shader_handle_t create_shader(const shader_param_list_t* i_paramList)
 	{
 		u32 idx = detail::s_shaders.get_size();
