@@ -210,7 +210,7 @@ namespace insigne {
 		detail::internal_init_buffer<t_surface_list>(&g_persistance_allocator);
 
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			detail::s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(8));
+			detail::s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(16));
 
 		detail::s_materials.init(32, &g_persistance_allocator);
 
