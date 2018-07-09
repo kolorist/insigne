@@ -205,7 +205,7 @@ namespace insigne {
 
 		// generic buffer init
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			detail::s_generic_command_buffer[i].init(64u, &g_persistance_allocator);
+			detail::s_generic_command_buffer[i].init(128u, &g_persistance_allocator);
 		// draw buffer init
 		detail::internal_init_buffer<t_surface_list>(&g_persistance_allocator);
 

@@ -492,7 +492,7 @@ namespace renderer {
 		GLuint newTexture = 0;
 		
 		pxGenTextures(1, &newTexture);
-		pxBindTexture(GL_TEXTURE_2D, newTexture);
+		pxBindTexture(GL_TEXTURE_CUBE_MAP, newTexture);
 
 		// unpacking settings
 		pxPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -500,10 +500,10 @@ namespace renderer {
 		pxPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
 		pxPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s_filterings[static_cast<s32>(i_magFil)]);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s_filterings[static_cast<s32>(i_minFil)]);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, s_filterings[static_cast<s32>(i_magFil)]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, s_filterings[static_cast<s32>(i_minFil)]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		s32 width = i_width;
 		static size s_num_channels[] = {		// from i_internalFormat
@@ -523,16 +523,23 @@ namespace renderer {
 		while (width >= 1) {
 			// NOTE: please remember that: when loading mipmaps, the width and height is
 			// resolution of the mipmap, not the resolution of the largest mip
-			pxTexImage2D(GL_TEXTURE_2D, mipIdx,
-					s_gl_internal_formats[(s32)i_internalFormat], width, width, 0,
-					s_gl_texture_formats[(s32)i_format], s_gl_data_types[(s32)i_dataType],
-					(GLvoid*)((aptr)i_data + (aptr)offset));
-			offset += width * width * s_num_channels[(s32)i_internalFormat];
+			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
+				pxTexImage2D(
+						GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
+						mipIdx,
+						s_gl_internal_formats[(s32)i_internalFormat],
+						width, width,
+						0,
+						s_gl_texture_formats[(s32)i_format],
+						s_gl_data_types[(s32)i_dataType],
+						(GLvoid*)((aptr)i_data + (aptr)offset));
+				offset += width * width * s_num_channels[(s32)i_internalFormat] * sizeof(f32);
+			}
 			width >>= 1;
 			mipIdx++;
 		}
 
-		pxBindTexture(GL_TEXTURE_2D, 0);
+		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 		thisTexture.gpu_handle = newTexture;
 		thisTexture.width = i_width;
 		thisTexture.height = i_height;
