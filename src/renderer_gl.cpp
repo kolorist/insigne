@@ -457,7 +457,7 @@ namespace renderer {
 		GLuint newTexture = 0;
 		
 		pxGenTextures(1, &newTexture);
-		pxBindTexture(GL_TEXTURE_2D, newTexture);
+		pxBindTexture(GL_TEXTURE_CUBE_MAP, newTexture);
 
 		// unpacking settings
 		pxPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -465,16 +465,40 @@ namespace renderer {
 		pxPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
 		pxPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s_filterings[static_cast<s32>(i_magFil)]);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s_filterings[static_cast<s32>(i_minFil)]);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, s_filterings[static_cast<s32>(i_magFil)]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, s_filterings[static_cast<s32>(i_minFil)]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		pxTexImage2D(GL_TEXTURE_2D, 0,
-				s_gl_internal_formats[static_cast<s32>(i_internalFormat)], i_width, i_height, 0,
-				s_gl_texture_formats[static_cast<s32>(i_format)], s_gl_data_types[static_cast<s32>(i_dataType)], (GLvoid*)i_data);
+		s32 width = i_width;
+		static size s_num_channels[] = {		// from i_internalFormat
+			2, //GL_RG16F,
+			3, //GL_RGB16F,
+			4, //GL_RGBA16F,
+			3, //GL_RGB8,
+			4, //GL_RGBA8,
+			3, //GL_SRGB8,
+			4, //GL_SRGB8_ALPHA8,
+			1, //GL_DEPTH_COMPONENT16,
+			1, //GL_DEPTH_COMPONENT24,
+			1 //GL_DEPTH24_STENCIL8
+		};
 
-		pxBindTexture(GL_TEXTURE_2D, 0);
+		size offset = 0;
+		for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
+			pxTexImage2D(
+					GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
+					0,
+					s_gl_internal_formats[(s32)i_internalFormat],
+					i_width, i_width,
+					0,
+					s_gl_texture_formats[(s32)i_format],
+					s_gl_data_types[(s32)i_dataType],
+					(GLvoid*)((aptr)i_data + offset));
+			offset += i_width * i_width * s_num_channels[(s32)i_internalFormat] * sizeof(f32);
+		}
+
+		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 		thisTexture.gpu_handle = newTexture;
 		thisTexture.width = i_width;
 		thisTexture.height = i_height;
