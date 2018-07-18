@@ -31,8 +31,8 @@ namespace detail {
 		floral::inplace_array<GLuint, 8u>		vec3_params;
 		floral::inplace_array<GLuint, 4u>		mat4_params;
 		floral::inplace_array<GLuint, 4u>		texture2d_params;
+		floral::inplace_array<GLuint, 4u>		texture_cube_params;
 		/*
-		floral::inplace_array<param_t, 4u>		texture_cube_params;
 		floral::inplace_array<param_t, 8u>		vec2_params;
 		floral::inplace_array<param_t, 8u>		vec4_params;
 		floral::inplace_array<param_t, 4u>		mat3_params;

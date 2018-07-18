@@ -27,11 +27,20 @@ namespace renderer {
 				pxUniform3fv(shdr.vec3_params[i], 1, &i_matSnapshot.vec3_params[i].value.x);
 			for (u32 i = 0; i < i_matSnapshot.mat4_params.get_size(); i++)
 				pxUniformMatrix4fv(shdr.mat4_params[i], 1, GL_FALSE, &(i_matSnapshot.mat4_params[i].value[0][0]));
+			s32 activeTextureSlot = 0;
 			for (u32 i = 0; i < i_matSnapshot.texture2d_params.get_size(); i++) {
 				detail::texture& tex = detail::s_textures[static_cast<s32>(i_matSnapshot.texture2d_params[i].value)];
-				pxActiveTexture(GL_TEXTURE0 + i);
+				pxActiveTexture(GL_TEXTURE0 + activeTextureSlot);
 				pxBindTexture(GL_TEXTURE_2D, tex.gpu_handle);
-				pxUniform1i(shdr.texture2d_params[i], i);
+				pxUniform1i(shdr.texture2d_params[i], activeTextureSlot);
+				activeTextureSlot++;
+			}
+			for (u32 i = 0; i < i_matSnapshot.texturecube_params.get_size(); i++) {
+				detail::texture& tex = detail::s_textures[static_cast<s32>(i_matSnapshot.texturecube_params[i].value)];
+				pxActiveTexture(GL_TEXTURE0 + activeTextureSlot);
+				pxBindTexture(GL_TEXTURE_CUBE_MAP, tex.gpu_handle);
+				pxUniform1i(shdr.texture_cube_params[i], activeTextureSlot);
+				activeTextureSlot++;
 			}
 		}
 

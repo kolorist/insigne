@@ -12,6 +12,7 @@ namespace renderer {
 		floral::inplace_array<floral::crc_string, 8u>	vec3_param_ids;
 		floral::inplace_array<floral::crc_string, 4u>	mat4_param_ids;
 		floral::inplace_array<floral::crc_string, 4u>	texture2d_param_ids;
+		floral::inplace_array<floral::crc_string, 4u>	texturecube_param_ids;
 	};
 
 }
@@ -32,6 +33,7 @@ namespace renderer {
 		param_array_t<floral::vec3f, 8u>		vec3_params;
 		param_array_t<floral::mat4x4f, 4u>		mat4_params;
 		param_array_t<texture_handle_t, 4u>		texture2d_params;
+		param_array_t<texture_handle_t, 4u>		texturecube_params;
 	};
 
 }

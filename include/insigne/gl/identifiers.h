@@ -90,6 +90,9 @@ typedef void									GLvoid;
 /* FrontFaceDirection */
 #define GL_CW                             0x0900
 #define GL_CCW                            0x0901
+#define GL_FRONT                          0x0404
+#define GL_BACK                           0x0405
+#define GL_FRONT_AND_BACK                 0x0408
 
 /* ContextCreation */
 #define GLX_CONTEXT_MAJOR_VERSION_ARB     0x2091

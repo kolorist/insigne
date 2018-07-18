@@ -455,6 +455,13 @@ namespace insigne {
 			newMaterial.texture2d_params.push_back(newParam);
 		}
 
+		for (u32 i = 0; i < matTemplate.texturecube_param_ids.get_size(); i++) {
+			id_value_pair_t<texture_handle_t> newParam;
+			newParam.id = matTemplate.texturecube_param_ids[i];
+			newParam.value = 0;
+			newMaterial.texturecube_params.push_back(newParam);
+		}
+
 		material_handle_t newMatHdl = static_cast<material_handle_t>(detail::s_materials.get_size());
 		detail::s_materials.push_back(newMaterial);
 		return newMatHdl;
@@ -516,6 +523,19 @@ namespace insigne {
 		return param_id(-1);
 	}
 
+	const param_id get_material_param_texcube(const material_handle_t i_hdl, const_cstr i_name)
+	{
+		material_t& thisMaterial = detail::s_materials[static_cast<s32>(i_hdl)];
+		floral::crc_string idToSearch(i_name);
+
+		for (u32 i = 0; i < thisMaterial.texturecube_params.get_size(); i++) {
+			if (thisMaterial.texturecube_params[i].id == idToSearch)
+				return i;
+		}
+
+		return param_id(-1);
+	}
+
 	template <>
 	void set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const f32& i_value)
 	{
@@ -554,6 +574,15 @@ namespace insigne {
 
 		material_t& thisMaterial = detail::s_materials[static_cast<s32>(i_hdl)];
 		thisMaterial.texture2d_params[pidx].value = i_value;
+	}
+
+	void set_material_param_texcube(const material_handle_t i_hdl, const param_id i_paramId, const texture_handle_t i_tex)
+	{
+		s32 pidx = static_cast<s32>(i_paramId);
+		if (pidx < 0) return;
+
+		material_t& thisMaterial = detail::s_materials[static_cast<s32>(i_hdl)];
+		thisMaterial.texturecube_params[pidx].value = i_tex;
 	}
 
 }

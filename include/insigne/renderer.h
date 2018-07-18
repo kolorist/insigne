@@ -17,7 +17,7 @@ namespace renderer {
 	template <typename t_switch>
 	void										set_depth_write();
 	template <typename t_switch>
-	void										set_cull_face(const front_face_e i_frontFace);
+	void										set_cull_face(const face_side_e i_faceSide, const front_face_e i_frontFace);
 	template <typename t_switch>
 	void										set_blending(const blend_equation_e i_blendEqu, const factor_e i_sfactor, const factor_e i_dfactor);
 	template <typename t_switch>

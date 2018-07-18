@@ -73,8 +73,10 @@ namespace insigne {
 	const material_handle_t						create_material(const shader_handle_t i_fromShader);
 	template <typename t_param_type>
 	const param_id								get_material_param(const material_handle_t i_hdl, const_cstr i_name);
+	const param_id								get_material_param_texcube(const material_handle_t i_hdl, const_cstr i_name);
 	template <typename t_param_type>
 	void										set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const t_param_type& i_value);
+	void										set_material_param_texcube(const material_handle_t i_hdl, const param_id i_paramId, const texture_handle_t i_tex);
 
 	template <typename TSurface>
 	void										draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);

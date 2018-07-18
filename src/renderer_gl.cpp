@@ -32,6 +32,12 @@ namespace renderer {
 		GL_CCW
 	};
 
+	static GLenum s_face_sides[] = {
+		GL_FRONT,
+		GL_BACK,
+		GL_FRONT_AND_BACK
+	};
+
 	static GLenum s_blend_equations[] = {
 		GL_FUNC_ADD,
 		GL_FUNC_SUBTRACT,
@@ -147,14 +153,15 @@ namespace renderer {
 	}
 
 	template <>
-	void set_cull_face<true_type>(const front_face_e i_frontFace)
+	void set_cull_face<true_type>(const face_side_e i_faceSide, const front_face_e i_frontFace)
 	{
 		pxEnable(GL_CULL_FACE);
-		pxFrontFace(s_front_faces[static_cast<s32>(i_frontFace)]);
+		pxCullFace(s_face_sides[(s32)i_faceSide]);
+		pxFrontFace(s_front_faces[(s32)i_frontFace]);
 	}
 
 	template <>
-	void set_cull_face<false_type>(const front_face_e i_frontFace)
+	void set_cull_face<false_type>(const face_side_e i_faceSide, const front_face_e i_frontFace)
 	{
 		pxDisable(GL_CULL_FACE);
 	}
@@ -497,7 +504,7 @@ namespace renderer {
 					(GLvoid*)((aptr)i_data + offset));
 			offset += i_width * i_width * s_num_channels[(s32)i_internalFormat] * sizeof(f32);
 		}
-
+		pxGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 		thisTexture.gpu_handle = newTexture;
 		thisTexture.width = i_width;
@@ -600,6 +607,11 @@ namespace renderer {
 				case param_data_type_e::param_sampler2d:
 					{
 						newTemplate.texture2d_param_ids.push_back(id);
+						break;
+					}
+				case param_data_type_e::param_sampler_cube:
+					{
+						newTemplate.texturecube_param_ids.push_back(id);
 						break;
 					}
 				default:
@@ -751,6 +763,11 @@ namespace renderer {
 				case param_data_type_e::param_sampler2d:
 					{
 						thisShader.texture2d_params.push_back(id);
+						break;
+					}
+				case param_data_type_e::param_sampler_cube:
+					{
+						thisShader.texture_cube_params.push_back(id);
 						break;
 					}
 				default:

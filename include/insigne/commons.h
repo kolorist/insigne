@@ -39,6 +39,12 @@ namespace insigne {
 		face_ccw
 	};
 
+	enum class face_side_e {
+		front_side = 0,
+		back_side,
+		front_and_back_side
+	};
+
 	enum class blend_equation_e {
 		func_add = 0,
 		func_substract,
