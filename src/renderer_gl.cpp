@@ -474,8 +474,8 @@ namespace renderer {
 
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, s_filterings[static_cast<s32>(i_magFil)]);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, s_filterings[static_cast<s32>(i_minFil)]);
-		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		s32 width = i_width;
 		static size s_num_channels[] = {		// from i_internalFormat
@@ -504,7 +504,7 @@ namespace renderer {
 					(GLvoid*)((aptr)i_data + offset));
 			offset += i_width * i_width * s_num_channels[(s32)i_internalFormat] * sizeof(f32);
 		}
-		pxGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		//pxGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 		thisTexture.gpu_handle = newTexture;
 		thisTexture.width = i_width;
