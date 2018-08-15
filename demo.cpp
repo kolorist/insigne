@@ -15,8 +15,9 @@
 
 //----------------------------------------------
 
+//----------------------------------------------
 // How to upload static geometry
-insigne::surface_handle_t shdl = insigne::upload_surface(
+	insigne::surface_handle_t shdl = insigne::upload_surface(
 		&(*vertices)[0],
 		sizeof(Vertex) * vertices->get_size(),
 		&(*indices)[0],
@@ -76,8 +77,29 @@ insigne::surface_handle_t shdl = insigne::upload_surface(
 	paramList->push_back(insigne::shader_param_t("iu_LightDirection", insigne::param_data_type_e::param_vec3));
 	paramList->push_back(insigne::shader_param_t("iu_LightIntensity", insigne::param_data_type_e::param_vec3));	
 
+	paramList->push_back(insigne::shader_param_t("iu_IrrMap", insigne::param_data_type_e::param_sampler_cube));
+	paramList->push_back(insigne::shader_param_t("iu_SpecMap", insigne::param_data_type_e::param_sampler_cube));
+
+	// read data to vertSource and fragSource
+	insigne::shader_handle_t newShader = insigne::compile_shader(vertSource, fragSource, i_paramList);
+	// the vertSource and fragSource can now be freed, they have been copied to buffer
+
 // How to create material
+	// after we have the shader with paramList load
+	insigne::material_handle_t material = insigne::create_material(i_shaderHdl);
+
+	// getting parameters
+	insigne::param_id v1 = insigne::get_material_param<floral::mat4x4f>(m_MaterialHandle, "iu_PerspectiveWVP");
+	insigne::param_id v2 = insigne::get_material_param<insigne::texture_handle_t>(m_MaterialHandle, "iu_TexMetallic");
+	insigne::param_id v3 = insigne::get_material_param<floral::vec3f>(m_MaterialHandle, "iu_LightDirection");
+	insigne::param_id v4 = insigne::get_material_param_texcube(m_MaterialHandle, "iu_IrrMap");
+
+	// settings parameters
+	insigne::set_material_param(material, v1, wvpMatrix);
+	insigne::set_material_param_texcube(material, v4, cubeMapTexHandle);
 
 // How to render with material
+	insigne::draw_surface<SurfaceType>(surfaceHandle, materialHandle);
 
 // Debugging information APIs
+	//TODO
