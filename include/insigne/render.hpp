@@ -4,6 +4,7 @@
 #include <lotus/profiler.h>
 
 #include "renderer.h"
+#include "counters.h"
 
 namespace insigne {
 
@@ -56,6 +57,8 @@ namespace insigne {
 				while (detail::s_front_cmdbuff == detail::s_back_cmdbuff)
 					detail::s_cmdbuffer_condvar.wait(detail::s_cmdbuffer_mtx);
 			}
+
+			g_global_counters.current_render_frame_idx++;
 
 			bool swapThisRenderPass = false;
 			// generic phase
@@ -191,6 +194,7 @@ namespace insigne {
 				PROFILE_SCOPE(SwapBuffers);
 				swap_buffers();
 				detail::s_waiting_for_swap = false;
+				g_debug_global_counters.rendered_frames++;
 			}
 		}
 	}
@@ -203,6 +207,11 @@ namespace insigne {
 		FLORAL_ASSERT_MSG(sizeof(load_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 		FLORAL_ASSERT_MSG(sizeof(render_state_toggle_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
 
+		g_global_counters.current_render_frame_idx = 0;
+		g_global_counters.current_submit_frame_idx = 0;
+		g_debug_global_counters.submitted_frames = 0;
+		g_debug_global_counters.rendered_frames = 0;
+
 		// generic buffer init
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
 			detail::s_generic_command_buffer[i].init(128u, &g_persistance_allocator);
@@ -213,6 +222,7 @@ namespace insigne {
 			detail::s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(16));
 
 		detail::s_materials.init(32, &g_persistance_allocator);
+		g_debug_global_counters.materials_cap = detail::s_materials.get_size();
 
 		detail::s_front_cmdbuff = 0;
 		detail::s_back_cmdbuff = 2;
@@ -232,6 +242,8 @@ namespace insigne {
 		newCmd.opcode = command::draw_geom;
 		newCmd.deserialize(i_cmd);
 		detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+
+		g_debug_frame_counters.num_render_commands++;
 	}
 	// -----------------------------------------
 	template <typename t_surface>

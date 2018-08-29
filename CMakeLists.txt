@@ -13,7 +13,8 @@ set (file_list
 	"${PROJECT_SOURCE_DIR}/src/render.cpp"
 	"${PROJECT_SOURCE_DIR}/src/memory.cpp"
 	"${PROJECT_SOURCE_DIR}/src/detail/render_states.cpp"
-	"${PROJECT_SOURCE_DIR}/src/detail/renderer_states_gl.cpp")
+	"${PROJECT_SOURCE_DIR}/src/detail/renderer_states_gl.cpp"
+	"${PROJECT_SOURCE_DIR}/src/counters.cpp")
 
 add_definitions(
 	-D_CRT_SECURE_NO_WARNINGS)

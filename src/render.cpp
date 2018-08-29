@@ -6,6 +6,7 @@
 #include "insigne/context.h"
 #include "insigne/driver.h"
 #include "insigne/detail/render_states.h"
+#include "insigne/counters.h"
 
 namespace insigne {
 
@@ -38,6 +39,8 @@ namespace insigne {
 		newCmd.opcode = command::init_framebuffer;
 		newCmd.deserialize(i_cmd);
 		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+
+		g_debug_frame_counters.num_init_commands++;
 	}
 
 	void push_command(const init_command& i_cmd)
@@ -46,6 +49,8 @@ namespace insigne {
 		newCmd.opcode = command::setup_init_state;
 		newCmd.deserialize(i_cmd);
 		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+
+		g_debug_frame_counters.num_init_commands++;
 	}
 
 	void push_command(const load_command& i_cmd)
@@ -54,6 +59,8 @@ namespace insigne {
 		newCmd.opcode = command::load_data;
 		newCmd.deserialize(i_cmd);
 		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+
+		g_debug_frame_counters.num_load_commands++;
 	}
 
 	void push_command(const stream_command& i_cmd)
@@ -62,6 +69,8 @@ namespace insigne {
 		newCmd.opcode = command::stream_data;
 		newCmd.deserialize(i_cmd);
 		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+
+		g_debug_frame_counters.num_load_commands++;
 	}
 
 	void push_command(const render_state_toggle_command& i_cmd)
@@ -70,18 +79,27 @@ namespace insigne {
 		newCmd.opcode = command::setup_render_state_toggle;
 		newCmd.deserialize(i_cmd);
 		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+
+		g_debug_frame_counters.num_state_commands++;
 	}
 
 	// -----------------------------------------
 	void begin_frame()
 	{
 		PROFILE_SCOPE(begin_frame);
+
+		{
+			g_global_counters.current_submit_frame_idx++;
+			memset(&g_debug_frame_counters, 0, sizeof(debug_frame_counters));
+		}
+
 		detail::s_waiting_for_swap = true;
 	}
 
 	void end_frame()
 	{
 		PROFILE_SCOPE(end_frame);
+		g_debug_global_counters.submitted_frames++;
 		// wait for swap present here
 		// spin spin spin spin
 		while (detail::s_waiting_for_swap);
