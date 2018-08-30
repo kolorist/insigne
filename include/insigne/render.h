@@ -78,6 +78,9 @@ namespace insigne {
 	void										set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const t_param_type& i_value);
 	void										set_material_param_texcube(const material_handle_t i_hdl, const param_id i_paramId, const texture_handle_t i_tex);
 
+	template <typename t_surface>
+	void										set_scissor_test(const bool i_enable = false, const s32 i_x = 0, const s32 i_y = 0, const s32 i_width = 0, const s32 i_height = 0);
+
 	template <typename TSurface>
 	void										draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);
 	template <typename TSurface>

@@ -18,6 +18,17 @@ namespace insigne {
 			gpu_command& gpuCmd = detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_front_cmdbuff][i];
 			gpuCmd.reset_cursor();
 			switch (gpuCmd.opcode) {
+				case command::setup_scissor_state:
+					{
+						scissor_state_command cmd;
+						gpuCmd.serialize(cmd);
+						if (cmd.scissor_test) {
+							renderer::set_scissor_test<true_type>(cmd.x, cmd.y, cmd.width, cmd.height);
+						} else {
+							renderer::set_scissor_test<false_type>(0, 0, 0, 0);
+						}
+						break;
+					}
 				case command::draw_geom:
 					{
 						PROFILE_SCOPE(draw_geom);
@@ -246,6 +257,22 @@ namespace insigne {
 		g_debug_frame_counters.num_render_commands++;
 	}
 	// -----------------------------------------
+	template <typename t_surface>
+	void set_scissor_test(const bool i_enable /* = false */, const s32 i_x /* = 0 */, const s32 i_y /* = 0 */, const s32 i_width /* = 0 */, const s32 i_height /* = 0 */)
+	{
+		scissor_state_command stateCommand;
+		stateCommand.x = i_x;
+		stateCommand.y = i_y;
+		stateCommand.width = i_width;
+		stateCommand.height = i_height;
+		stateCommand.scissor_test = i_enable;
+
+		gpu_command newCmd;
+		newCmd.opcode = command::setup_scissor_state;
+		newCmd.deserialize(stateCommand);
+		detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+	}
+
 	template <typename t_surface>
 	void draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl)
 	{
