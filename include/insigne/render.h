@@ -7,6 +7,13 @@
 #include "memory.h"
 
 namespace insigne {
+	// -----------------------------------------
+	struct renderer_settings_t {
+		u32										frame_allocator_size_mb;
+		u32										draw_command_buffer_size;
+		u32										generic_command_buffer_size;
+	};
+	extern renderer_settings_t					g_renderer_settings;
 
 	// -----------------------------------------
 	template <typename t_surface>

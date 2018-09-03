@@ -49,7 +49,7 @@ namespace insigne {
 	{
 		using namespace insigne;
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			detail::draw_command_buffer_t<t_surface>::command_buffer[i].init(64u, &g_persistance_allocator);
+			detail::draw_command_buffer_t<t_surface>::command_buffer[i].init(g_renderer_settings.draw_command_buffer_size, &g_persistance_allocator);
 	}
 
 	// -----------------------------------------
@@ -100,6 +100,7 @@ namespace insigne {
 							PROFILE_SCOPE(RefreshFramebuffer);
 							framebuffer_refresh_command cmd;
 							gpuCmd.serialize(cmd);
+							renderer::set_scissor_test<false_type>(0, 0, 0, 0);
 							renderer::clear_framebuffer(cmd.clear_color_buffer, cmd.clear_depth_buffer);
 							break;
 						}
@@ -225,12 +226,13 @@ namespace insigne {
 
 		// generic buffer init
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			detail::s_generic_command_buffer[i].init(128u, &g_persistance_allocator);
+			detail::s_generic_command_buffer[i].init(g_renderer_settings.generic_command_buffer_size, &g_persistance_allocator);
 		// draw buffer init
 		detail::internal_init_buffer<t_surface_list>(&g_persistance_allocator);
 
 		for (u32 i = 0; i < BUFFERED_FRAMES; i++)
-			detail::s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(SIZE_MB(16));
+			detail::s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
+					SIZE_MB(g_renderer_settings.frame_allocator_size_mb));
 
 		detail::s_materials.init(32, &g_persistance_allocator);
 		g_debug_global_counters.materials_cap = detail::s_materials.get_size();

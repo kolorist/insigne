@@ -10,6 +10,8 @@
 
 namespace insigne {
 
+	renderer_settings_t							g_renderer_settings;
+
 	// -----------------------------------------
 
 #define s_composing_allocator					(*detail::s_gpu_frame_allocator[detail::s_back_cmdbuff])
