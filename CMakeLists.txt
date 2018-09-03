@@ -23,7 +23,6 @@ set (lib_list
 	floral
 	calyx
 	clover
-	imgui
 	helich
 	lotus)
 
