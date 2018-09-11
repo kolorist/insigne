@@ -42,6 +42,8 @@ namespace insigne {
 	color_attachment_list_t*					allocate_color_attachment_list(const u32 i_attachCount);
 	const framebuffer_handle_t					create_framebuffer(const s32 i_width, const s32 i_height,
 													const f32 i_scale, const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs);
+	const framebuffer_handle_t					create_mega_framebuffer(const s32 i_width, const s32 i_height,
+													const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs);
 	const texture_handle_t						extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx);
 
 	// normal upload

@@ -98,6 +98,8 @@ typedef void									GLvoid;
 #define GLX_CONTEXT_MAJOR_VERSION_ARB     0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB     0x2092
 #define GLX_CONTEXT_FLAGS_ARB             0x2094
+#define GLX_CONTEXT_PROFILE_MASK_ARB      0x9126
+#define GLX_CONTEXT_CORE_PROFILE_BIT_ARB  0x00000001
 
 /* Shader */
 #define GL_FRAGMENT_SHADER                0x8B30

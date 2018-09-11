@@ -185,6 +185,21 @@ namespace insigne {
 		return cmd.framebuffer_idx;
 	}
 
+	const framebuffer_handle_t create_mega_framebuffer(const s32 i_width, const s32 i_height,
+			const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs)
+	{
+		framebuffer_init_command cmd;
+		cmd.color_attachment_list = i_colorAttachs;
+		cmd.framebuffer_idx = renderer::create_framebuffer(i_colorAttachs->get_size());
+		cmd.width = i_width;
+		cmd.height = i_height;
+		cmd.scale = 1.0f;
+		cmd.has_depth = i_hasDepth;
+
+		push_command(cmd);
+		return cmd.framebuffer_idx;
+	}
+
 	const texture_handle_t extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx)
 	{
 		return renderer::extract_color_attachment(i_fbHdl, i_idx);

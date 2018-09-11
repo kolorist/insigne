@@ -99,6 +99,7 @@ namespace insigne {
 			GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
 			GLX_CONTEXT_MINOR_VERSION_ARB, 5,
 			GLX_CONTEXT_FLAGS_ARB, 0,
+			GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 			0
 		};
 		g_gl_context.main_context = wglCreateContextAttribsARB(g_gl_context.dc, 0, attribs);
@@ -113,6 +114,7 @@ namespace insigne {
 			GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
 			GLX_CONTEXT_MINOR_VERSION_ARB, 5,
 			GLX_CONTEXT_FLAGS_ARB, 0,
+			GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 			0
 		};
 		HGLRC hGL = wglCreateContextAttribsARB(g_gl_context.dc, g_gl_context.main_context, attribs);
