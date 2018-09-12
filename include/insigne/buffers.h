@@ -129,6 +129,9 @@ namespace insigne {
 
 	struct framebuffer_setup_command {
 		framebuffer_handle_t					framebuffer_idx;
+		s32										lower_left_x, lower_left_y;
+		s32										width, height;
+		bool									has_custom_viewport;
 	};
 
 	struct framebuffer_init_command {

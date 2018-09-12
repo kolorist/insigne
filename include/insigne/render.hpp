@@ -91,7 +91,11 @@ namespace insigne {
 							PROFILE_SCOPE(SetupFramebuffer);
 							framebuffer_setup_command cmd;
 							gpuCmd.serialize(cmd);
-							renderer::setup_framebuffer(cmd.framebuffer_idx);
+							if (!cmd.has_custom_viewport) {
+								renderer::setup_framebuffer(cmd.framebuffer_idx);
+							} else {
+								renderer::setup_framebuffer(cmd.framebuffer_idx, cmd.lower_left_x, cmd.lower_left_y, cmd.width, cmd.height);
+							}
 							break;
 						}
 

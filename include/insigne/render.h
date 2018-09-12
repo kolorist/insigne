@@ -32,6 +32,7 @@ namespace insigne {
 	void										end_frame();
 
 	void										begin_render_pass(const framebuffer_handle_t i_fb);
+	void										begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
 	void										end_render_pass(const framebuffer_handle_t i_fb);
 	void										mark_present_render();
 	void										dispatch_render_pass();

@@ -114,6 +114,32 @@ namespace insigne {
 		{
 			framebuffer_setup_command cmd;
 			cmd.framebuffer_idx = i_fb;
+			cmd.has_custom_viewport = false;
+			gpu_command newGPUCmd;
+			newGPUCmd.opcode = command::setup_framebuffer;
+			newGPUCmd.deserialize(cmd);
+			detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
+		}
+		// clear framebuffer
+		{
+			framebuffer_refresh_command cmd;
+			cmd.clear_color_buffer = true;
+			cmd.clear_depth_buffer = true;
+			gpu_command newGPUCmd;
+			newGPUCmd.opcode = command::refresh_framebuffer;
+			newGPUCmd.deserialize(cmd);
+			detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
+		}
+	}
+
+	void begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
+	{
+		// setup framebuffer
+		{
+			framebuffer_setup_command cmd;
+			cmd.framebuffer_idx = i_fb;
+			cmd.has_custom_viewport = true;
+			cmd.lower_left_x = i_x; cmd.lower_left_y = i_y; cmd.width = i_width, cmd.height = i_height;
 			gpu_command newGPUCmd;
 			newGPUCmd.opcode = command::setup_framebuffer;
 			newGPUCmd.deserialize(cmd);

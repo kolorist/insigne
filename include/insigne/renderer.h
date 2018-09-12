@@ -38,6 +38,7 @@ namespace renderer {
 													const f32 i_scale, const bool i_hasDepth,
 													const color_attachment_list_t* i_colorAttachs);
 	void										setup_framebuffer(const framebuffer_handle_t i_hdl);
+	void										setup_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
 	const texture_handle_t						extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx);
 
 	texture_handle_t							create_texture();

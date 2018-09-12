@@ -331,7 +331,6 @@ namespace renderer {
 	void setup_framebuffer(const framebuffer_handle_t i_hdl)
 	{
 		if (i_hdl >= 0) {
-		//if (false) {
 			detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_hdl];
 			pxBindFramebuffer(GL_FRAMEBUFFER, thisFramebuffer.gpu_handle);
 			static GLenum drawBuffers[] = {
@@ -342,6 +341,24 @@ namespace renderer {
 			};
 			pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
 			pxViewport(0, 0, thisFramebuffer.width, thisFramebuffer.height);
+		} else {
+			pxBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+	}
+
+	void setup_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
+	{
+		if (i_hdl >= 0) {
+			detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_hdl];
+			pxBindFramebuffer(GL_FRAMEBUFFER, thisFramebuffer.gpu_handle);
+			static GLenum drawBuffers[] = {
+				GL_COLOR_ATTACHMENT0,
+				GL_COLOR_ATTACHMENT1,
+				GL_COLOR_ATTACHMENT2,
+				GL_COLOR_ATTACHMENT3
+			};
+			pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
+			pxViewport(0, 0, i_width, i_height);
 		} else {
 			pxBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
