@@ -110,6 +110,7 @@ namespace insigne {
 	// -----------------------------------------
 	void begin_render_pass(const framebuffer_handle_t i_fb)
 	{
+		PROFILE_SCOPE(begin_render_pass);
 		// setup framebuffer
 		{
 			framebuffer_setup_command cmd;
@@ -134,6 +135,7 @@ namespace insigne {
 
 	void begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
 	{
+		PROFILE_SCOPE(begin_render_pass_viewport);
 		// setup framebuffer
 		{
 			framebuffer_setup_command cmd;
@@ -174,12 +176,21 @@ namespace insigne {
 
 	void dispatch_render_pass()
 	{
-		while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff) Sleep(1);
+		{
+			PROFILE_SCOPE(WaitingToDispatch);
+			while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff) Sleep(1);
+		}
 
 		detail::s_back_cmdbuff = (detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES;
-		s_composing_allocator.free_all();
+		{
+			PROFILE_SCOPE(RenewComposingAllocator);
+			s_composing_allocator.free_all();
+		}
 
-		detail::s_cmdbuffer_condvar.notify_one();
+		{
+			PROFILE_SCOPE(NotifyRenderer);
+			detail::s_cmdbuffer_condvar.notify_one();
+		}
 	}
 
 	// -----------------------------------------
