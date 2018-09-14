@@ -123,6 +123,8 @@ namespace insigne {
 	};
 
 	struct framebuffer_refresh_command {
+		s32										x, y, width, height;
+		bool									region_clear;
 		bool									clear_color_buffer;
 		bool									clear_depth_buffer;
 	};

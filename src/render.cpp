@@ -124,6 +124,7 @@ namespace insigne {
 		// clear framebuffer
 		{
 			framebuffer_refresh_command cmd;
+			cmd.region_clear = false;
 			cmd.clear_color_buffer = true;
 			cmd.clear_depth_buffer = true;
 			gpu_command newGPUCmd;
@@ -150,6 +151,8 @@ namespace insigne {
 		// clear framebuffer
 		{
 			framebuffer_refresh_command cmd;
+			cmd.region_clear = true;
+			cmd.x = i_x; cmd.y = i_y; cmd.width = i_width; cmd.height = i_height;
 			cmd.clear_color_buffer = true;
 			cmd.clear_depth_buffer = true;
 			gpu_command newGPUCmd;
@@ -178,7 +181,7 @@ namespace insigne {
 	{
 		{
 			PROFILE_SCOPE(WaitingToDispatch);
-			while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff) Sleep(1);
+			while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff);
 		}
 
 		detail::s_back_cmdbuff = (detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES;

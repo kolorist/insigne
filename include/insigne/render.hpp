@@ -104,7 +104,11 @@ namespace insigne {
 							PROFILE_SCOPE(RefreshFramebuffer);
 							framebuffer_refresh_command cmd;
 							gpuCmd.serialize(cmd);
-							renderer::set_scissor_test<false_type>(0, 0, 0, 0);
+							if (!cmd.region_clear) {
+								renderer::set_scissor_test<false_type>(0, 0, 0, 0);
+							} else {
+								renderer::set_scissor_test<true_type>(cmd.x, cmd.y, cmd.width, cmd.height);
+							}
 							renderer::clear_framebuffer(cmd.clear_color_buffer, cmd.clear_depth_buffer);
 							break;
 						}

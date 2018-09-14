@@ -358,7 +358,7 @@ namespace renderer {
 				GL_COLOR_ATTACHMENT3
 			};
 			pxDrawBuffers(thisFramebuffer.color_attachments_count, drawBuffers);
-			pxViewport(0, 0, i_width, i_height);
+			pxViewport(i_x, i_y, i_width, i_height);
 		} else {
 			pxBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
