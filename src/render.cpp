@@ -205,11 +205,24 @@ namespace insigne {
 		push_command(cmd);
 	}
 
+	// deprecated
 	color_attachment_list_t* allocate_color_attachment_list(const u32 i_attachCount)
 	{
 		return s_composing_allocator.allocate<color_attachment_list_t>(i_attachCount, &s_composing_allocator);
 	}
 
+	framebuffer_descriptor_t create_framebuffer_descriptor(const u32 i_colorAttachCount)
+	{
+		framebuffer_descriptor_t retDesc;
+		retDesc.color_attachments = s_composing_allocator.allocate<color_attachment_list_t>(i_colorAttachCount, &s_composing_allocator);
+		retDesc.width = 0;
+		retDesc.height = 0;
+		retDesc.scale = 1.0f;
+		retDesc.has_depth = false;
+		return retDesc;
+	}
+
+	// deprecated
 	const framebuffer_handle_t create_framebuffer(const s32 i_width, const s32 i_height,
 			const f32 i_scale, const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs)
 	{
@@ -220,6 +233,20 @@ namespace insigne {
 		cmd.height = i_height;
 		cmd.scale = i_scale;
 		cmd.has_depth = i_hasDepth;
+
+		push_command(cmd);
+		return cmd.framebuffer_idx;
+	}
+
+	const framebuffer_handle_t create_framebuffer(const framebuffer_descriptor_t& i_desc)
+	{
+		framebuffer_init_command cmd;
+		cmd.color_attachment_list = i_desc.color_attachments;
+		cmd.framebuffer_idx = renderer::create_framebuffer(i_desc.color_attachments->get_size());
+		cmd.width = i_desc.width;
+		cmd.height = i_desc.height;
+		cmd.scale = i_desc.scale;
+		cmd.has_depth = i_desc.has_depth;
 
 		push_command(cmd);
 		return cmd.framebuffer_idx;
@@ -243,6 +270,11 @@ namespace insigne {
 	const texture_handle_t extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx)
 	{
 		return renderer::extract_color_attachment(i_fbHdl, i_idx);
+	}
+
+	const texture_handle_t extract_depth_stencil_attachment(const framebuffer_handle_t i_fbHdl)
+	{
+		return renderer::extract_depth_stencil_attachment(i_fbHdl);
 	}
 
 	const texture_handle_t create_texture2d(const s32 i_width, const s32 i_height,

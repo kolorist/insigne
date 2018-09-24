@@ -224,4 +224,31 @@ namespace insigne {
 	typedef s32									param_id;
 	typedef s32									color_attachment_id;
 
+	//------------------------------------------
+	struct framebuffer_descriptor_t {
+		s32										width, height;
+		f32										scale;
+		bool									has_depth;
+		color_attachment_list_t*				color_attachments;
+	};
+
+	struct surface_descriptor_t {
+		size									vertex_stride;
+		s32										vertices_count;
+		s32										indices_count; // indices is always 'unsigned int'
+	};
+
+	struct texture2d_descriptor_t {
+		s32										width, height;
+		texture_format_e						format;
+		filtering_e								min_filter, mag_filter;
+		bool									has_mipmap;
+	};
+
+	struct texturecube_descriptor_t {
+		s32										face_width, face_height;
+		texture_format_e						format;
+		filtering_e								min_filter, mag_filter;
+		bool									has_mipmap;
+	};
 }

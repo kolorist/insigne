@@ -370,6 +370,12 @@ namespace renderer {
 		return thisFramebuffer.color_attachments[i_idx];
 	}
 
+	const texture_handle_t extract_depth_stencil_attachment(const framebuffer_handle_t i_fbHdl)
+	{
+		detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_fbHdl];
+		return thisFramebuffer.depthstencil_attachment;
+	}
+
 	texture_handle_t create_texture()
 	{
 		u32 idx = detail::s_textures.get_size();

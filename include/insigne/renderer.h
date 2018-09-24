@@ -40,6 +40,7 @@ namespace renderer {
 	void										setup_framebuffer(const framebuffer_handle_t i_hdl);
 	void										setup_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
 	const texture_handle_t						extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx);
+	const texture_handle_t						extract_depth_stencil_attachment(const framebuffer_handle_t i_fbHdl);
 
 	texture_handle_t							create_texture();
 	void										upload_texture2d(const texture_handle_t& i_hdl, const s32 i_width,

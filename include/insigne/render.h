@@ -40,22 +40,27 @@ namespace insigne {
 	void										set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha);
 
 	// framebuffer
-	color_attachment_list_t*					allocate_color_attachment_list(const u32 i_attachCount);
+	color_attachment_list_t*					allocate_color_attachment_list(const u32 i_attachCount); // deprecated
+	framebuffer_descriptor_t					create_framebuffer_descriptor(const u32 i_colorAttachCount);
 	const framebuffer_handle_t					create_framebuffer(const s32 i_width, const s32 i_height,
-													const f32 i_scale, const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs);
+													const f32 i_scale, const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs); // deprecated
+	const framebuffer_handle_t					create_framebuffer(const framebuffer_descriptor_t& i_desc);
 	const framebuffer_handle_t					create_mega_framebuffer(const s32 i_width, const s32 i_height,
 													const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs);
 	const texture_handle_t						extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx);
+	const texture_handle_t						extract_depth_stencil_attachment(const framebuffer_handle_t i_fbHdl);
 
 	// normal upload
 	const texture_handle_t						create_texture2d(const s32 i_width, const s32 i_height,
 													const texture_format_e i_format,
 													const filtering_e i_minFilter, const filtering_e i_magFilter,
-													const size i_dataSize, voidptr& o_placeholderData, const bool i_hasMM = false);
+													const size i_dataSize, voidptr& o_placeholderData, const bool i_hasMM = false); // deprecated
+	const texture_handle_t						create_texture2d(const texture2d_descriptor_t& i_desc, voidptr& o_placeholderData);
 	const texture_handle_t						upload_texture2d(const s32 i_width, const s32 i_height,
 													const texture_format_e i_format,
 													const filtering_e i_minFilter, const filtering_e i_magFilter,
-													voidptr i_data, const bool i_hasMM = false);
+													voidptr i_data, const bool i_hasMM = false); // deprecated
+	const texture_handle_t						upload_texture2d(const texture2d_descriptor_t& i_desc, voidptr i_data);
 
 	const texture_handle_t						create_texturecube(const s32 i_width, const s32 i_height,
 													const texture_format_e i_format,
