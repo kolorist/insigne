@@ -256,7 +256,9 @@ namespace renderer {
 	{
 		detail::framebuffer& thisFramebuffer = detail::s_framebuffers[i_hdl];
 		// at this point, we already have color attachments count
-		u32 colorAttachsCount = i_colorAttachs->get_size();
+		u32 colorAttachsCount = 0;
+		if (i_colorAttachs)
+			colorAttachsCount = i_colorAttachs->get_size();
 		// TODO: assertion to check colorAttachsCount and thisFramebuffer.color_attachments_count
 
 		GLuint newFBO = 0;

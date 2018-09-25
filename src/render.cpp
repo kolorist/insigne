@@ -214,7 +214,10 @@ namespace insigne {
 	framebuffer_descriptor_t create_framebuffer_descriptor(const u32 i_colorAttachCount)
 	{
 		framebuffer_descriptor_t retDesc;
-		retDesc.color_attachments = s_composing_allocator.allocate<color_attachment_list_t>(i_colorAttachCount, &s_composing_allocator);
+		if (i_colorAttachCount > 0)
+			retDesc.color_attachments = s_composing_allocator.allocate<color_attachment_list_t>(i_colorAttachCount, &s_composing_allocator);
+		else
+			retDesc.color_attachments = nullptr;
 		retDesc.width = 0;
 		retDesc.height = 0;
 		retDesc.scale = 1.0f;
@@ -228,7 +231,9 @@ namespace insigne {
 	{
 		framebuffer_init_command cmd;
 		cmd.color_attachment_list = i_colorAttachs;
-		cmd.framebuffer_idx = renderer::create_framebuffer(i_colorAttachs->get_size());
+		if (i_colorAttachs)
+			cmd.framebuffer_idx = renderer::create_framebuffer(i_colorAttachs->get_size());
+		else cmd.framebuffer_idx = renderer::create_framebuffer(0);
 		cmd.width = i_width;
 		cmd.height = i_height;
 		cmd.scale = i_scale;
@@ -242,7 +247,9 @@ namespace insigne {
 	{
 		framebuffer_init_command cmd;
 		cmd.color_attachment_list = i_desc.color_attachments;
-		cmd.framebuffer_idx = renderer::create_framebuffer(i_desc.color_attachments->get_size());
+		if (i_desc.color_attachments)
+			cmd.framebuffer_idx = renderer::create_framebuffer(i_desc.color_attachments->get_size());
+		else cmd.framebuffer_idx = renderer::create_framebuffer(0);
 		cmd.width = i_desc.width;
 		cmd.height = i_desc.height;
 		cmd.scale = i_desc.scale;
