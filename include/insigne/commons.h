@@ -2,6 +2,8 @@
 
 #include <floral.h>
 
+#include "configs.h"
+
 #include "memory.h"
 
 namespace insigne {
@@ -99,7 +101,8 @@ namespace insigne {
 		param_vec3,
 		param_vec4,
 		param_mat3,
-		param_mat4
+		param_mat4,
+		param_ub
 	};
 
 	enum class param_data_type_e {
@@ -111,7 +114,8 @@ namespace insigne {
 		param_vec3,
 		param_vec4,
 		param_mat3,
-		param_mat4
+		param_mat4,
+		param_ub
 	};
 
 	struct render_state_t {
@@ -223,6 +227,7 @@ namespace insigne {
 	typedef s32									framebuffer_handle_t;
 	typedef s32									param_id;
 	typedef s32									color_attachment_id;
+	typedef s32									ub_handle_t;
 
 	//------------------------------------------
 	struct framebuffer_descriptor_t {
