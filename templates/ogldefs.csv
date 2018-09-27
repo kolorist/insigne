@@ -62,3 +62,4 @@ __TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE
 0;UseProgram;GLuint program;program;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;VertexAttribPointer;GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer;index, size, type, normalized, stride, pointer;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;Viewport;GLint x, GLint y, GLsizei width, GLsizei height;x, y, width, height;void;since OpenGL 2.0 / OpenGL ES 2.0
+1;GetUniformBlockIndex;GLuint program, const GLchar *uniformBlockName;program, uniformBlockName;GLuint;since OpenGL ES 3.0

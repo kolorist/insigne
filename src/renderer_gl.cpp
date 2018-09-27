@@ -641,6 +641,7 @@ shader_handle_t create_shader(const shader_param_list_t* i_paramList)
 				}
 			case param_data_type_e::param_ub:
 				{
+					newTemplate.uniform_block_param_ids.push_back(id);
 					break;
 				}
 			default:
@@ -773,31 +774,41 @@ void compile_shader(const shader_handle_t& i_hdl, const_cstr i_vertStr, const_cs
 	// create symbol binding tables
 	for (u32 i = 0; i < i_paramList->get_size(); i++) {
 		const shader_param_t& thisParam = (*i_paramList)[i];
-		GLuint id = pxGetUniformLocation(newShader, thisParam.name);
 		switch (thisParam.data_type) {
 			case param_data_type_e::param_float:
 				{
+					GLuint id = pxGetUniformLocation(newShader, thisParam.name);
 					thisShader.float_params.push_back(id);
 					break;
 				}
 			case param_data_type_e::param_vec3:
 				{
+					GLuint id = pxGetUniformLocation(newShader, thisParam.name);
 					thisShader.vec3_params.push_back(id);
 					break;
 				}
 			case param_data_type_e::param_mat4:
 				{
+					GLuint id = pxGetUniformLocation(newShader, thisParam.name);
 					thisShader.mat4_params.push_back(id);
 					break;
 				}
 			case param_data_type_e::param_sampler2d:
 				{
+					GLuint id = pxGetUniformLocation(newShader, thisParam.name);
 					thisShader.texture2d_params.push_back(id);
 					break;
 				}
 			case param_data_type_e::param_sampler_cube:
 				{
+					GLuint id = pxGetUniformLocation(newShader, thisParam.name);
 					thisShader.texture_cube_params.push_back(id);
+					break;
+				}
+			case param_data_type_e::param_ub:
+				{
+					GLuint id = pxGetUniformBlockIndex(newShader, thisParam.name);
+					thisShader.uniform_block_params.push_back(id);
 					break;
 				}
 			default:

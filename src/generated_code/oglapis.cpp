@@ -133,4 +133,6 @@ glVertexAttribPointer_t glVertexAttribPointer;
 
 glViewport_t glViewport;
 
+glGetUniformBlockIndex_t glGetUniformBlockIndex;
+
 }

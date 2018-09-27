@@ -447,4 +447,11 @@ void pxViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 	assert_driver_no_error();
 }
 
+GLuint pxGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName)
+{
+	GLuint ret = glGetUniformBlockIndex(program, uniformBlockName);
+	assert_driver_no_error();
+	return ret;
+}
+
 }

@@ -89,9 +89,11 @@ namespace insigne {
 	template <typename t_param_type>
 	const param_id								get_material_param(const material_handle_t i_hdl, const_cstr i_name);
 	const param_id								get_material_param_texcube(const material_handle_t i_hdl, const_cstr i_name);
+	const param_id								get_material_param_ub(const material_handle_t i_hdl, const_cstr i_name);
 	template <typename t_param_type>
 	void										set_material_param(const material_handle_t i_hdl, const param_id i_paramId, const t_param_type& i_value);
 	void										set_material_param_texcube(const material_handle_t i_hdl, const param_id i_paramId, const texture_handle_t i_tex);
+	void										set_material_param_ub(const material_handle_t i_hdl, const param_id i_paramId, const ub_handle_t i_ub);
 
 	template <typename t_surface>
 	void										set_scissor_test(const bool i_enable = false, const s32 i_x = 0, const s32 i_y = 0, const s32 i_width = 0, const s32 i_height = 0);

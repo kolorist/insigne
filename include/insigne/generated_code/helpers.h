@@ -130,3 +130,5 @@ API_HELPER(void, VertexAttribPointer);
 
 API_HELPER(void, Viewport);
 
+API_HELPER(GLuint, GetUniformBlockIndex);
+

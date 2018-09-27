@@ -214,4 +214,7 @@ extern glVertexAttribPointer_t glVertexAttribPointer;
 typedef APICALL void (APIENTRY *glViewport_t)(GLint x, GLint y, GLsizei width, GLsizei height);
 extern glViewport_t glViewport;
 
+typedef APICALL GLuint (APIENTRY *glGetUniformBlockIndex_t)(GLuint program, const GLchar *uniformBlockName);
+extern glGetUniformBlockIndex_t glGetUniformBlockIndex;
+
 }
