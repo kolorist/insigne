@@ -45,12 +45,22 @@ namespace renderer {
 		}
 
 		// draw
+		static GLenum s_geometryMode[] = {
+			GL_POINTS,
+			GL_LINE_STRIP,
+			GL_LINE_LOOP,
+			GL_LINES,
+			GL_TRIANGLE_STRIP,
+			GL_TRIANGLE_FAN,
+			GL_TRIANGLES
+		};
+
 		pxBindBuffer(GL_ARRAY_BUFFER, surf.vbo);
 		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surf.ibo);
 		t_surface::describe_vertex_data();
 		{
 			PROFILE_SCOPE(issue_draw_call);
-			pxDrawElements(GL_TRIANGLES, iCount, GL_UNSIGNED_INT, i_segOffset);
+			pxDrawElements(s_geometryMode[s32(t_surface::s_geometry_mode)], iCount, GL_UNSIGNED_INT, i_segOffset);
 		}
 	}
 

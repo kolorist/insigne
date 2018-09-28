@@ -19,6 +19,22 @@ namespace insigne {
 		stencil_test							= 1u << 5
 	};
 
+	enum class geometry_mode_e : s32 {
+		points = 0,
+		line_strip,
+		line_loop,
+		lines,
+		triangle_strip,
+		triangle_fan,
+		triangles
+	};
+
+	enum class buffer_usage_e : s32 {
+		static_draw = 0,
+		dynamic_draw,
+		stream_draw
+	};
+
 	enum class draw_type_e {
 		static_surface = 0,
 		dynamic_surface,
@@ -230,6 +246,36 @@ namespace insigne {
 	typedef s32									ub_handle_t;
 
 	//------------------------------------------
+	struct shader_desc_t {
+		floral::path							vs_path, fs_path;
+		const_cstr								vs, fs;
+	};
+
+	struct material_desc_t {
+	};
+
+	//------------------------------------------
+	struct vbdesc_t {
+		size									region_size;
+		size									stride;
+		voidptr									data;
+		u32										count;
+		buffer_usage_e							usage;
+	};
+
+	struct ibdesc_t {
+		size									region_size;
+		voidptr									data;
+		u32										count;
+		buffer_usage_e							usage;
+	};
+
+	struct ubdesc_t {
+
+	};
+
+	//------------------------------------------
+
 	struct framebuffer_descriptor_t {
 		s32										width, height;
 		f32										scale;
