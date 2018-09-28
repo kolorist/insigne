@@ -490,6 +490,24 @@ const surface_handle_t create_streamed_surface(const s32 i_stride)
 	return cmd.surface_idx;
 }
 
+const surface_handle_t create_streamed_surface(const surface_descriptor_t& i_desc)
+{
+	load_command cmd;
+	cmd.data_type = stream_type::geometry;
+	cmd.vertices = nullptr;
+	cmd.indices = nullptr;
+	cmd.draw_type = draw_type_e::dynamic_surface;
+	cmd.stride = i_desc.vertices_stride;
+	cmd.vcount = i_desc.vertices_count;
+	cmd.icount = i_desc.indices_count;
+	cmd.has_indices = true;
+	cmd.surface_idx = renderer::create_surface();
+
+	push_command(cmd);
+
+	return cmd.surface_idx;
+}
+
 void update_streamed_surface(const surface_handle_t& i_hdl,
 		voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
 		const u32 i_vcount, const u32 i_icount)
@@ -508,6 +526,10 @@ void update_streamed_surface(const surface_handle_t& i_hdl,
 	cmd.surface_idx = i_hdl;
 
 	push_command(cmd);
+}
+
+void update_streamed_surface_vertices(const surface_handle_t i_hdl, voidptr i_vertices, const u32 i_vcount)
+{
 }
 
 shader_param_list_t* allocate_shader_param_list(const u32 i_paramCount)

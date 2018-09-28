@@ -16,6 +16,37 @@
 //----------------------------------------------
 
 //----------------------------------------------
+// create shader (user thread)
+
+// create vertex buffer (user thread)
+	insigne::vbdesc_t desc;
+	desc.region_size = <buffer_size_in_bytes>;
+	desc.stride = sizeof(<element_type>);
+	desc.count = <number_of_elements>;
+	desc.data = <pointer_to_data>; // must not be nullptr for static buffer
+	desc.usage = insigne::buffer_usage_e::dynamic; // or insigne::buffer_usage_e::static or insigne::buffer_usage_e::stream
+	insigne::vb_handle_t vbHdl = insigne::create_vb(desc);
+
+	// inner impl (user thread)
+	vb_handle_t request_new_vb_handle(const insigne::vbdesc_t& i_desc);
+	// inner impl (render thread)
+	
+	// inner impl (shared)
+	floral::dynamic_array_stricted<detail::vbdesc_t, FreelistAllocator> s_vb_pool;
+
+// create index buffer
+	insigne::ibdesc_t desc;
+	desc.region_size = <buffer_size_in_bytes>;
+	desc.count = <number_of_elements>;
+	desc.data = <pointer_to_data>; // must not be nullptr for static buffer
+	desc.usage = insigne::buffer_usage_e::dynamic; // or insigne::buffer_usage_e::static or insigne::buffer_usage_e::stream
+	insigne::ib_handle_t ibHdl = insigne::create_ib(desc);
+// update vertex buffer
+	insigne::update_vb(<handle_of_vb>, <pointer_to_data>, <number_of_elements>, <offset_in_elements_count> = 0);
+// update index buffer
+	insigne::update_ib(<handle_of_ib>, <pointer_to_data>, <number_of_indices>, <offset_in_indices_count> = 0);
+
+//----------------------------------------------
 // How to upload static geometry
 	insigne::surface_handle_t shdl = insigne::upload_surface(
 		&(*vertices)[0],

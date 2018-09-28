@@ -41,25 +41,25 @@ void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_
 			pxUniform1i(shdr.texture_cube_params[i], activeTextureSlot);
 			activeTextureSlot++;
 		}
-	}
 
-	// draw
-	pxBindBuffer(GL_ARRAY_BUFFER, surf.vbo);
-	pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surf.ibo);
+		// draw
+		static GLenum s_geometryMode[] = {
+			GL_POINTS,
+			GL_LINE_STRIP,
+			GL_LINE_LOOP,
+			GL_LINES,
+			GL_TRIANGLE_STRIP,
+			GL_TRIANGLE_FAN,
+			GL_TRIANGLES
+		};
 
-	static GLenum s_geometryMode[] = {
-		GL_POINTS,
-		GL_LINE_STRIP,
-		GL_LINE_LOOP,
-		GL_LINES,
-		GL_TRIANGLE_STRIP,
-		GL_TRIANGLE_FAN,
-		GL_TRIANGLES
-	};
-
-	t_surface::describe_vertex_data();
-	{
-		pxDrawElements(s_geometryMode[s32(t_surface::s_geometry_mode)], iCount, GL_UNSIGNED_INT, i_segOffset);
+		pxBindBuffer(GL_ARRAY_BUFFER, surf.vbo);
+		pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surf.ibo);
+		t_surface::describe_vertex_data();
+		{
+			PROFILE_SCOPE(issue_draw_call);
+			pxDrawElements(s_geometryMode[s32(t_surface::s_geometry_mode)], iCount, GL_UNSIGNED_INT, i_segOffset);
+		}
 	}
 }
 

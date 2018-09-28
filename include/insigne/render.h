@@ -78,9 +78,12 @@ namespace insigne {
 	const surface_handle_t						upload_surface(voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
 													const s32 i_stride, const u32 i_vcount, const u32 i_icount);
 	const surface_handle_t						create_streamed_surface(const s32 i_stride);
+	const surface_handle_t						create_streamed_surface(const surface_descriptor_t& i_desc);
 	void										update_streamed_surface(const surface_handle_t& i_hdl,
 													voidptr i_vertices, const size i_vsize, voidptr i_indices, const size i_isize,
 													const u32 i_vcount, const u32 i_icount);
+	void										update_streamed_surface_vertices(const surface_handle_t i_hdl, voidptr i_vertices, const u32 i_vcount);
+	void										update_streamed_surface_indices(const surface_handle_t i_hdl, voidptr i_indices, const u32 i_icount);
 
 	shader_param_list_t*						allocate_shader_param_list(const u32 i_paramCount);
 	const shader_handle_t						compile_shader(const_cstr i_vertStr, const_cstr i_fragStr, const shader_param_list_t* i_paramList);
