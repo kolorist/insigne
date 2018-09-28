@@ -1,5 +1,6 @@
 #include "detail/render.h"
 #include "detail/render_states.h"
+#include "detail/rt_shading.h"
 
 #include <lotus/profiler.h>
 
@@ -72,6 +73,9 @@ namespace insigne {
 			g_global_counters.current_render_frame_idx++;
 
 			bool swapThisRenderPass = false;
+
+			detail::process_shading_command_buffer();
+
 			// generic phase
 			for (u32 i = 0; i < detail::s_generic_command_buffer[detail::s_front_cmdbuff].get_size(); i++) {
 				gpu_command& gpuCmd = detail::s_generic_command_buffer[detail::s_front_cmdbuff][i];
@@ -242,11 +246,20 @@ namespace insigne {
 			detail::s_gpu_frame_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 					SIZE_MB(g_renderer_settings.frame_allocator_size_mb));
 
+		// shading
+		for (u32 i = 0; i < BUFFERS_COUNT; i++) {
+			detail::g_frame_shader_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
+					SIZE_MB(g_renderer_settings.frame_shader_allocator_size_mb));
+			// TODO: hardcode!!!
+			detail::g_shading_command_buffer[i].init(16u, &g_persistance_allocator);
+		}
+		// ---
+
 		detail::s_materials.init(32, &g_persistance_allocator);
 		g_debug_global_counters.materials_cap = detail::s_materials.get_size();
 
 		detail::s_front_cmdbuff = 0;
-		detail::s_back_cmdbuff = 2;
+		detail::s_back_cmdbuff = BUFFERS_COUNT - 1;
 		detail::s_render_state_changelog = 0;
 		detail::s_waiting_for_swap = true;
 

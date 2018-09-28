@@ -16,7 +16,8 @@ extern floral::condition_variable		s_cmdbuffer_condvar;
 extern floral::mutex					s_cmdbuffer_mtx;
 
 // frame memory
-extern arena_allocator_t*				s_gpu_frame_allocator[BUFFERED_FRAMES];
+extern arena_allocator_t*						s_gpu_frame_allocator[BUFFERED_FRAMES];
+
 
 // frame buffering states
 typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
@@ -28,6 +29,11 @@ struct draw_command_buffer_t {
 extern gpu_command_buffer_t				s_generic_command_buffer[BUFFERED_FRAMES];
 extern size								s_front_cmdbuff;
 extern size								s_back_cmdbuff;
+
+// shading--------------------------------------
+extern arena_allocator_t*						g_frame_shader_allocator[BUFFERS_COUNT];
+extern gpu_command_buffer_t						g_shading_command_buffer[BUFFERS_COUNT];
+// ---------------------------------------------
 
 extern bool								s_waiting_for_swap;
 

@@ -24,7 +24,9 @@ enum class command {
 	draw_geom,
 	load_data,
 	stream_data,
-	present_render
+	present_render,
+
+	shading_command
 };
 
 // this struct is copyable
@@ -160,6 +162,8 @@ enum class stream_type {
 	geometry_indices,
 	shader
 };
+
+// ---------------------------------------------
 
 struct load_command {
 	stream_type								data_type;

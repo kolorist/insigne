@@ -8,7 +8,7 @@
 
 namespace insigne {
 
-#define BUFFERED_FRAMES							3
+#define BUFFERED_FRAMES							2
 
 	enum class render_state_togglemask_e {
 		depth_test								= 1u << 0,
@@ -248,7 +248,7 @@ namespace insigne {
 	//------------------------------------------
 	struct shader_desc_t {
 		floral::path							vs_path, fs_path;
-		const_cstr								vs, fs;
+		cstr									vs, fs;
 	};
 
 	struct material_desc_t {

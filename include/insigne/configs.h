@@ -1,5 +1,7 @@
 #pragma once
 
+#define BUFFERS_COUNT							2
+
 #define MAX_FLOAT_UNIFORMS						8u
 #define MAX_VEC3_UNIFORMS						8u
 #define MAX_MAT4_UNIFORMS						4u

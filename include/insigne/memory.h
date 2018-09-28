@@ -11,4 +11,6 @@ namespace insigne {
 	extern linear_allocator_t					g_persistance_allocator;
 	extern arena_allocator_t					g_arena_allocator;
 	extern freelist_allocator_t					g_stream_allocator;
+
+	extern freelist_allocator_t					g_temporal_shader_allocator;
 }

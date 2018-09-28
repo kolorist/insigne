@@ -7,6 +7,7 @@
 #include "insigne/driver.h"
 #include "insigne/detail/render_states.h"
 #include "insigne/counters.h"
+#include "insigne/ut_shading.h"
 
 namespace insigne {
 
@@ -188,6 +189,7 @@ void dispatch_render_pass()
 	{
 		PROFILE_SCOPE(RenewComposingAllocator);
 		s_composing_allocator.free_all();
+		cleanup_shading_module();
 	}
 
 	{
@@ -497,7 +499,7 @@ const surface_handle_t create_streamed_surface(const surface_descriptor_t& i_des
 	cmd.vertices = nullptr;
 	cmd.indices = nullptr;
 	cmd.draw_type = draw_type_e::dynamic_surface;
-	cmd.stride = i_desc.vertices_stride;
+	cmd.stride = i_desc.vertex_stride;
 	cmd.vcount = i_desc.vertices_count;
 	cmd.icount = i_desc.indices_count;
 	cmd.has_indices = true;
