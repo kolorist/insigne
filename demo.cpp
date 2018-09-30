@@ -14,10 +14,33 @@
  */
 
 //----------------------------------------------
-
-//----------------------------------------------
 // create shader (user thread)
+	insigne::shader_desc_t desc = insigne::create_shader_desc();
+	desc.vs_path = <floral::path to vs> // debug purpose
+	desc.fs_path = <floral::path to fs> // debug purpose
 
+	{
+		insigne::shader_param_t sparam;
+		sparam.name = <sampler2D_shader_id>;
+		desc.reflection.textures->push_back(sparam);
+	}
+
+	{
+		insigne::shader_param_t sparam;
+		sparam.name = <uniform_buffer_shader_id>;
+		desc.reflection.uniform_buffers->push_back(sparam);
+	}
+
+	desc.vs = <vs string data, zero terminated>
+	desc.fs = <fs string data, zero terminated>
+
+	insigne::shader_handle_t newShader = insigne::create_shader(desc);
+
+// infuse material (user thread)
+	insigne::material_desc_t newMaterial;
+	insigne::infuse_material(newShader, newMaterial);
+
+// ---------------------------------------------
 // create vertex buffer (user thread)
 	insigne::vbdesc_t desc;
 	desc.region_size = <buffer_size_in_bytes>;

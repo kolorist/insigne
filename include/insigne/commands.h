@@ -18,6 +18,8 @@ struct shading_command_t {
 	union {
 		struct {
 			shader_handle_t						shader_handle;
+			const_cstr							vs, fs;
+			shader_reflection_t					reflection;
 		};
 	};
 };

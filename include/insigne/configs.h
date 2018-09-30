@@ -8,3 +8,4 @@
 #define MAX_TEX2D_UNIFORMS						4u
 #define MAX_TEXCUBE_UNIFORMS					4u
 #define MAX_UNIFORM_BLOCKS						8u
+#define MAX_TEXTURE_SAMPLERS					8u
