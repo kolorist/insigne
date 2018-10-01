@@ -33,6 +33,8 @@ glBlitFramebuffer_t glBlitFramebuffer;
 
 glBufferData_t glBufferData;
 
+glBufferSubData_t glBufferSubData;
+
 glCheckFramebufferStatus_t glCheckFramebufferStatus;
 
 glClear_t glClear;

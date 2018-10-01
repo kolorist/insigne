@@ -140,6 +140,12 @@ void pxBufferData(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usa
 	assert_driver_no_error();
 }
 
+void pxBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data)
+{
+	glBufferSubData(target, offset, size, data);
+	assert_driver_no_error();
+}
+
 GLenum pxCheckFramebufferStatus(GLenum target)
 {
 	GLenum ret = glCheckFramebufferStatus(target);

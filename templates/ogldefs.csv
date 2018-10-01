@@ -12,6 +12,7 @@ __TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE
 0;BlendFunc;GLenum sfactor, GLenum dfactor;sfactor, dfactor;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;BlitFramebuffer;GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter;srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;BufferData;GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage;target, size, data, usage;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;BufferSubData;GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data;target, offset, size, data;void;since OpenGL 2.0 / OpenGL ES 2.0
 1;CheckFramebufferStatus;GLenum target;target;GLenum;since OpenGL 2.0 / OpenGL ES 2.0
 0;Clear;GLbitfield mask;mask;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;ClearColor;GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha;red, green, blue, alpha;void;since OpenGL 2.0 / OpenGL ES 2.0

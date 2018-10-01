@@ -33,6 +33,9 @@ extern size								s_back_cmdbuff;
 // shading--------------------------------------
 extern arena_allocator_t*						g_frame_shader_allocator[BUFFERS_COUNT];
 extern gpu_command_buffer_t						g_shading_command_buffer[BUFFERS_COUNT];
+// buffers--------------------------------------
+extern arena_allocator_t*						g_frame_buffers_allocator[BUFFERS_COUNT];
+extern gpu_command_buffer_t						g_buffers_command_buffer[BUFFERS_COUNT];
 // ---------------------------------------------
 
 extern bool								s_waiting_for_swap;

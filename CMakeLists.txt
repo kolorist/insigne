@@ -17,7 +17,9 @@ set (file_list
 	"${PROJECT_SOURCE_DIR}/src/counters.cpp"
 	
 	"${PROJECT_SOURCE_DIR}/src/ut_shading.cpp"
+	"${PROJECT_SOURCE_DIR}/src/ut_buffers.cpp"
 	"${PROJECT_SOURCE_DIR}/src/detail/rt_shading.cpp"
+	"${PROJECT_SOURCE_DIR}/src/detail/rt_buffers.cpp"
 	)
 
 add_definitions(

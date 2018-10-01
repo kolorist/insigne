@@ -30,6 +30,8 @@ API_HELPER(void, BlitFramebuffer);
 
 API_HELPER(void, BufferData);
 
+API_HELPER(void, BufferSubData);
+
 API_HELPER(GLenum, CheckFramebufferStatus);
 
 API_HELPER(void, Clear);

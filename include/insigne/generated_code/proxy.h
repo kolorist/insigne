@@ -38,6 +38,8 @@ void pxBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint
 
 void pxBufferData(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
 
+void pxBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data);
+
 GLenum pxCheckFramebufferStatus(GLenum target);
 
 void pxClear(GLbitfield mask);

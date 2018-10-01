@@ -19,6 +19,9 @@ bool									s_waiting_for_swap;
 // shading--------------------------------------
 arena_allocator_t*								g_frame_shader_allocator[BUFFERS_COUNT];
 gpu_command_buffer_t							g_shading_command_buffer[BUFFERS_COUNT];
+// buffers--------------------------------------
+arena_allocator_t*								g_frame_buffers_allocator[BUFFERS_COUNT];
+gpu_command_buffer_t							g_buffers_command_buffer[BUFFERS_COUNT];
 // ---------------------------------------------
 
 // frame rendering states

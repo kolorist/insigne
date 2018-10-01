@@ -243,7 +243,9 @@ typedef s32									material_handle_t;
 typedef s32									framebuffer_handle_t;
 typedef s32									param_id;
 typedef s32									color_attachment_id;
-typedef s32									ub_handle_t;
+typedef s32										vb_handle_t;
+typedef s32										ib_handle_t;
+typedef s32										ub_handle_t;
 
 //------------------------------------------
 struct shader_reflection_t {
@@ -279,18 +281,18 @@ struct material_desc_t {
 
 //------------------------------------------
 struct vbdesc_t {
-	size									region_size;
-	size									stride;
-	voidptr									data;
-	u32										count;
-	buffer_usage_e							usage;
+	size										region_size;
+	size										stride;
+	voidptr										data;
+	u32											count;
+	buffer_usage_e								usage;
 };
 
 struct ibdesc_t {
-	size									region_size;
-	voidptr									data;
-	u32										count;
-	buffer_usage_e							usage;
+	size										region_size;
+	voidptr										data;
+	u32											count;
+	buffer_usage_e								usage;
 };
 
 struct ubdesc_t {

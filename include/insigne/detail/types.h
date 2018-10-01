@@ -30,9 +30,18 @@ struct shader_desc_t {
 
 //----------------------------------------------
 struct vbdesc_t {
+	GLuint										gpu_handle;
+	size										region_size;
+	size										stride;
+	u32											count;
+	buffer_usage_e								usage;
 };
 
 struct ibdesc_t {
+	GLuint										gpu_handle;
+	size										region_size;
+	u32											count;
+	buffer_usage_e								usage;
 };
 
 struct ubdesc_t {

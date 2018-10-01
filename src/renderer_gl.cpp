@@ -7,6 +7,7 @@
 #include "insigne/generated_code/proxy.h"
 #include "insigne/detail/renderer_states_gl.h"
 #include "insigne/detail/rt_shading.h"
+#include "insigne/detail/rt_buffers.h"
 
 namespace insigne {
 namespace renderer {
@@ -121,6 +122,7 @@ static GLenum s_filterings[] = {
 void initialize_renderer()
 {
 	insigne::detail::initialize_shading_module();
+	insigne::detail::initialize_buffers_module();
 
 	detail::s_shaders.init(64u, &g_persistance_allocator);
 	detail::s_material_templates.init(64u, &g_persistance_allocator);

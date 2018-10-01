@@ -8,6 +8,7 @@
 #include "insigne/detail/render_states.h"
 #include "insigne/counters.h"
 #include "insigne/ut_shading.h"
+#include "insigne/ut_buffers.h"
 
 namespace insigne {
 
@@ -190,6 +191,7 @@ void dispatch_render_pass()
 		PROFILE_SCOPE(RenewComposingAllocator);
 		s_composing_allocator.free_all();
 		cleanup_shading_module();
+		cleanup_buffers_module();
 	}
 
 	{

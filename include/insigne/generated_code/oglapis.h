@@ -64,6 +64,9 @@ extern glBlitFramebuffer_t glBlitFramebuffer;
 typedef APICALL void (APIENTRY *glBufferData_t)(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
 extern glBufferData_t glBufferData;
 
+typedef APICALL void (APIENTRY *glBufferSubData_t)(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data);
+extern glBufferSubData_t glBufferSubData;
+
 typedef APICALL GLenum (APIENTRY *glCheckFramebufferStatus_t)(GLenum target);
 extern glCheckFramebufferStatus_t glCheckFramebufferStatus;
 

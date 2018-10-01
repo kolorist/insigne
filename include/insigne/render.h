@@ -11,6 +11,7 @@ namespace insigne {
 	struct renderer_settings_t {
 		u32										frame_allocator_size_mb;
 		u32										frame_shader_allocator_size_mb;
+		u32										frame_buffers_allocator_size_mb;
 		u32										draw_command_buffer_size;
 		u32										generic_command_buffer_size;
 	};

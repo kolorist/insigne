@@ -26,7 +26,8 @@ enum class command {
 	stream_data,
 	present_render,
 
-	shading_command
+	shading_command,
+	buffers_command
 };
 
 // this struct is copyable
