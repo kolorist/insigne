@@ -288,6 +288,17 @@ namespace insigne {
 
 		g_debug_frame_counters.num_render_commands++;
 	}
+
+	template <typename t_surface>
+	void push_draw_command2(const draw_command_t& i_cmd)
+	{
+		gpu_command newCmd;
+		newCmd.opcode = command::draw_command;
+		newCmd.deserialize(i_cmd);
+		detail::draw_command_buffer_t<t_surface>::command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+
+		g_debug_frame_counters.num_render_commands++;
+	}
 	// -----------------------------------------
 	template <typename t_surface>
 	void set_scissor_test(const bool i_enable /* = false */, const s32 i_x /* = 0 */, const s32 i_y /* = 0 */, const s32 i_width /* = 0 */, const s32 i_height /* = 0 */)
@@ -318,6 +329,22 @@ namespace insigne {
 		cmd.segment_size = -1;
 
 		push_draw_command<t_surface>(cmd);
+	}
+
+	template <typename t_surface>
+	void draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t& i_mat)
+	{
+		material_desc_t* matSnapshot = detail::s_gpu_frame_allocator[detail::s_back_cmdbuff]->allocate<material_desc_t>();
+		(*matSnapshot) = i_mat; // trigger copy assignment
+
+		draw_command cmd;
+		cmd.material_snapshot = matSnapshot;
+		cmd.segment_offset = 0;
+		cmd.vb_handle = i_vb;
+		cmd.ib_handle = i_ib;
+		cmd.segment_size = 0;
+
+		push_draw_command2<t_surface>(cmd);
 	}
 	
 	template <typename t_surface>

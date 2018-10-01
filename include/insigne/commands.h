@@ -30,8 +30,10 @@ enum class buffers_command_type_e {
 	invalid = 0,
 	create_vb_buffers,
 	create_ib_buffers,
+	create_ub_buffers,
 	stream_vb_data,
-	stream_ib_data
+	stream_ib_data,
+	stream_ub_data
 };
 
 struct buffers_command_t {
@@ -47,6 +49,11 @@ struct buffers_command_t {
 			ib_handle_t							ib_handle;
 			insigne::ibdesc_t					desc;
 		} create_ib_data;
+		// create_ub_buffers
+		struct {
+			ub_handle_t							ub_handle;
+			insigne::ubdesc_t					desc;
+		} create_ub_data;
 		// stream_vb_data
 		struct {
 			voidptr								data;
@@ -61,6 +68,13 @@ struct buffers_command_t {
 			u32									icount;
 			u32									offset_elements;
 		} stream_ib_data;
+		// stream_ub_data
+		struct {
+			voidptr								data;
+			size								data_size;
+			size								offset;
+			ub_handle_t							ub_handle;
+		} stream_ub_data;
 	};
 };
 

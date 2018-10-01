@@ -16,6 +16,7 @@ namespace detail {
 
 vbs_pool_t										g_vbs_pool;
 ibs_pool_t										g_ibs_pool;
+ubs_pool_t										g_ubs_pool;
 
 // ---------------------------------------------
 inline detail::gpu_command_buffer_t& get_buffers_command_buffer() {
@@ -43,6 +44,15 @@ const ib_handle_t create_ib(const insigne::ibdesc_t& i_desc)
 	g_ibs_pool.push_back(ibdesc_t());
 
 	return ib_handle_t(idx);
+}
+
+/* ut */
+const ub_handle_t create_ub(const insigne::ubdesc_t& i_desc)
+{
+	u32 idx = g_ubs_pool.get_size();
+	g_ubs_pool.push_back(ubdesc_t());
+
+	return ub_handle_t(idx);
 }
 
 void upload_vb(const vb_handle_t i_hdl, const insigne::vbdesc_t& i_desc)
@@ -96,6 +106,30 @@ void upload_ib(const ib_handle_t i_hdl, const insigne::ibdesc_t& i_desc)
 	desc.gpu_handle = iboHandle;
 }
 
+void upload_ub(const ub_handle_t i_hdl, const insigne::ubdesc_t& i_desc)
+{
+	ubdesc_t& desc = g_ubs_pool[s32(i_hdl)];
+
+	desc.region_size = i_desc.region_size;
+	desc.usage = i_desc.usage;
+
+	GLuint uboHandle;
+	GLenum bufferUsage = s_buffer_usage[s32(desc.usage)];
+
+	pxGenBuffers(1, &uboHandle);
+	pxBindBuffer(GL_UNIFORM_BUFFER, uboHandle);
+	// TODO: we can do full pxBufferData if the data is exactly matched with region_size
+	// invalidate buffer
+	pxBufferData(GL_UNIFORM_BUFFER, GLsizeiptr(desc.region_size), nullptr, bufferUsage);
+	// upload data right away if needed
+	if (i_desc.data) {
+		pxBufferSubData(GL_UNIFORM_BUFFER, GLintptr(0), GLsizeiptr(desc.data_size), (const GLvoid*)i_desc.data);
+	}
+	pxBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	desc.gpu_handle = uboHandle;
+}
+
 void stream_vb_data(const vb_handle_t i_hdl, const voidptr i_data, const u32 i_vcount, const u32 i_offsetElems)
 {
 	vbdesc_t& desc = g_vbs_pool[s32(i_hdl)];
@@ -116,6 +150,17 @@ void stream_ib_data(const ib_handle_t i_hdl, const voidptr i_data, const u32 i_i
 	pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, desc.gpu_handle);
 	pxBufferSubData(GL_ELEMENT_ARRAY_BUFFER, GLintptr(i_offsetElems * sizeof(s32)), GLsizeiptr(sizeof(s32) * desc.count), (const GLvoid*)i_data);
 	pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void stream_ub_data(const ub_handle_t i_hdl, const voidptr i_data, const size i_size, const size i_offset)
+{
+	ubdesc_t& desc = g_ubs_pool[s32(i_hdl)];
+
+	desc.data_size = i_size;
+
+	pxBindBuffer(GL_UNIFORM_BUFFER, desc.gpu_handle);
+	pxBufferSubData(GL_UNIFORM_BUFFER, GLintptr(i_offset), GLsizeiptr(desc.data_size), (const GLvoid*)i_data);
+	pxBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 // ---------------------------------------------
@@ -139,6 +184,9 @@ void process_buffers_command_buffer()
 						case buffers_command_type_e::create_ib_buffers:
 							upload_ib(cmd.create_ib_data.ib_handle, cmd.create_ib_data.desc);
 							break;
+						case buffers_command_type_e::create_ub_buffers:
+							upload_ub(cmd.create_ub_data.ub_handle, cmd.create_ub_data.desc);
+							break;
 						case buffers_command_type_e::stream_vb_data:
 							stream_vb_data(cmd.stream_vb_data.vb_handle, cmd.stream_vb_data.data,
 									cmd.stream_vb_data.vcount, cmd.stream_vb_data.offset_elements);
@@ -146,6 +194,10 @@ void process_buffers_command_buffer()
 						case buffers_command_type_e::stream_ib_data:
 							stream_ib_data(cmd.stream_ib_data.ib_handle, cmd.stream_ib_data.data,
 									cmd.stream_ib_data.icount, cmd.stream_ib_data.offset_elements);
+							break;
+						case buffers_command_type_e::stream_ub_data:
+							stream_ub_data(cmd.stream_ub_data.ub_handle, cmd.stream_ub_data.data,
+									cmd.stream_ub_data.data_size, cmd.stream_ub_data.offset);
 						default:
 							break;
 					}

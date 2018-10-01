@@ -296,7 +296,10 @@ struct ibdesc_t {
 };
 
 struct ubdesc_t {
-
+	size										region_size;
+	voidptr										data;
+	size										data_size;
+	buffer_usage_e								usage;
 };
 
 //------------------------------------------

@@ -105,6 +105,8 @@ namespace insigne {
 
 	template <typename TSurface>
 	void										draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);
+	template <typename t_surface>
+	void										draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_handle_t i_mat);
 	template <typename TSurface>
 	void										draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
 													const s32 i_segSize, const voidptr i_segOffset);

@@ -112,6 +112,7 @@ typedef void									GLvoid;
 #define GL_ARRAY_BUFFER                   0x8892
 #define GL_ELEMENT_ARRAY_BUFFER           0x8893
 #define GL_STATIC_DRAW                    0x88E4
+#define GL_UNIFORM_BUFFER                 0x8A11
 
 /* DrawType */
 #define GL_STREAM_DRAW                    0x88E0

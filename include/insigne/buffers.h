@@ -27,7 +27,8 @@ enum class command {
 	present_render,
 
 	shading_command,
-	buffers_command
+	buffers_command,
+	draw_command
 };
 
 // this struct is copyable
@@ -152,6 +153,14 @@ struct render_command {
 	voidptr									segment_offset;
 	surface_handle_t						surface_handle;
 	s32										segment_size;
+};
+
+struct draw_command_t {
+	material_desc_t*							material_snapshot;
+	voidptr										segment_offset;
+	vb_handle_t									vb_handle;
+	ib_handle_t									ib_handle;
+	s32											segment_size;
 };
 
 enum class stream_type {
