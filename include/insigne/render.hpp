@@ -42,7 +42,7 @@ namespace insigne {
 					}
 				case command::draw_command:
 					{
-						draw_command cmd;
+						draw_command_t cmd;
 						gpuCmd.serialize(cmd);
 						break;
 					}
