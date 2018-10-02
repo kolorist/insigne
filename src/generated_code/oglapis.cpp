@@ -137,4 +137,8 @@ glViewport_t glViewport;
 
 glGetUniformBlockIndex_t glGetUniformBlockIndex;
 
+glBindBufferBase_t glBindBufferBase;
+
+glUniformBlockBinding_t glUniformBlockBinding;
+
 }

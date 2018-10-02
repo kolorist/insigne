@@ -220,4 +220,10 @@ extern glViewport_t glViewport;
 typedef APICALL GLuint (APIENTRY *glGetUniformBlockIndex_t)(GLuint program, const GLchar *uniformBlockName);
 extern glGetUniformBlockIndex_t glGetUniformBlockIndex;
 
+typedef APICALL void (APIENTRY *glBindBufferBase_t)(GLenum target, GLuint index, GLuint buffer);
+extern glBindBufferBase_t glBindBufferBase;
+
+typedef APICALL void (APIENTRY *glUniformBlockBinding_t)(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
+extern glUniformBlockBinding_t glUniformBlockBinding;
+
 }

@@ -75,6 +75,12 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 
 	pxUseProgram(shaderDesc.gpu_handle);
 
+	for (u32 i = 0; i < i_mat->uniform_blocks.get_size(); i++) {
+		const insigne::detail::ubdesc_t& ubDesc = insigne::detail::g_ubs_pool[s32(i_mat->uniform_blocks[i].value)];
+		pxBindBufferBase(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle);
+		pxUniformBlockBinding(shaderDesc.gpu_handle, shaderDesc.slots_config.uniform_blocks[i], i);
+	}
+
 	// draw
 	static GLenum s_geometryMode[] = {
 		GL_POINTS,

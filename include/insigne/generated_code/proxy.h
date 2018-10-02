@@ -142,4 +142,8 @@ void pxViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 
 GLuint pxGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
 
+void pxBindBufferBase(GLenum target, GLuint index, GLuint buffer);
+
+void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
+
 }

@@ -3,6 +3,7 @@
 #include <floral.h>
 #include <clover.h>
 
+#include "insigne/system.h"
 #include "insigne/context.h"
 #include "insigne/driver.h"
 #include "insigne/detail/render_states.h"
@@ -11,8 +12,6 @@
 #include "insigne/ut_buffers.h"
 
 namespace insigne {
-
-renderer_settings_t							g_renderer_settings;
 
 // -----------------------------------------
 
@@ -29,12 +28,6 @@ enum class render_state_changelog_e {
 	scissor_test							= 1u << 4,
 	stencil_test							= 1u << 5
 };
-
-// -----------------------------------------
-void wait_for_initialization()
-{
-	detail::s_init_condvar.wait(detail::s_init_mtx);
-}
 
 // -----------------------------------------
 void push_command(const framebuffer_init_command& i_cmd)
@@ -88,119 +81,6 @@ void push_command(const render_state_toggle_command& i_cmd)
 }
 
 // -----------------------------------------
-void begin_frame()
-{
-	PROFILE_SCOPE(begin_frame);
-
-	{
-		g_global_counters.current_submit_frame_idx++;
-		memset(&g_debug_frame_counters, 0, sizeof(debug_frame_counters));
-	}
-
-	detail::s_waiting_for_swap = true;
-}
-
-void end_frame()
-{
-	PROFILE_SCOPE(end_frame);
-	g_debug_global_counters.submitted_frames++;
-	// wait for swap present here
-	// spin spin spin spin
-	while (detail::s_waiting_for_swap);
-}
-
-// -----------------------------------------
-void begin_render_pass(const framebuffer_handle_t i_fb)
-{
-	PROFILE_SCOPE(begin_render_pass);
-	// setup framebuffer
-	{
-		framebuffer_setup_command cmd;
-		cmd.framebuffer_idx = i_fb;
-		cmd.has_custom_viewport = false;
-		gpu_command newGPUCmd;
-		newGPUCmd.opcode = command::setup_framebuffer;
-		newGPUCmd.deserialize(cmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
-	}
-	// clear framebuffer
-	{
-		framebuffer_refresh_command cmd;
-		cmd.region_clear = false;
-		cmd.clear_color_buffer = true;
-		cmd.clear_depth_buffer = true;
-		gpu_command newGPUCmd;
-		newGPUCmd.opcode = command::refresh_framebuffer;
-		newGPUCmd.deserialize(cmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
-	}
-}
-
-void begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
-{
-	PROFILE_SCOPE(begin_render_pass_viewport);
-	// setup framebuffer
-	{
-		framebuffer_setup_command cmd;
-		cmd.framebuffer_idx = i_fb;
-		cmd.has_custom_viewport = true;
-		cmd.lower_left_x = i_x; cmd.lower_left_y = i_y; cmd.width = i_width, cmd.height = i_height;
-		gpu_command newGPUCmd;
-		newGPUCmd.opcode = command::setup_framebuffer;
-		newGPUCmd.deserialize(cmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
-	}
-	// clear framebuffer
-	{
-		framebuffer_refresh_command cmd;
-		cmd.region_clear = true;
-		cmd.x = i_x; cmd.y = i_y; cmd.width = i_width; cmd.height = i_height;
-		cmd.clear_color_buffer = true;
-		cmd.clear_depth_buffer = true;
-		gpu_command newGPUCmd;
-		newGPUCmd.opcode = command::refresh_framebuffer;
-		newGPUCmd.deserialize(cmd);
-		detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
-	}
-}
-
-void end_render_pass(const framebuffer_handle_t i_fb)
-{
-	// nothing, LUL
-}
-
-void mark_present_render()
-{
-	present_render_command cmd;
-	cmd.placeholder = 1;
-	gpu_command newGPUCmd;
-	newGPUCmd.opcode = command::present_render;
-	newGPUCmd.deserialize(cmd);
-	detail::s_generic_command_buffer[detail::s_back_cmdbuff].push_back(newGPUCmd);
-}
-
-void dispatch_render_pass()
-{
-	{
-		PROFILE_SCOPE(WaitingToDispatch);
-		while ((detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES == detail::s_front_cmdbuff);
-	}
-
-	detail::s_back_cmdbuff = (detail::s_back_cmdbuff + 1) % BUFFERED_FRAMES;
-	{
-		PROFILE_SCOPE(RenewComposingAllocator);
-		s_composing_allocator.free_all();
-		cleanup_shading_module();
-		cleanup_buffers_module();
-	}
-
-	{
-		PROFILE_SCOPE(NotifyRenderer);
-		detail::s_cmdbuffer_condvar.notify_one();
-	}
-}
-
-// -----------------------------------------
 
 void set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha)
 {
@@ -209,196 +89,6 @@ void set_clear_color(f32 i_red, f32 i_green, f32 i_blue, f32 i_alpha)
 	push_command(cmd);
 }
 
-// deprecated
-color_attachment_list_t* allocate_color_attachment_list(const u32 i_attachCount)
-{
-	return s_composing_allocator.allocate<color_attachment_list_t>(i_attachCount, &s_composing_allocator);
-}
-
-framebuffer_descriptor_t create_framebuffer_descriptor(const u32 i_colorAttachCount)
-{
-	framebuffer_descriptor_t retDesc;
-	if (i_colorAttachCount > 0)
-		retDesc.color_attachments = s_composing_allocator.allocate<color_attachment_list_t>(i_colorAttachCount, &s_composing_allocator);
-	else
-		retDesc.color_attachments = nullptr;
-	retDesc.width = 0;
-	retDesc.height = 0;
-	retDesc.scale = 1.0f;
-	retDesc.has_depth = false;
-	return retDesc;
-}
-
-// deprecated
-const framebuffer_handle_t create_framebuffer(const s32 i_width, const s32 i_height,
-		const f32 i_scale, const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs)
-{
-	framebuffer_init_command cmd;
-	cmd.color_attachment_list = i_colorAttachs;
-	if (i_colorAttachs)
-		cmd.framebuffer_idx = renderer::create_framebuffer(i_colorAttachs->get_size());
-	else cmd.framebuffer_idx = renderer::create_framebuffer(0);
-	cmd.width = i_width;
-	cmd.height = i_height;
-	cmd.scale = i_scale;
-	cmd.has_depth = i_hasDepth;
-
-	push_command(cmd);
-	return cmd.framebuffer_idx;
-}
-
-const framebuffer_handle_t create_framebuffer(const framebuffer_descriptor_t& i_desc)
-{
-	framebuffer_init_command cmd;
-	cmd.color_attachment_list = i_desc.color_attachments;
-	if (i_desc.color_attachments)
-		cmd.framebuffer_idx = renderer::create_framebuffer(i_desc.color_attachments->get_size());
-	else cmd.framebuffer_idx = renderer::create_framebuffer(0);
-	cmd.width = i_desc.width;
-	cmd.height = i_desc.height;
-	cmd.scale = i_desc.scale;
-	cmd.has_depth = i_desc.has_depth;
-
-	push_command(cmd);
-	return cmd.framebuffer_idx;
-}
-
-const framebuffer_handle_t create_mega_framebuffer(const s32 i_width, const s32 i_height,
-		const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs)
-{
-	framebuffer_init_command cmd;
-	cmd.color_attachment_list = i_colorAttachs;
-	cmd.framebuffer_idx = renderer::create_framebuffer(i_colorAttachs->get_size());
-	cmd.width = i_width;
-	cmd.height = i_height;
-	cmd.scale = 1.0f;
-	cmd.has_depth = i_hasDepth;
-
-	push_command(cmd);
-	return cmd.framebuffer_idx;
-}
-
-const texture_handle_t extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx)
-{
-	return renderer::extract_color_attachment(i_fbHdl, i_idx);
-}
-
-const texture_handle_t extract_depth_stencil_attachment(const framebuffer_handle_t i_fbHdl)
-{
-	return renderer::extract_depth_stencil_attachment(i_fbHdl);
-}
-
-const texture_handle_t create_texture2d(const s32 i_width, const s32 i_height,
-		const texture_format_e i_format,
-		const filtering_e i_minFilter, const filtering_e i_magFilter,
-		const size i_dataSize, voidptr& o_placeholderData, const bool i_hasMM /* = false */)
-{
-	voidptr placeholderData = s_composing_allocator.allocate(i_dataSize);
-	texture_handle_t texHdl = upload_texture2d(i_width, i_height,
-			i_format,
-			i_minFilter, i_magFilter,
-			placeholderData, i_hasMM);
-	o_placeholderData = placeholderData;
-	return texHdl;
-}
-
-const texture_handle_t upload_texture2d(const s32 i_width, const s32 i_height,
-		const texture_format_e i_format,
-		const filtering_e i_minFilter, const filtering_e i_magFilter,
-		voidptr i_data, const bool i_hasMM /* = false */)
-{
-	static texture_internal_format_e s_internal_formats[] = {
-		texture_internal_format_e::rgb8,
-		texture_internal_format_e::rgb16f,
-		texture_internal_format_e::srgb8,
-		texture_internal_format_e::rgba8,
-		texture_internal_format_e::rgba16f,
-		texture_internal_format_e::depth24,
-		texture_internal_format_e::depth24_stencil8
-	};
-	static data_type_e s_data_types[] = {
-		data_type_e::elem_unsigned_byte,
-		data_type_e::elem_signed_float,
-		data_type_e::elem_unsigned_byte,
-		data_type_e::elem_unsigned_byte,
-		data_type_e::elem_signed_float,
-		data_type_e::elem_unsigned_int,
-		data_type_e::elem_unsigned_int_24_8
-	};
-
-	load_command cmd;
-	cmd.data_type = stream_type::texture2d;
-	// FIXME: what if user delete the i_data right after this call?
-	cmd.data = i_data;
-	cmd.format = i_format;
-	cmd.width = i_width;
-	cmd.height = i_height;
-	cmd.internal_format = s_internal_formats[static_cast<s32>(i_format)];
-	cmd.pixel_data_type = s_data_types[static_cast<s32>(i_format)];
-	cmd.min_filter = i_minFilter;
-	cmd.mag_filter = i_magFilter;
-	cmd.has_builtin_mipmaps = i_hasMM;
-	cmd.texture_idx = renderer::create_texture();
-	push_command(cmd);
-
-	return cmd.texture_idx;
-}
-
-const texture_handle_t create_texturecube(const s32 i_width, const s32 i_height,
-		const texture_format_e i_format,
-		const filtering_e i_minFilter, const filtering_e i_magFilter,
-		const size i_dataSize, voidptr& o_placeholderData, const bool i_hasMM /* = false */)
-{
-	voidptr placeholderData = s_composing_allocator.allocate(i_dataSize * 6);
-	texture_handle_t texHdl = upload_texturecube(i_width, i_height,
-			i_format,
-			i_minFilter, i_magFilter,
-			placeholderData, i_hasMM);
-	o_placeholderData = placeholderData;
-	return texHdl;
-}
-
-const texture_handle_t upload_texturecube(const s32 i_width, const s32 i_height,
-		const texture_format_e i_format,
-		const filtering_e i_minFilter, const filtering_e i_magFilter,
-		voidptr i_data, const bool i_hasMM /* = false */)
-{
-	static texture_internal_format_e s_internal_formats[] = {
-		texture_internal_format_e::rgb8,
-		texture_internal_format_e::rgb16f,
-		texture_internal_format_e::srgb8,
-		texture_internal_format_e::rgba8,
-		texture_internal_format_e::rgba16f,
-		texture_internal_format_e::depth24,
-		texture_internal_format_e::depth24_stencil8
-	};
-	static data_type_e s_data_types[] = {
-		data_type_e::elem_unsigned_byte,
-		data_type_e::elem_signed_float,
-		data_type_e::elem_unsigned_byte,
-		data_type_e::elem_unsigned_byte,
-		data_type_e::elem_signed_float,
-		data_type_e::elem_unsigned_int,
-		data_type_e::elem_unsigned_int_24_8
-	};
-
-	load_command cmd;
-	cmd.data_type = stream_type::texture_cube;
-	// FIXME: what if user delete the i_data right after this call?
-	cmd.data = i_data;
-	cmd.format = i_format;
-	cmd.width = i_width;
-	cmd.height = i_height;
-	cmd.internal_format = s_internal_formats[static_cast<s32>(i_format)];
-	cmd.pixel_data_type = s_data_types[static_cast<s32>(i_format)];
-	cmd.min_filter = i_minFilter;
-	cmd.mag_filter = i_magFilter;
-	cmd.has_builtin_mipmaps = i_hasMM;
-	cmd.texture_idx = renderer::create_texture();
-	push_command(cmd);
-
-	return cmd.texture_idx;
-}
 
 const surface_handle_t upload_surface(voidptr i_vertices, voidptr i_indices,
 		s32 i_stride, const u32 i_vcount, const u32 i_icount)

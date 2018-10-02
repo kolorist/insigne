@@ -460,4 +460,16 @@ GLuint pxGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName)
 	return ret;
 }
 
+void pxBindBufferBase(GLenum target, GLuint index, GLuint buffer)
+{
+	glBindBufferBase(target, index, buffer);
+	assert_driver_no_error();
+}
+
+void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+{
+	glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+	assert_driver_no_error();
+}
+
 }
