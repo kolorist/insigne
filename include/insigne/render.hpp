@@ -40,6 +40,12 @@ namespace insigne {
 								cmd.segment_size, cmd.segment_offset);
 						break;
 					}
+				case command::draw_command:
+					{
+						draw_command cmd;
+						gpuCmd.serialize(cmd);
+						break;
+					}
 				default:
 					break;
 			}

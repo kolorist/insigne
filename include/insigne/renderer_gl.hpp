@@ -63,5 +63,33 @@ void draw_surface_idx(const surface_handle_t& i_surfaceHdl, const material_t& i_
 	}
 }
 
+template <typename t_surface>
+void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t* i_mat,
+		const s32 i_segSize, const voidptr i_segOffset)
+{
+	const detail::vbdesc_t& vbDesc = detail::g_vbs_pool[s32(i_vb)];
+	const detail::ibdesc_t& ibDesc = detail::g_ibs_pool[s32(i_ib)];
+
+	pxUseProgram(i_mat->shader_handle);
+
+	// draw
+	static GLenum s_geometryMode[] = {
+		GL_POINTS,
+		GL_LINE_STRIP,
+		GL_LINE_LOOP,
+		GL_LINES,
+		GL_TRIANGLE_STRIP,
+		GL_TRIANGLE_FAN,
+		GL_TRIANGLES
+	};
+
+	pxBindBuffer(GL_ARRAY_BUFFER, vbDesc.gpu_handle);
+	pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibDesc.gpu_handle);
+	t_surface::describe_vertex_data();
+	{
+		pxDrawElements(s_geometryMode[s32(t_surface::s_geometry_mode)], vbDesc.count, GL_UNSIGNED_INT, 0);
+	}
+}
+
 }
 }
