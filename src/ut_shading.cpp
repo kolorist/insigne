@@ -24,7 +24,8 @@ inline void push_command(const shading_command_t& i_cmd)
 	newCmd.opcode = command::shading_command;
 	newCmd.deserialize(i_cmd);
 
-	get_composing_command_buffer().push_back(newCmd);
+	//get_composing_command_buffer().push_back(newCmd);
+	detail::g_shading_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
 }
 
 // ---------------------------------------------

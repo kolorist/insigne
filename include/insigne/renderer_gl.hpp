@@ -2,6 +2,8 @@
 
 #include <lotus/profiler.h>
 
+#include "detail/types.h"
+
 namespace insigne {
 namespace renderer {
 
@@ -67,10 +69,11 @@ template <typename t_surface>
 void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t* i_mat,
 		const s32 i_segSize, const voidptr i_segOffset)
 {
-	const detail::vbdesc_t& vbDesc = detail::g_vbs_pool[s32(i_vb)];
-	const detail::ibdesc_t& ibDesc = detail::g_ibs_pool[s32(i_ib)];
+	const insigne::detail::vbdesc_t& vbDesc = insigne::detail::g_vbs_pool[s32(i_vb)];
+	const insigne::detail::ibdesc_t& ibDesc = insigne::detail::g_ibs_pool[s32(i_ib)];
+	const insigne::detail::shader_desc_t& shaderDesc = insigne::detail::g_shaders_pool[s32(i_mat->shader_handle)];
 
-	pxUseProgram(i_mat->shader_handle);
+	pxUseProgram(shaderDesc.gpu_handle);
 
 	// draw
 	static GLenum s_geometryMode[] = {
@@ -87,7 +90,7 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 	pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibDesc.gpu_handle);
 	t_surface::describe_vertex_data();
 	{
-		pxDrawElements(s_geometryMode[s32(t_surface::s_geometry_mode)], vbDesc.count, GL_UNSIGNED_INT, 0);
+		pxDrawElements(s_geometryMode[s32(t_surface::s_geometry_mode)], ibDesc.count, GL_UNSIGNED_INT, 0);
 	}
 }
 

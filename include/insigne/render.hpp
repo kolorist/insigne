@@ -44,6 +44,8 @@ namespace insigne {
 					{
 						draw_command_t cmd;
 						gpuCmd.serialize(cmd);
+						renderer::draw_indexed_surface<t_surface>(cmd.vb_handle, cmd.ib_handle, cmd.material_snapshot,
+								cmd.segment_size, cmd.segment_offset);
 						break;
 					}
 				default:
@@ -343,7 +345,7 @@ namespace insigne {
 		material_desc_t* matSnapshot = detail::s_gpu_frame_allocator[detail::s_back_cmdbuff]->allocate<material_desc_t>();
 		(*matSnapshot) = i_mat; // trigger copy assignment
 
-		draw_command cmd;
+		draw_command_t cmd;
 		cmd.material_snapshot = matSnapshot;
 		cmd.segment_offset = 0;
 		cmd.vb_handle = i_vb;

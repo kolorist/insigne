@@ -129,6 +129,10 @@ void initialize_renderer()
 	detail::s_textures.init(64u, &g_persistance_allocator);
 	detail::s_surfaces.init(256u, &g_persistance_allocator);
 	detail::s_framebuffers.init(32u, &g_persistance_allocator);
+
+	GLuint vao;
+	pxGenVertexArrays(1, &vao);
+	pxBindVertexArray(vao);
 }
 
 // -----------------------------------------
