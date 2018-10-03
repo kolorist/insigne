@@ -14,6 +14,7 @@ size											g_back_cmdbuff;
 
 // render---------------------------------------
 arena_allocator_t*								g_frame_render_allocator[BUFFERS_COUNT];
+arena_allocator_t*								g_frame_draw_allocator[BUFFERS_COUNT];
 gpu_command_buffer_t							g_render_command_buffer[BUFFERS_COUNT];
 // shading--------------------------------------
 arena_allocator_t*								g_frame_shader_allocator[BUFFERS_COUNT];

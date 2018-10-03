@@ -25,7 +25,8 @@ void 											describe_vertex_data(const u32 i_location, const s32 i_size,
 													const data_type_e i_type, const bool i_normalized, const s32 i_stride, const voidptr offset);
 
 // ---------------------------------------------
-inline void										initialize_render_module();
+template <typename t_surface_list>
+void											initialize_render_module();
 const bool										process_render_command_buffer();
 template <typename t_surface_list>
 void											process_draw_command_buffer();

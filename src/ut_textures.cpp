@@ -8,16 +8,16 @@
 namespace insigne {
 
 // ---------------------------------------------
-inline arena_allocator_t* get_composing_allocator() {
+static inline arena_allocator_t* get_composing_allocator() {
 	return detail::g_frame_textures_allocator[detail::g_back_cmdbuff];
 }
 
-inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
+static inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
 	return detail::g_textures_command_buffer[detail::g_back_cmdbuff];
 }
 
 // ---------------------------------------------
-inline void push_command(const textures_command_t& i_cmd)
+static inline void push_command(const textures_command_t& i_cmd)
 {
 	gpu_command newCmd;
 	newCmd.opcode = command::textures_command;
@@ -56,6 +56,11 @@ void prepare_texture_desc(texture_desc_t& io_desc)
 		dataSize *= 6;
 
 	io_desc.data = get_composing_allocator()->allocate(dataSize);
+}
+
+// ---------------------------------------------
+void cleanup_textures_module()
+{
 }
 
 }

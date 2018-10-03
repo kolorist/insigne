@@ -7,16 +7,16 @@
 namespace insigne {
 
 // ---------------------------------------------
-inline arena_allocator_t* get_composing_allocator() {
+static inline arena_allocator_t* get_composing_allocator() {
 	return detail::g_frame_buffers_allocator[detail::g_back_cmdbuff];
 }
 
-inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
+static inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
 	return detail::g_buffers_command_buffer[detail::g_back_cmdbuff];
 }
 // ---------------------------------------------
 
-inline void push_command(const buffers_command_t& i_cmd)
+static inline void push_command(const buffers_command_t& i_cmd)
 {
 	gpu_command newCmd;
 	newCmd.opcode = command::buffers_command;

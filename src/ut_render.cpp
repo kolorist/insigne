@@ -4,6 +4,7 @@
 
 #include "insigne/internal_states.h"
 #include "insigne/counters.h"
+#include "insigne/commands.h"
 #include "insigne/ut_shading.h"
 #include "insigne/ut_buffers.h"
 #include "insigne/ut_textures.h"
@@ -11,14 +12,23 @@
 namespace insigne {
 
 // ---------------------------------------------
-inline arena_allocator_t* get_composing_allocator() {
+static inline arena_allocator_t* get_composing_allocator() {
 	return detail::g_frame_render_allocator[detail::g_back_cmdbuff];
 }
 
-inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
+static inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
 	return detail::g_render_command_buffer[detail::g_back_cmdbuff];
 }
+
 // ---------------------------------------------
+static inline void push_command(const render_command_t& i_cmd)
+{
+	gpu_command newCmd;
+	newCmd.opcode = command::render_command;
+	newCmd.deserialize(i_cmd);
+
+	get_composing_command_buffer().push_back(newCmd);
+}
 
 // render entrypoint----------------------------
 void begin_frame()
@@ -55,12 +65,10 @@ void end_render_pass(const framebuffer_handle_t i_fb)
 
 void mark_present_render()
 {
-	present_render_command cmd;
-	cmd.placeholder = 1;
-	gpu_command newGPUCmd;
-	newGPUCmd.opcode = command::present_render;
-	newGPUCmd.deserialize(cmd);
-	get_composing_command_buffer().push_back(newGPUCmd);
+	render_command_t cmd;
+	cmd.command_type = render_command_type_e::present_render;
+
+	push_command(cmd);
 }
 
 void dispatch_render_pass()

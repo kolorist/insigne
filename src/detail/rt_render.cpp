@@ -213,25 +213,12 @@ void describe_vertex_data(const u32 i_location, const s32 i_size,
 			i_normalized? GL_TRUE : GL_FALSE,
 			i_stride, (const GLvoid*)offset);
 }
-// -----------------------------------------
-
-void initialize_renderer()
-{
-	insigne::detail::initialize_shading_module();
-	insigne::detail::initialize_buffers_module();
-
-	// do we really need this?
-	GLuint vao;
-	pxGenVertexArrays(1, &vao);
-	pxBindVertexArray(vao);
-}
-
 // ---------------------------------------------
 inline detail::gpu_command_buffer_t& get_render_command_buffer() {
 	return detail::g_render_command_buffer[detail::g_front_cmdbuff];
 }
-// ---------------------------------------------
 
+// ---------------------------------------------
 const bool process_render_command_buffer()
 {
 	bool endOfFrameMarked = false;

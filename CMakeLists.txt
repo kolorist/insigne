@@ -20,6 +20,7 @@ set (file_list
 	"${PROJECT_SOURCE_DIR}/src/ut_buffers.cpp"
 	"${PROJECT_SOURCE_DIR}/src/ut_render.cpp"
 	"${PROJECT_SOURCE_DIR}/src/ut_textures.cpp"
+	"${PROJECT_SOURCE_DIR}/src/ut_states.cpp"
 	"${PROJECT_SOURCE_DIR}/src/detail/rt_shading.cpp"
 	"${PROJECT_SOURCE_DIR}/src/detail/rt_buffers.cpp"
 	"${PROJECT_SOURCE_DIR}/src/detail/rt_render.cpp"

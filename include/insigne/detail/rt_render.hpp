@@ -85,9 +85,10 @@ void internal_clear_buffer(size idx)
 }
 
 // ---------------------------------------------
-
-inline void initialize_render_module()
+template <typename t_surface_list>
+void initialize_render_module()
 {
+	internal_init_buffer<t_surface_list>(&g_persistance_allocator);
 }
 
 template <typename t_surface_list>
