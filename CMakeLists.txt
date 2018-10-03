@@ -9,17 +9,20 @@ include_directories ("${PROJECT_SOURCE_DIR}/include")
 set (file_list
 	"${PROJECT_SOURCE_DIR}/src/generated_code/proxy.cpp"
 	"${PROJECT_SOURCE_DIR}/src/generated_code/oglapis.cpp"
+
 	"${PROJECT_SOURCE_DIR}/src/context.cpp"
-	"${PROJECT_SOURCE_DIR}/src/render.cpp"
 	"${PROJECT_SOURCE_DIR}/src/memory.cpp"
-	"${PROJECT_SOURCE_DIR}/src/detail/render_states.cpp"
-	"${PROJECT_SOURCE_DIR}/src/detail/renderer_states_gl.cpp"
+	"${PROJECT_SOURCE_DIR}/src/system.cpp"
 	"${PROJECT_SOURCE_DIR}/src/counters.cpp"
 	
+	"${PROJECT_SOURCE_DIR}/src/internal_states.cpp"
 	"${PROJECT_SOURCE_DIR}/src/ut_shading.cpp"
 	"${PROJECT_SOURCE_DIR}/src/ut_buffers.cpp"
+	"${PROJECT_SOURCE_DIR}/src/ut_render.cpp"
+	"${PROJECT_SOURCE_DIR}/src/ut_textures.cpp"
 	"${PROJECT_SOURCE_DIR}/src/detail/rt_shading.cpp"
 	"${PROJECT_SOURCE_DIR}/src/detail/rt_buffers.cpp"
+	"${PROJECT_SOURCE_DIR}/src/detail/rt_render.cpp"
 	)
 
 add_definitions(
@@ -63,8 +66,7 @@ else ()
 		-DPLATFORM_WINDOWS)
 	set (file_list
 		${file_list}
-		"${PROJECT_SOURCE_DIR}/src/driver_windows.cpp"
-		"${PROJECT_SOURCE_DIR}/src/renderer_gl.cpp")
+		"${PROJECT_SOURCE_DIR}/src/driver_windows.cpp")
 	set (lib_list
 		${lib_list}
 		opengl32)

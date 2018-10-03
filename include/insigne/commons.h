@@ -8,8 +8,6 @@
 
 namespace insigne {
 
-#define BUFFERED_FRAMES							2
-
 enum class render_state_togglemask_e {
 	depth_test								= 1u << 0,
 	depth_write								= 1u << 1,
@@ -168,6 +166,12 @@ enum class texture_format_e {
 	depth_stencil
 };
 
+enum class texture_dimension_e {
+	tex_2d = 0,
+	tex_3d,
+	tex_cube
+};
+
 enum class texture_internal_format_e {
 	rg16f = 0,
 	rgb16f,
@@ -240,14 +244,42 @@ typedef s32									shader_handle_t;
 typedef s32									texture_handle_t;
 typedef s32									surface_handle_t;
 typedef s32									material_handle_t;
-typedef s32									framebuffer_handle_t;
+typedef s32										framebuffer_handle_t;
 typedef s32									param_id;
 typedef s32									color_attachment_id;
 typedef s32										vb_handle_t;
 typedef s32										ib_handle_t;
 typedef s32										ub_handle_t;
 
-//------------------------------------------
+// ---------------------------------------------
+/* pixel data alignment
+ *	> for 2d texture:
+ * 		pixel data is stored as a list of scanlines in a order from top to bottom of an image
+ * 		mipmap is stored as a sequence of pixel data corresponding to each mip images
+ *	> for cube texture:
+ *		pixel data is stored in HStrip scheme
+ *			positiveX, negativeX, positiveY, negativeY, posiviteZ, negativeZ
+ *		mipmap is stored as a sequence of pixel data, face after face:
+ *			mip0 - positiveX, mip1 - posiviteX,... , mip[n-1] - negativeZ, mip[n] - negativeZ
+ */
+struct texture_desc_t {
+	voidptr										data;
+	s32											width, height;
+	texture_format_e							format;
+	filtering_e									min_filter, mag_filter;
+	texture_dimension_e							dimension;
+	bool										has_mipmap;
+};
+
+// ---------------------------------------------
+struct framebuffer_desc_t {
+	s32											width, height;
+	f32											scale;
+	bool										has_depth;
+	color_attachment_list_t*					color_attachments;
+};
+
+// ---------------------------------------------
 struct shader_reflection_t {
 	shader_param_list_t*						textures;
 	shader_param_list_t*						uniform_blocks;

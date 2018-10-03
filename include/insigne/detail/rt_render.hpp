@@ -1,6 +1,3 @@
-#pragma once
-
-#include <floral.h>
 #include <lotus/profiler.h>
 
 namespace insigne {
@@ -87,6 +84,19 @@ void internal_clear_buffer(size idx)
 	internal_buffer_iterator<tl_length<t_surface_list>::value - 1, t_surface_list>::clear_buffer(idx);
 }
 
+// ---------------------------------------------
+
+inline void initialize_render_module()
+{
 }
 
+template <typename t_surface_list>
+void process_draw_command_buffer()
+{
+	// geometry render phase
+	detail::internal_render_surfaces<t_surface_list>();
+	detail::internal_clear_buffer<t_surface_list>(detail::g_front_cmdbuff);
+}
+
+}
 }

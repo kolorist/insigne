@@ -28,6 +28,8 @@ enum class command {
 
 	shading_command,
 	buffers_command,
+	textures_command,
+	render_command,
 	draw_command
 };
 

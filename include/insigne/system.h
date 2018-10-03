@@ -2,6 +2,9 @@
 
 #include <floral.h>
 
+#include "commons.h"
+#include "internal_states.h"
+
 namespace insigne {
 
 // -----------------------------------------

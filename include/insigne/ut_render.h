@@ -6,7 +6,7 @@
 
 namespace insigne {
 
-// -----------------------------------------
+// ---------------------------------------------
 template <typename t_surface>
 struct renderable_surface_t {
 	static void									render();
@@ -15,33 +15,42 @@ struct renderable_surface_t {
 
 // render entrypoint----------------------------
 void											begin_frame();
+/* GPU synchronization point
+ * 	wait for SwapBuffer()
+ */
 void											end_frame();
 
+// renderpass entrypoint------------------------
+/* render at full resolution of a framebuffer */
 void											begin_render_pass(const framebuffer_handle_t i_fb);
+/* render only a specific region of a framebuffer
+ * origin:
+ * 	x: 0 -> framebuffer_width from left to right
+ * 	y: 0 -> framebuffer_height from top to bottom
+ *
+ * NOTE: OpenGL screen coordinate:
+ * 	x: 0 -> framebuffer_width from left to right
+ * 	y: 0 -> framebuffer_height from bottom to top
+ */
 void											begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
+/* do nothing, LUL */
 void											end_render_pass(const framebuffer_handle_t i_fb);
+/* mark that this render pass will be the last one,
+ * SwapBuffer() will be call in this render pass
+ * CPU waiting is done by end_frame() function
+ */
 void											mark_present_render();
+/* trigger command buffer process of render thread 
+ * and swap to a new command buffer for user thread
+ */
 void											dispatch_render_pass();
-// framebuffer----------------------------------
-color_attachment_list_t*						allocate_color_attachment_list(const u32 i_attachCount); // deprecated
-framebuffer_descriptor_t						create_framebuffer_descriptor(const u32 i_colorAttachCount);
-const framebuffer_handle_t						create_framebuffer(const s32 i_width, const s32 i_height,
-													const f32 i_scale, const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs); // deprecated
-const framebuffer_handle_t						create_framebuffer(const framebuffer_descriptor_t& i_desc);
-const framebuffer_handle_t						create_mega_framebuffer(const s32 i_width, const s32 i_height,
-													const bool i_hasDepth, const color_attachment_list_t* i_colorAttachs);
-const texture_handle_t							extract_color_attachment(const framebuffer_handle_t i_fbHdl, const s32 i_idx);
-const texture_handle_t							extract_depth_stencil_attachment(const framebuffer_handle_t i_fbHdl);
-
 
 // drawcall-------------------------------------
-template <typename TSurface>
-void											draw_surface(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl);
 template <typename t_surface>
 void											draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_handle_t i_mat);
-template <typename TSurface>
-void											draw_surface_segmented(const surface_handle_t i_surfaceHdl, const material_handle_t i_matHdl,
-													const s32 i_segSize, const voidptr i_segOffset);
+
+// ---------------------------------------------
+void											cleanup_render_module();
 }
 
 #include "ut_render.hpp"

@@ -4,7 +4,7 @@
 
 #include "insigne/memory.h"
 #include "insigne/generated_code/proxy.h"
-#include "insigne/detail/render_states.h"
+#include "insigne/internal_states.h"
 
 namespace insigne {
 namespace detail {
@@ -13,7 +13,7 @@ shaders_pool_t									g_shaders_pool;
 
 // ---------------------------------------------
 inline detail::gpu_command_buffer_t& get_shading_command_buffer() {
-	return detail::g_shading_command_buffer[detail::s_front_cmdbuff];
+	return detail::g_shading_command_buffer[detail::g_front_cmdbuff];
 }
 // ---------------------------------------------
 /* ut */

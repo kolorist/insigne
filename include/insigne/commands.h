@@ -7,6 +7,40 @@
 
 namespace insigne {
 
+// render---------------------------------------
+enum class render_command_type_e {
+	invalid = 0,
+	present_render,
+	scissor_state_setup
+};
+
+struct render_command_t {
+	render_command_type_e						command_type;
+	union {
+		struct {
+			s32									x, y, width, height;
+			bool								test_enable;
+		} scissor_state_setup_data;
+	};
+};
+
+// textures-------------------------------------
+enum class textures_command_type_e {
+	invalid = 0,
+	create_texture
+};
+
+struct textures_command_t {
+	textures_command_type_e						command_type;
+	union {
+		// create_texture
+		struct {
+			texture_handle_t					texture_handle;
+			insigne::texture_desc_t				desc;
+		} create_texture_data;
+	};
+};
+
 // shading--------------------------------------
 enum class shading_command_type_e {
 	invalid = 0,

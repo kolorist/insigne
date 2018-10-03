@@ -6,7 +6,7 @@ settings_t										g_settings;
 
 void wait_for_initialization()
 {
-	detail::s_init_condvar.wait(detail::s_init_mtx);
+	detail::g_init_condvar.wait(detail::g_init_mtx);
 }
 
 }

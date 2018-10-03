@@ -2,7 +2,7 @@
 
 #include "insigne/memory.h"
 #include "insigne/generated_code/proxy.h"
-#include "insigne/detail/render_states.h"
+#include "insigne/internal_states.h"
 
 /*
  * NOTE: we will not make shadow copy of vertex or index data for the command buffer for now
@@ -20,7 +20,7 @@ ubs_pool_t										g_ubs_pool;
 
 // ---------------------------------------------
 inline detail::gpu_command_buffer_t& get_buffers_command_buffer() {
-	return detail::g_buffers_command_buffer[detail::s_front_cmdbuff];
+	return detail::g_buffers_command_buffer[detail::g_front_cmdbuff];
 }
 
 static GLenum s_buffer_usage[] = {

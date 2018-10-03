@@ -3,18 +3,18 @@
 #include <clover.h>
 
 #include "insigne/commands.h"
-#include "insigne/detail/render_states.h"
+#include "insigne/internal_states.h"
 #include "insigne/detail/rt_shading.h"
 
 namespace insigne {
 
 // ---------------------------------------------
 inline arena_allocator_t* get_composing_allocator() {
-	return detail::g_frame_shader_allocator[detail::s_back_cmdbuff];
+	return detail::g_frame_shader_allocator[detail::g_back_cmdbuff];
 }
 
 inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
-	return detail::g_shading_command_buffer[detail::s_back_cmdbuff];
+	return detail::g_shading_command_buffer[detail::g_back_cmdbuff];
 }
 // ---------------------------------------------
 
@@ -25,7 +25,7 @@ inline void push_command(const shading_command_t& i_cmd)
 	newCmd.deserialize(i_cmd);
 
 	//get_composing_command_buffer().push_back(newCmd);
-	detail::g_shading_command_buffer[detail::s_back_cmdbuff].push_back(newCmd);
+	detail::g_shading_command_buffer[detail::g_back_cmdbuff].push_back(newCmd);
 }
 
 // ---------------------------------------------
