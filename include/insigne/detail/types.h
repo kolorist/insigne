@@ -61,6 +61,15 @@ struct ubdesc_t {
 	GLuint										gpu_handle;
 	buffer_usage_e								usage;
 };
+//----------------------------------------------
+struct texture_desc_t {
+	s32											width, height;
+	texture_format_e							format;
+	filtering_e									min_filter, mag_filter;
+	texture_dimension_e							dimension;
+	GLuint										gpu_handle;
+	bool										has_mipmap;
+};
 
 }
 }
