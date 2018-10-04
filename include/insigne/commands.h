@@ -11,18 +11,35 @@ namespace insigne {
 enum class render_command_type_e {
 	invalid = 0,
 	present_render,
-	scissor_state_setup
+	draw_call,
+	framebuffer_create
 };
 
 struct render_command_t {
+	render_command_t() {
+		// we have to declare this because the default constructor of this struct was deleted
+		// due to insigne::framebuffer_desc_t has a floral::vec4f param (which overrides the default constructor)
+	}
+
 	render_command_type_e						command_type;
 	union {
+		struct  {
+		} present_render_data;
 		struct {
-			s32									x, y, width, height;
-			bool								test_enable;
-		} scissor_state_setup_data;
+			framebuffer_handle_t				fb_handle;
+			insigne::framebuffer_desc_t			desc;
+		} framebuffer_create_data;
 	};
 };
+
+struct draw_command_t {
+	material_desc_t*							material_snapshot;
+	voidptr										segment_offset;
+	vb_handle_t									vb_handle;
+	ib_handle_t									ib_handle;
+	s32											segment_size;
+};
+
 
 // textures-------------------------------------
 enum class textures_command_type_e {

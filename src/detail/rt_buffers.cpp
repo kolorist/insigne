@@ -19,8 +19,8 @@ ibs_pool_t										g_ibs_pool;
 ubs_pool_t										g_ubs_pool;
 
 // ---------------------------------------------
-inline detail::gpu_command_buffer_t& get_buffers_command_buffer() {
-	return detail::g_buffers_command_buffer[detail::g_front_cmdbuff];
+inline detail::gpu_command_buffer_t& get_buffers_command_buffer(const size i_cmdBuffId) {
+	return detail::g_buffers_command_buffer[i_cmdBuffId];
 }
 
 static GLenum s_buffer_usage[] = {
@@ -164,9 +164,9 @@ void stream_ub_data(const ub_handle_t i_hdl, const voidptr i_data, const size i_
 }
 
 // ---------------------------------------------
-void process_buffers_command_buffer()
+void process_buffers_command_buffer(const size i_cmdBuffId)
 {
-	detail::gpu_command_buffer_t& cmdbuff = get_buffers_command_buffer();
+	detail::gpu_command_buffer_t& cmdbuff = get_buffers_command_buffer(i_cmdBuffId);
 	for (u32 i = 0; i < cmdbuff.get_size(); i++) {
 		gpu_command& gpuCmd = cmdbuff[i];
 		gpuCmd.reset_cursor();

@@ -1,6 +1,6 @@
 #pragma once
 
-#define BUFFERS_COUNT							2
+#define BUFFERS_COUNT							4
 
 #define MAX_FLOAT_UNIFORMS						8u
 #define MAX_VEC3_UNIFORMS						8u
@@ -9,3 +9,5 @@
 #define MAX_TEXCUBE_UNIFORMS					4u
 #define MAX_UNIFORM_BLOCKS						8u
 #define MAX_TEXTURE_SAMPLERS					8u
+
+#define MAX_COLOR_ATTACHMENTS					4u

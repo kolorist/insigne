@@ -22,7 +22,7 @@ const ub_handle_t								create_ub(const insigne::ubdesc_t& i_desc); /* ut */
 
 // ---------------------------------------------
 inline void										initialize_buffers_module();
-void											process_buffers_command_buffer();
+void											process_buffers_command_buffer(const size i_cmdBuffId);
 
 }
 }

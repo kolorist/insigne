@@ -6,6 +6,8 @@
 
 #include "memory.h"
 
+#define DEFAULT_FRAMEBUFFER_HANDLE				-1
+
 namespace insigne {
 
 enum class render_state_togglemask_e {
@@ -209,11 +211,10 @@ struct material_param_t {
 };
 
 struct shader_param_t {
-	c8										name[128];
-	param_data_type_e						data_type;
+	c8											name[128];
+	param_data_type_e							data_type;
 
-	shader_param_t()
-	{ }
+	shader_param_t() = default;
 
 	shader_param_t(const_cstr i_name, param_data_type_e i_dataType)
 		: data_type(i_dataType)
@@ -223,12 +224,11 @@ struct shader_param_t {
 };
 
 struct color_attachment_t {
-	c8										name[128];
-	texture_format_e						texture_format;
-	
-	color_attachment_t()
-	{ }
+	c8											name[128];
+	texture_format_e							texture_format;
 
+	color_attachment_t() = default;
+	
 	color_attachment_t(const_cstr i_name, const texture_format_e i_texFormat)
 		: texture_format(i_texFormat)
 	{
@@ -236,17 +236,13 @@ struct color_attachment_t {
 	}
 };
 
-typedef floral::fixed_array<material_param_t, freelist_allocator_t>	material_param_list_t;
 typedef floral::fixed_array<shader_param_t, arena_allocator_t>		shader_param_list_t;
 typedef floral::fixed_array<color_attachment_t, arena_allocator_t>	color_attachment_list_t;
 
-typedef s32									shader_handle_t;
-typedef s32									texture_handle_t;
-typedef s32									surface_handle_t;
-typedef s32									material_handle_t;
+typedef s32										shader_handle_t;
+typedef s32										texture_handle_t;
 typedef s32										framebuffer_handle_t;
-typedef s32									param_id;
-typedef s32									color_attachment_id;
+typedef s32										color_attachment_id;
 typedef s32										vb_handle_t;
 typedef s32										ib_handle_t;
 typedef s32										ub_handle_t;
@@ -273,10 +269,11 @@ struct texture_desc_t {
 
 // ---------------------------------------------
 struct framebuffer_desc_t {
+	color_attachment_list_t*					color_attachments;
+	floral::vec4f								clear_color;
 	s32											width, height;
 	f32											scale;
 	bool										has_depth;
-	color_attachment_list_t*					color_attachments;
 };
 
 // ---------------------------------------------

@@ -2,13 +2,14 @@
 
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/proxy.h"
-
 #include "insigne/detail/rt_shading.h"
 #include "insigne/detail/rt_buffers.h"
 #include "insigne/internal_states.h"
 
 namespace insigne {
 namespace detail {
+
+framebuffers_pool_t								g_framebuffers_pool;
 
 // -----------------------------------------
 static GLenum s_draw_types[] = {
@@ -214,16 +215,32 @@ void describe_vertex_data(const u32 i_location, const s32 i_size,
 			i_stride, (const GLvoid*)offset);
 }
 // ---------------------------------------------
-inline detail::gpu_command_buffer_t& get_render_command_buffer() {
-	return detail::g_render_command_buffer[detail::g_front_cmdbuff];
+const framebuffer_handle_t create_framebuffer(const insigne::framebuffer_desc_t& i_desc)
+{
+	u32 idx = g_framebuffers_pool.get_size();
+	g_framebuffers_pool.push_back(framebuffer_desc_t());
+
+	framebuffer_desc_t& desc = g_framebuffers_pool[idx];
+	desc.clear_color = i_desc.clear_color;
+	desc.width = i_desc.width;
+	desc.height = i_desc.height;
+	desc.scale = i_desc.scale;
+	desc.has_depth = i_desc.has_depth;
+
+	return framebuffer_handle_t(idx);
 }
 
 // ---------------------------------------------
-const bool process_render_command_buffer()
+inline detail::gpu_command_buffer_t& get_render_command_buffer(const size i_cmdBuffId) {
+	return detail::g_render_command_buffer[i_cmdBuffId];
+}
+
+// ---------------------------------------------
+const bool process_render_command_buffer(const size i_cmdBuffId)
 {
 	bool endOfFrameMarked = false;
 
-	detail::gpu_command_buffer_t& cmdbuff = get_render_command_buffer();
+	detail::gpu_command_buffer_t& cmdbuff = get_render_command_buffer(i_cmdBuffId);
 	for (u32 i = 0; i < cmdbuff.get_size(); i++) {
 		gpu_command& gpuCmd = cmdbuff[i];
 		gpuCmd.reset_cursor();

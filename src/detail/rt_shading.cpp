@@ -12,8 +12,8 @@ namespace detail {
 shaders_pool_t									g_shaders_pool;
 
 // ---------------------------------------------
-inline detail::gpu_command_buffer_t& get_shading_command_buffer() {
-	return detail::g_shading_command_buffer[detail::g_front_cmdbuff];
+inline detail::gpu_command_buffer_t& get_shading_command_buffer(const size i_cmdBuffId) {
+	return detail::g_shading_command_buffer[i_cmdBuffId];
 }
 // ---------------------------------------------
 /* ut */
@@ -158,9 +158,9 @@ void infuse_material(const shader_handle_t i_hdl, insigne::material_desc_t& o_ma
 }
 
 // ---------------------------------------------
-void process_shading_command_buffer()
+void process_shading_command_buffer(const size i_cmdBuffId)
 {
-	detail::gpu_command_buffer_t& cmdbuff = get_shading_command_buffer();
+	detail::gpu_command_buffer_t& cmdbuff = get_shading_command_buffer(i_cmdBuffId);
 	for (u32 i = 0; i < cmdbuff.get_size(); i++) {
 		gpu_command& gpuCmd = cmdbuff[i];
 		gpuCmd.reset_cursor();

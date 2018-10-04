@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 #include <floral.h>
 
 #include "insigne/commons.h"
@@ -12,11 +14,12 @@ namespace detail {
 // synchronization
 extern floral::condition_variable				g_init_condvar;
 extern floral::mutex							g_init_mtx;
-extern floral::condition_variable				g_cmdbuffer_condvar;
-extern floral::mutex							g_cmdbuffer_mtx;
 
-extern size										g_front_cmdbuff;
-extern size										g_back_cmdbuff;
+extern size										g_composing_cmdbuff;
+extern std::atomic<bool>						g_scene_presented;
+
+typedef floral::inplaced_ring_buffer_mt_spsc<size, BUFFERS_COUNT * 2> waiting_cmdbuffs_t;
+extern waiting_cmdbuffs_t						g_waiting_cmdbuffs;
 
 // render---------------------------------------
 extern arena_allocator_t*						g_frame_render_allocator[BUFFERS_COUNT];
@@ -31,9 +34,6 @@ extern gpu_command_buffer_t						g_buffers_command_buffer[BUFFERS_COUNT];
 // textures-------------------------------------
 extern arena_allocator_t*						g_frame_textures_allocator[BUFFERS_COUNT];
 extern gpu_command_buffer_t						g_textures_command_buffer[BUFFERS_COUNT];
-// ---------------------------------------------
-
-extern bool										s_waiting_for_swap;
 
 }
 }

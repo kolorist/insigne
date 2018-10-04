@@ -35,39 +35,25 @@ void render_thread_func(voidptr i_data)
 	detail::g_init_condvar.notify_one();
 
 	while (true) {
-		{
-			while (detail::g_front_cmdbuff == detail::g_back_cmdbuff)
-				detail::g_cmdbuffer_condvar.wait(detail::g_cmdbuffer_mtx);
-		}
+		size toSubmitCmdBuff = detail::g_waiting_cmdbuffs.wait_and_pop();
 
-		g_global_counters.current_render_frame_idx++;
+		detail::process_shading_command_buffer(toSubmitCmdBuff);
+		detail::process_buffers_command_buffer(toSubmitCmdBuff);
+		//detail::process_textures_command_buffer(toSubmitCmdBuff);
+		bool swapThisRenderPass = detail::process_render_command_buffer(toSubmitCmdBuff);
+		detail::process_draw_command_buffer<t_surface_list>(toSubmitCmdBuff);
 
-		detail::process_shading_command_buffer();
-		detail::process_buffers_command_buffer();
-		//detail::process_textures_command_buffer();
-		bool swapThisRenderPass = detail::process_render_command_buffer();
-		detail::process_draw_command_buffer<t_surface_list>();
-
-		detail::g_front_cmdbuff = (detail::g_front_cmdbuff + 1) % BUFFERS_COUNT;
 		if (swapThisRenderPass) {
-			PROFILE_SCOPE(SwapBuffers);
 			swap_buffers();
-			detail::s_waiting_for_swap = false;
-			g_debug_global_counters.rendered_frames++;
+			detail::g_scene_presented.store(true);
 		}
 	}
 }
 
 // ---------------------------------------------
-
 template <typename t_surface_list>
 void initialize_render_thread()
 {
-	FLORAL_ASSERT_MSG(sizeof(init_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-	FLORAL_ASSERT_MSG(sizeof(render_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-	FLORAL_ASSERT_MSG(sizeof(load_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-	FLORAL_ASSERT_MSG(sizeof(render_state_toggle_command) <= COMMAND_PAYLOAD_SIZE, "Command exceeds payload's capacity!");
-
 	g_global_counters.current_render_frame_idx = 0;
 	g_global_counters.current_submit_frame_idx = 0;
 	g_debug_global_counters.submitted_frames = 0;
@@ -105,9 +91,8 @@ void initialize_render_thread()
 	}
 	// ---
 
-	detail::g_front_cmdbuff = 0;
-	detail::g_back_cmdbuff = BUFFERS_COUNT - 1;
-	detail::s_waiting_for_swap = true;
+	detail::g_composing_cmdbuff = 0;
+	detail::g_scene_presented = true;
 
 	g_render_thread.entry_point = &insigne::render_thread_func<t_surface_list>;
 	g_render_thread.ptr_data = nullptr;

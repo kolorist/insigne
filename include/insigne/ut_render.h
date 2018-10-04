@@ -1,16 +1,17 @@
 #pragma once
 
+// ut = user thread
+
 #include <floral.h>
 
 #include "commons.h"
+#include "detail/rt_render.h"
 
 namespace insigne {
 
 // ---------------------------------------------
 template <typename t_surface>
-struct renderable_surface_t {
-	static void									render();
-	static void									init_buffer(insigne::linear_allocator_t* i_allocator);
+struct renderable_surface_t : detail::render_interface_t<t_surface> {
 };
 
 // render entrypoint----------------------------
@@ -45,9 +46,13 @@ void											mark_present_render();
  */
 void											dispatch_render_pass();
 
+// framebuffer----------------------------------
+framebuffer_desc_t								create_framebuffer_desc();
+const framebuffer_handle_t						create_framebuffer(const framebuffer_desc_t& i_desc);
+
 // drawcall-------------------------------------
 template <typename t_surface>
-void											draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_handle_t i_mat);
+void											draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t& i_mat);
 
 // ---------------------------------------------
 void											cleanup_render_module();
