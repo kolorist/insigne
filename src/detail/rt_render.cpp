@@ -12,11 +12,6 @@ namespace detail {
 framebuffers_pool_t								g_framebuffers_pool;
 
 // -----------------------------------------
-static GLenum s_draw_types[] = {
-	GL_STATIC_DRAW,
-	GL_DYNAMIC_DRAW,
-	GL_STREAM_DRAW };
-
 static GLenum s_cmp_funcs[] = {
 	GL_NEVER,
 	GL_LESS,
@@ -75,29 +70,6 @@ static GLenum s_stencil_ops[] = {
 	GL_INVERT
 };
 
-static GLenum s_gl_texture_formats[] = {
-	GL_RGB,
-	GL_RGB,
-	GL_RGB,
-	GL_RGBA,
-	GL_RGBA,
-	GL_DEPTH_COMPONENT,
-	GL_DEPTH_STENCIL
-};
-
-static GLenum s_gl_internal_formats[] = {
-	GL_RG16F,
-	GL_RGB16F,
-	GL_RGBA16F,
-	GL_RGB8,
-	GL_RGBA8,
-	GL_SRGB8,
-	GL_SRGB8_ALPHA8,
-	GL_DEPTH_COMPONENT16,
-	GL_DEPTH_COMPONENT24,
-	GL_DEPTH24_STENCIL8
-};
-
 static GLenum s_gl_data_types[] = {
 	GL_UNSIGNED_BYTE,
 	GL_BYTE,
@@ -105,15 +77,6 @@ static GLenum s_gl_data_types[] = {
 	GL_INT,
 	GL_FLOAT,
 	GL_UNSIGNED_INT_24_8
-};
-
-static GLenum s_filterings[] = {
-	GL_NEAREST,
-	GL_LINEAR,
-	GL_NEAREST_MIPMAP_NEAREST,
-	GL_LINEAR_MIPMAP_NEAREST,
-	GL_NEAREST_MIPMAP_LINEAR,
-	GL_LINEAR_MIPMAP_LINEAR
 };
 
 // -----------------------------------------

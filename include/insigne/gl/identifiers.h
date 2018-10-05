@@ -153,10 +153,12 @@ typedef void									GLvoid;
 #define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z    0x851A
 
 /* TextureFormat */
+#define GL_RG                             0x8227
 #define GL_RGB                            0x1907
 #define GL_RGBA                           0x1908
 #define GL_DEPTH_COMPONENT                0x1902
 #define GL_DEPTH_STENCIL                  0x84F9
+#define GL_RG8                            0x822B
 #define GL_RG16F                          0x822F
 #define GL_RGBA16F                        0x881A
 #define GL_RGB16F                         0x881B

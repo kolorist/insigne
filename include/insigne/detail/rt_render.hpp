@@ -141,6 +141,13 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 
 	pxUseProgram(shaderDesc.gpu_handle);
 
+	for (u32 i = 0; i < i_mat->textures.get_size(); i++) {
+		const insigne::detail::texture_desc_t& texDesc = insigne::detail::g_textures_pool[(s32)i_mat->textures[i].value];
+		pxActiveTexture(GL_TEXTURE0 + i);
+		pxBindTexture(GL_TEXTURE_2D, texDesc.gpu_handle);
+		pxUniform1i(shaderDesc.slots_config.textures[i], i);
+	}
+
 	for (u32 i = 0; i < i_mat->uniform_blocks.get_size(); i++) {
 		const insigne::detail::ubdesc_t& ubDesc = insigne::detail::g_ubs_pool[s32(i_mat->uniform_blocks[i].value)];
 		pxBindBufferBase(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle);

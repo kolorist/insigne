@@ -2,7 +2,10 @@
 
 #include <floral.h>
 
+#include "../memory.h"
 #include "../commons.h"
+#include "../commands.h"
+#include "types.h"
 
 namespace insigne {
 namespace detail {

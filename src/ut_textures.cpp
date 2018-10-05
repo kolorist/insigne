@@ -4,6 +4,7 @@
 
 #include "insigne/internal_states.h"
 #include "insigne/commands.h"
+#include "insigne/detail/rt_textures.h"
 
 namespace insigne {
 
@@ -27,8 +28,7 @@ static inline void push_command(const textures_command_t& i_cmd)
 }
 
 // ---------------------------------------------
-
-void prepare_texture_desc(texture_desc_t& io_desc)
+const size prepare_texture_desc(texture_desc_t& io_desc)
 {
 	// bit-per-pixel
 	static size s_bpp[] = {
@@ -56,11 +56,27 @@ void prepare_texture_desc(texture_desc_t& io_desc)
 		dataSize *= 6;
 
 	io_desc.data = get_composing_allocator()->allocate(dataSize);
+	return dataSize;
+}
+
+const texture_handle_t create_texture(const texture_desc_t& i_desc)
+{
+	texture_handle_t newTextureHdl = detail::create_texture(i_desc);
+
+	textures_command_t cmd;
+	cmd.command_type = textures_command_type_e::create_texture;
+	cmd.create_texture_data.texture_handle = newTextureHdl;
+	cmd.create_texture_data.desc = i_desc;
+
+	push_command(cmd);
+
+	return newTextureHdl;
 }
 
 // ---------------------------------------------
 void cleanup_textures_module()
 {
+	get_composing_allocator()->free_all();
 }
 
 }

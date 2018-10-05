@@ -159,7 +159,9 @@ struct render_state_t {
 };
 
 enum class texture_format_e {
-	rgb = 0,
+	rg = 0,
+	hdr_rg,
+	rgb,
 	hdr_rgb,
 	srgb,
 	rgba,
@@ -172,19 +174,6 @@ enum class texture_dimension_e {
 	tex_2d = 0,
 	tex_3d,
 	tex_cube
-};
-
-enum class texture_internal_format_e {
-	rg16f = 0,
-	rgb16f,
-	rgba16f,
-	rgb8,
-	rgba8,
-	srgb8,
-	srgb8_alpha8,
-	depth16,
-	depth24,
-	depth24_stencil8
 };
 
 enum class filtering_e {

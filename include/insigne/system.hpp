@@ -5,6 +5,7 @@
 #include "detail/rt_shading.h"
 #include "detail/rt_buffers.h"
 #include "detail/rt_render.h"
+#include "detail/rt_textures.h"
 
 namespace insigne {
 
@@ -12,9 +13,10 @@ namespace insigne {
 template <typename t_surface_list>
 void initialize_renderer()
 {
-	insigne::detail::initialize_shading_module();
-	insigne::detail::initialize_buffers_module();
-	insigne::detail::initialize_render_module<t_surface_list>();
+	detail::initialize_shading_module();
+	detail::initialize_buffers_module();
+	detail::initialize_textures_module();
+	detail::initialize_render_module<t_surface_list>();
 
 	// do we really need this?
 	GLuint vao;
@@ -39,7 +41,7 @@ void render_thread_func(voidptr i_data)
 
 		detail::process_shading_command_buffer(toSubmitCmdBuff);
 		detail::process_buffers_command_buffer(toSubmitCmdBuff);
-		//detail::process_textures_command_buffer(toSubmitCmdBuff);
+		detail::process_textures_command_buffer(toSubmitCmdBuff);
 		bool swapThisRenderPass = detail::process_render_command_buffer(toSubmitCmdBuff);
 		detail::process_draw_command_buffer<t_surface_list>(toSubmitCmdBuff);
 
