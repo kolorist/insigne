@@ -140,7 +140,57 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 
 		pxBindTexture(GL_TEXTURE_2D, 0);
 	} else if (i_uploadDesc.dimension == texture_dimension_e::tex_cube) {
-		// TODO
+		pxBindTexture(GL_TEXTURE_CUBE_MAP, newTexture);
+
+		// unpacking settings
+		pxPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+		pxPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, s_GLFiltering[(s32)i_uploadDesc.mag_filter]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, s_GLFiltering[(s32)i_uploadDesc.min_filter]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		if (i_uploadDesc.has_mipmap) {
+			s32 texSize = i_uploadDesc.width;
+			s32 mipIdx = 0;
+			size offset = 0;
+			while (texSize >= 1) {
+				for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
+					pxTexImage2D(
+							GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
+							mipIdx,
+							s_GLInternalFormat[(s32)i_uploadDesc.format],
+							texSize, texSize, 0,
+							s_GLFormat[(s32)i_uploadDesc.format],
+							s_GLDataType[(s32)i_uploadDesc.format],
+							(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+					offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format];
+				}
+				texSize >>= 1;
+				mipIdx++;
+			}
+		} else {
+			s32 texSize = i_uploadDesc.width;
+			size offset = 0;
+			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
+				pxTexImage2D(
+						GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
+						0,
+						s_GLInternalFormat[(s32)i_uploadDesc.format],
+						texSize, texSize, 0,
+						s_GLFormat[(s32)i_uploadDesc.format],
+						s_GLDataType[(s32)i_uploadDesc.format],
+						(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format];
+			}
+		}
+		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	} else if (i_uploadDesc.dimension == texture_dimension_e::tex_3d) {
+		// TODO: texture_dimension_e::tex_3d?
+	} else {
+		// nani?!
 	}
 
 	io_desc.gpu_handle = newTexture;

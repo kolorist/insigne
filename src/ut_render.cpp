@@ -103,7 +103,10 @@ const framebuffer_handle_t create_framebuffer(const framebuffer_desc_t& i_desc)
 // ---------------------------------------------
 void cleanup_render_module()
 {
+	// render allocator
 	get_composing_allocator()->free_all();
+	// draw call allocator
+	detail::g_frame_draw_allocator[detail::g_composing_cmdbuff]->free_all();
 }
 
 }
