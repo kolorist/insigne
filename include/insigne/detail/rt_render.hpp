@@ -144,7 +144,11 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 	for (u32 i = 0; i < i_mat->textures.get_size(); i++) {
 		const insigne::detail::texture_desc_t& texDesc = insigne::detail::g_textures_pool[(s32)i_mat->textures[i].value];
 		pxActiveTexture(GL_TEXTURE0 + i);
-		pxBindTexture(GL_TEXTURE_2D, texDesc.gpu_handle);
+		if (texDesc.dimension == texture_dimension_e::tex_2d) {
+			pxBindTexture(GL_TEXTURE_2D, texDesc.gpu_handle);
+		} else if (texDesc.dimension == texture_dimension_e::tex_cube) {
+			pxBindTexture(GL_TEXTURE_CUBE_MAP, texDesc.gpu_handle);
+		}
 		pxUniform1i(shaderDesc.slots_config.textures[i], i);
 	}
 

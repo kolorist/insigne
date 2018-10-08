@@ -177,6 +177,19 @@ void describe_vertex_data(const u32 i_location, const s32 i_size,
 			i_normalized? GL_TRUE : GL_FALSE,
 			i_stride, (const GLvoid*)offset);
 }
+
+void clear_framebuffer(const bool i_clearcolor, const bool i_cleardepth)
+{
+	GLbitfield clearBit = 0;
+	if (i_clearcolor) clearBit |= GL_COLOR_BUFFER_BIT;
+	if (i_cleardepth) {
+		set_depth_write<true_type>();
+		clearBit |= GL_DEPTH_BUFFER_BIT;
+	}
+	pxClearDepthf(1.0f);
+	pxClear(clearBit);
+}
+
 // ---------------------------------------------
 const framebuffer_handle_t create_framebuffer(const insigne::framebuffer_desc_t& i_desc)
 {
@@ -202,7 +215,7 @@ inline detail::gpu_command_buffer_t& get_render_command_buffer(const size i_cmdB
 const bool process_render_command_buffer(const size i_cmdBuffId)
 {
 	bool endOfFrameMarked = false;
-
+	clear_framebuffer(true, true);
 	detail::gpu_command_buffer_t& cmdbuff = get_render_command_buffer(i_cmdBuffId);
 	for (u32 i = 0; i < cmdbuff.get_size(); i++) {
 		gpu_command& gpuCmd = cmdbuff[i];
