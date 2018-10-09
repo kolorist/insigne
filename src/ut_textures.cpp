@@ -30,15 +30,17 @@ static inline void push_command(const textures_command_t& i_cmd)
 // ---------------------------------------------
 const size prepare_texture_desc(texture_desc_t& io_desc)
 {
-	// bit-per-pixel
+	// bit-per-pixel, CPU side
 	static size s_bpp[] = {
-		3 * 8, // rgb
-		3 * 16, // hdr_rgb
-		3 * 8, // srgb
-		4 * 8, // rgba
-		4 * 16, // hdr_rgba
-		24, // depth
-		32, // depth_stencil
+		2 * 8,									// rg
+		2 * 32,									// hdr_rg
+		3 * 8,									// rgb
+		3 * 32,									// hdr_rgb
+		3 * 8,									// srgb
+		4 * 8,									// rgba
+		4 * 32,									// hdr_rgba
+		1 * 32,									// depth
+		1 * 32									// depth_stencil
 	};
 	size bytePerPixel = s_bpp[s32(io_desc.format)] / 8;
 

@@ -76,6 +76,18 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 		1										// depth_stencil
 	};
 
+	static size s_DataSize[] = {
+		1,
+		4,
+		1,
+		4,
+		1,
+		1,
+		4,
+		4,
+		4
+	};
+
 	static GLenum s_GLFiltering[] = {
 		GL_NEAREST,
 		GL_LINEAR,
@@ -124,7 +136,7 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 						s_GLFormat[(s32)i_uploadDesc.format],
 						s_GLDataType[(s32)i_uploadDesc.format],
 						(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
-				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format];
+				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
 				texSize >>= 1;
 				mipIdx++;
 			}
@@ -153,11 +165,11 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		if (i_uploadDesc.has_mipmap) {
-			s32 texSize = i_uploadDesc.width;
-			s32 mipIdx = 0;
 			size offset = 0;
-			while (texSize >= 1) {
-				for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
+			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
+				s32 texSize = i_uploadDesc.width;
+				s32 mipIdx = 0;
+				while (texSize >= 1) {
 					pxTexImage2D(
 							GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
 							mipIdx,
@@ -166,10 +178,10 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 							s_GLFormat[(s32)i_uploadDesc.format],
 							s_GLDataType[(s32)i_uploadDesc.format],
 							(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
-					offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format];
+					offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
+					texSize >>= 1;
+					mipIdx++;
 				}
-				texSize >>= 1;
-				mipIdx++;
 			}
 		} else {
 			s32 texSize = i_uploadDesc.width;
@@ -183,7 +195,7 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 						s_GLFormat[(s32)i_uploadDesc.format],
 						s_GLDataType[(s32)i_uploadDesc.format],
 						(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
-				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format];
+				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
 			}
 		}
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
