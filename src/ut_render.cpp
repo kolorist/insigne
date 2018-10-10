@@ -44,11 +44,19 @@ void end_frame()
 void begin_render_pass(const framebuffer_handle_t i_fb)
 {
 	detail::g_composing_cmdbuff = (detail::g_composing_cmdbuff + 1) % BUFFERS_COUNT;
+	cleanup_shading_module();
+	cleanup_buffers_module();
+	cleanup_textures_module();
+	cleanup_render_module();
 }
 
 void begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
 {
 	detail::g_composing_cmdbuff = (detail::g_composing_cmdbuff + 1) % BUFFERS_COUNT;
+	cleanup_shading_module();
+	cleanup_buffers_module();
+	cleanup_textures_module();
+	cleanup_render_module();
 }
 
 void end_render_pass(const framebuffer_handle_t i_fb)
@@ -66,11 +74,6 @@ void mark_present_render()
 
 void dispatch_render_pass()
 {
-	cleanup_shading_module();
-	cleanup_buffers_module();
-	cleanup_textures_module();
-	cleanup_render_module();
-
 	detail::g_waiting_cmdbuffs.wait_and_push(detail::g_composing_cmdbuff);
 }
 
