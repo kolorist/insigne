@@ -22,7 +22,6 @@ void											begin_frame();
 void											end_frame();
 
 // renderpass entrypoint------------------------
-/* render at full resolution of a framebuffer */
 void											begin_render_pass(const framebuffer_handle_t i_fb);
 /* render only a specific region of a framebuffer
  * origin:

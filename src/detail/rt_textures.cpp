@@ -17,7 +17,7 @@ inline detail::gpu_command_buffer_t& get_textures_command_buffer(const size i_cm
 }
 
 // ---------------------------------------------
-const texture_handle_t create_texture(const insigne::texture_desc_t& i_desc)
+const texture_handle_t create_texture()
 {
 	u32 idx = g_textures_pool.get_size();
 	g_textures_pool.push_back(texture_desc_t());
@@ -26,8 +26,9 @@ const texture_handle_t create_texture(const insigne::texture_desc_t& i_desc)
 }
 
 // ---------------------------------------------
-void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_uploadDesc)
+void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t& i_uploadDesc)
 {
+	texture_desc_t& texDesc = g_textures_pool[(s32)i_hdl];
 	static GLenum s_GLFormat[] = {
 		GL_RG,									// rg
 		GL_RG,									// hdr_rg
@@ -97,13 +98,13 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 		GL_LINEAR_MIPMAP_LINEAR
 	};
 
-	io_desc.width = i_uploadDesc.width;
-	io_desc.height = i_uploadDesc.height;
-	io_desc.format = i_uploadDesc.format;
-	io_desc.min_filter = i_uploadDesc.min_filter;
-	io_desc.mag_filter = i_uploadDesc.mag_filter;
-	io_desc.dimension = i_uploadDesc.dimension;
-	io_desc.has_mipmap = i_uploadDesc.has_mipmap;
+	texDesc.width = i_uploadDesc.width;
+	texDesc.height = i_uploadDesc.height;
+	texDesc.format = i_uploadDesc.format;
+	texDesc.min_filter = i_uploadDesc.min_filter;
+	texDesc.mag_filter = i_uploadDesc.mag_filter;
+	texDesc.dimension = i_uploadDesc.dimension;
+	texDesc.has_mipmap = i_uploadDesc.has_mipmap;
 
 	GLuint newTexture = 0;
 	
@@ -130,24 +131,43 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 			while (texSize >= 1) {
 				// NOTE: please remember that: when loading mipmaps, the width and height is
 				// resolution of the mipmap, not the resolution of the largest mip
-				pxTexImage2D(GL_TEXTURE_2D, mipIdx,
-						s_GLInternalFormat[(s32)i_uploadDesc.format],
-						texSize, texSize, 0,
-						s_GLFormat[(s32)i_uploadDesc.format],
-						s_GLDataType[(s32)i_uploadDesc.format],
-						(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+				if (i_uploadDesc.data) {
+					pxTexImage2D(GL_TEXTURE_2D, mipIdx,
+							s_GLInternalFormat[(s32)i_uploadDesc.format],
+							texSize, texSize, 0,
+							s_GLFormat[(s32)i_uploadDesc.format],
+							s_GLDataType[(s32)i_uploadDesc.format],
+							(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+				} else {
+					pxTexImage2D(GL_TEXTURE_2D, mipIdx,
+							s_GLInternalFormat[(s32)i_uploadDesc.format],
+							texSize, texSize, 0,
+							s_GLFormat[(s32)i_uploadDesc.format],
+							s_GLDataType[(s32)i_uploadDesc.format],
+							nullptr);
+				}
 				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
 				texSize >>= 1;
 				mipIdx++;
 			}
 		} else {
-			pxTexImage2D(GL_TEXTURE_2D, 0,
-					s_GLInternalFormat[s32(i_uploadDesc.format)],
-					i_uploadDesc.width, i_uploadDesc.height,
-					0,
-					s_GLFormat[s32(i_uploadDesc.format)],
-					s_GLDataType[s32(i_uploadDesc.format)],
-					(GLvoid*)i_uploadDesc.data);
+			if (i_uploadDesc.data) {
+				pxTexImage2D(GL_TEXTURE_2D, 0,
+						s_GLInternalFormat[s32(i_uploadDesc.format)],
+						i_uploadDesc.width, i_uploadDesc.height,
+						0,
+						s_GLFormat[s32(i_uploadDesc.format)],
+						s_GLDataType[s32(i_uploadDesc.format)],
+						(GLvoid*)i_uploadDesc.data);
+			} else {
+				pxTexImage2D(GL_TEXTURE_2D, 0,
+						s_GLInternalFormat[s32(i_uploadDesc.format)],
+						i_uploadDesc.width, i_uploadDesc.height,
+						0,
+						s_GLFormat[s32(i_uploadDesc.format)],
+						s_GLDataType[s32(i_uploadDesc.format)],
+						nullptr);
+			}
 		}
 
 		pxBindTexture(GL_TEXTURE_2D, 0);
@@ -170,14 +190,25 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 				s32 texSize = i_uploadDesc.width;
 				s32 mipIdx = 0;
 				while (texSize >= 1) {
-					pxTexImage2D(
-							GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
-							mipIdx,
-							s_GLInternalFormat[(s32)i_uploadDesc.format],
-							texSize, texSize, 0,
-							s_GLFormat[(s32)i_uploadDesc.format],
-							s_GLDataType[(s32)i_uploadDesc.format],
-							(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+					if (i_uploadDesc.data) {
+						pxTexImage2D(
+								GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
+								mipIdx,
+								s_GLInternalFormat[(s32)i_uploadDesc.format],
+								texSize, texSize, 0,
+								s_GLFormat[(s32)i_uploadDesc.format],
+								s_GLDataType[(s32)i_uploadDesc.format],
+								(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+					} else {
+						pxTexImage2D(
+								GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
+								mipIdx,
+								s_GLInternalFormat[(s32)i_uploadDesc.format],
+								texSize, texSize, 0,
+								s_GLFormat[(s32)i_uploadDesc.format],
+								s_GLDataType[(s32)i_uploadDesc.format],
+								nullptr);
+					}
 					offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
 					texSize >>= 1;
 					mipIdx++;
@@ -187,14 +218,25 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 			s32 texSize = i_uploadDesc.width;
 			size offset = 0;
 			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
-				pxTexImage2D(
-						GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
-						0,
-						s_GLInternalFormat[(s32)i_uploadDesc.format],
-						texSize, texSize, 0,
-						s_GLFormat[(s32)i_uploadDesc.format],
-						s_GLDataType[(s32)i_uploadDesc.format],
-						(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+				if (i_uploadDesc.data) {
+					pxTexImage2D(
+							GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
+							0,
+							s_GLInternalFormat[(s32)i_uploadDesc.format],
+							texSize, texSize, 0,
+							s_GLFormat[(s32)i_uploadDesc.format],
+							s_GLDataType[(s32)i_uploadDesc.format],
+							(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+				} else {
+					pxTexImage2D(
+							GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
+							0,
+							s_GLInternalFormat[(s32)i_uploadDesc.format],
+							texSize, texSize, 0,
+							s_GLFormat[(s32)i_uploadDesc.format],
+							s_GLDataType[(s32)i_uploadDesc.format],
+							nullptr);
+				}
 				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
 			}
 		}
@@ -205,7 +247,7 @@ void upload_texture(texture_desc_t& io_desc, const insigne::texture_desc_t& i_up
 		// nani?!
 	}
 
-	io_desc.gpu_handle = newTexture;
+	texDesc.gpu_handle = newTexture;
 }
 
 // ---------------------------------------------
@@ -228,8 +270,7 @@ void process_textures_command_buffer(const size i_cmdBuffId)
 					textures_command_t cmd;
 					gpuCmd.serialize(cmd);
 
-					texture_desc_t& textureDesc = g_textures_pool[s32(cmd.create_texture_data.texture_handle)];
-					upload_texture(textureDesc, cmd.create_texture_data.desc);
+					upload_texture(cmd.create_texture_data.texture_handle, cmd.create_texture_data.desc);
 					break;
 				}
 			default:

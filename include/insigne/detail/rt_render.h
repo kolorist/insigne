@@ -42,7 +42,7 @@ void											draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_
 typedef floral::fixed_array<framebuffer_desc_t, linear_allocator_t> framebuffers_pool_t;
 extern framebuffers_pool_t						g_framebuffers_pool;
 
-const framebuffer_handle_t						create_framebuffer(const insigne::framebuffer_desc_t& i_desc);
+const framebuffer_handle_t						create_framebuffer(const insigne::framebuffer_desc_t& i_desc); /* ut */
 
 // ---------------------------------------------
 template <typename t_surface_list>

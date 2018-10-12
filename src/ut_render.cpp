@@ -43,10 +43,30 @@ void end_frame()
 
 void begin_render_pass(const framebuffer_handle_t i_fb)
 {
+	render_command_t cmd;
+	cmd.command_type = render_command_type_e::framebuffer_activate;
+	cmd.framebuffer_activate_data.fb_handle = i_fb;
+	cmd.framebuffer_activate_data.x = -1;
+	cmd.framebuffer_activate_data.y = -1;
+	cmd.framebuffer_activate_data.width = -1;
+	cmd.framebuffer_activate_data.height = -1;
+
+	push_command(cmd);
 }
 
 void begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
 {
+	// scissor origin will be converted to top-left corner
+
+	render_command_t cmd;
+	cmd.command_type = render_command_type_e::framebuffer_activate;
+	cmd.framebuffer_activate_data.fb_handle = i_fb;
+	cmd.framebuffer_activate_data.x = i_x;
+	cmd.framebuffer_activate_data.y = i_y;
+	cmd.framebuffer_activate_data.width = i_width;
+	cmd.framebuffer_activate_data.height = i_height;
+
+	push_command(cmd);
 }
 
 void end_render_pass(const framebuffer_handle_t i_fb)
@@ -89,7 +109,7 @@ framebuffer_desc_t create_framebuffer_desc()
 const framebuffer_handle_t create_framebuffer(const framebuffer_desc_t& i_desc)
 {
 	framebuffer_handle_t newFbHdl = detail::create_framebuffer(i_desc);
-	
+
 	render_command_t cmd;
 	cmd.command_type = render_command_type_e::framebuffer_create;
 	cmd.framebuffer_create_data.fb_handle = newFbHdl;

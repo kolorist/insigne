@@ -119,7 +119,7 @@ void initialize_render_module()
 	internal_init_buffer<t_surface_list>(&g_persistance_allocator);
 
 	// create default framebuffer desc
-	
+	g_framebuffers_pool.init(32u, &g_persistance_allocator);
 }
 
 template <typename t_surface_list>

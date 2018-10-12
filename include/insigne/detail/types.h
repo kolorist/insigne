@@ -14,7 +14,8 @@ struct framebuffer_desc_t {
 	floral::inplace_array<floral::crc_string, MAX_COLOR_ATTACHMENTS>	color_attach_ids;
 	floral::inplace_array<texture_handle_t, MAX_COLOR_ATTACHMENTS>		color_attach_textures;
 	floral::vec4f								clear_color;
-	texture_handle_t							depth_texure;
+	texture_handle_t							depth_texture;
+	GLuint										gpu_handle;
 	s32											width, height;
 	f32											scale;
 	bool										has_depth;

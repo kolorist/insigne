@@ -12,7 +12,8 @@ enum class render_command_type_e {
 	invalid = 0,
 	present_render,
 	draw_call,
-	framebuffer_create
+	framebuffer_create,
+	framebuffer_activate
 };
 
 struct render_command_t {
@@ -29,6 +30,10 @@ struct render_command_t {
 			framebuffer_handle_t				fb_handle;
 			insigne::framebuffer_desc_t			desc;
 		} framebuffer_create_data;
+		struct {
+			framebuffer_handle_t				fb_handle;
+			s32									x, y, width, height;
+		} framebuffer_activate_data;
 	};
 };
 
