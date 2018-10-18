@@ -344,6 +344,13 @@ const GLubyte* pxGetString(GLenum name)
 	return ret;
 }
 
+const GLubyte* pxGetStringi(GLenum name, GLuint index)
+{
+	const GLubyte* ret = glGetStringi(name, index);
+	assert_driver_no_error();
+	return ret;
+}
+
 GLint pxGetUniformLocation(GLuint program, const GLchar* name)
 {
 	GLint ret = glGetUniformLocation(program, name);

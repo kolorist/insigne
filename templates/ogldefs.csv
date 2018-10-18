@@ -45,6 +45,7 @@ __TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE
 0;GetShaderInfoLog;GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog;shader, maxLength, length, infoLog;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;GetShaderiv;GLuint shader, GLenum pname, GLint* params;shader, pname, params;void;since OpenGL 2.0 / OpenGL ES 2.0
 1;GetString;GLenum name;name;const GLubyte*;since OpenGL 2.0 / OpenGL ES 2.0
+1;GetStringi;GLenum name, GLuint index;name, index;const GLubyte*;since OpenGL ES 3.0
 1;GetUniformLocation;GLuint program, const GLchar* name;program, name;GLint;since OpenGL 2.0 / OpenGL ES 2.0
 0;LinkProgram;GLuint program;program;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;PixelStorei;GLenum pname, GLint param;pname, param;void;since OpenGL 2.0 / OpenGL ES 2.0

@@ -60,9 +60,6 @@ struct gpu_command {
 namespace detail {
 
 // draw-----------------------------------------
-/*
- * these command buffers will need to be defined in user code
- */
 typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
 template <typename t_surface>
 struct draw_command_buffer_t {

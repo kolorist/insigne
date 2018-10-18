@@ -1,11 +1,23 @@
 #include <lotus/profiler.h>
 
+#include "rt_textures.h"
+#include "../system.h"
+
 namespace insigne {
 
 template <typename>
 struct draw_command_buffer_t;
 
 namespace detail {
+
+/*
+ * This will guaranted to have only single definiton for each type of t_surface
+ * according to standard "One Definition Rule" about template definition
+ *
+ * These unique definitions will be shared across all translation units
+ */
+template <typename t_surface>
+gpu_command_buffer_t detail::draw_command_buffer_t<t_surface>::command_buffer[BUFFERS_COUNT];
 
 // ---------------------------------------------
 template <typename t_surface>

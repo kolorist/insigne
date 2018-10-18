@@ -96,6 +96,8 @@ API_HELPER(void, GetShaderiv);
 
 API_HELPER(const GLubyte*, GetString);
 
+API_HELPER(const GLubyte*, GetStringi);
+
 API_HELPER(GLint, GetUniformLocation);
 
 API_HELPER(void, LinkProgram);

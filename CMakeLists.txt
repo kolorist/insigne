@@ -54,8 +54,7 @@ if (${ANDROID_BUILD})
 	
 	set (file_list
 		${file_list}
-		"${PROJECT_SOURCE_DIR}/src/driver_egl.cpp"
-		"${PROJECT_SOURCE_DIR}/src/renderer_egl.cpp")
+		"${PROJECT_SOURCE_DIR}/src/driver_egl.cpp")
 	set (lib_list
 		${lib_list}
 		EGL)

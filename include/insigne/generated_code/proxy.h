@@ -104,6 +104,8 @@ void pxGetShaderiv(GLuint shader, GLenum pname, GLint* params);
 
 const GLubyte* pxGetString(GLenum name);
 
+const GLubyte* pxGetStringi(GLenum name, GLuint index);
+
 GLint pxGetUniformLocation(GLuint program, const GLchar* name);
 
 void pxLinkProgram(GLuint program);

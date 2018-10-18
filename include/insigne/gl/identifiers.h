@@ -22,6 +22,14 @@ typedef f64										GLdouble;
 typedef f64										GLclampd;
 typedef void									GLvoid;
 
+/* StringName */
+#define GL_VENDOR                         0x1F00
+#define GL_RENDERER                       0x1F01
+#define GL_VERSION                        0x1F02
+#define GL_EXTENSIONS                     0x1F03
+#define GL_NUM_EXTENSIONS                 0x821D
+#define GL_SHADING_LANGUAGE_VERSION       0x8B8C
+
 /* AlphaFunction */
 #define GL_NEVER                          0x0200
 #define GL_LESS                           0x0201

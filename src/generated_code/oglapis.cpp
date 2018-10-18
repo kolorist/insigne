@@ -99,6 +99,8 @@ glGetShaderiv_t glGetShaderiv;
 
 glGetString_t glGetString;
 
+glGetStringi_t glGetStringi;
+
 glGetUniformLocation_t glGetUniformLocation;
 
 glLinkProgram_t glLinkProgram;

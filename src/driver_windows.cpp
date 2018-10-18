@@ -1,5 +1,7 @@
 #include "insigne/driver.h"
 
+#include <clover.h>
+
 #include <platform/windows/system.h>
 
 #include "insigne/gl/identifiers.h"
@@ -66,11 +68,10 @@ namespace insigne {
 		wglMakeCurrent(nullptr, nullptr);
 		wglDeleteContext(temphGL);
 
-		/*
-		const GLubyte* verStr = OpenGLDriver::pfGetString(GL_VERSION);
-		const GLubyte* glslStr = OpenGLDriver::pfGetString(GL_SHADING_LANGUAGE_VERSION);
-		const GLubyte* vendorStr = OpenGLDriver::pfGetString(GL_VENDOR);
-		const GLubyte* rendererStr = OpenGLDriver::pfGetString(GL_RENDERER);
+		const GLubyte* verStr = pxGetString(GL_VERSION);
+		const GLubyte* glslStr = pxGetString(GL_SHADING_LANGUAGE_VERSION);
+		const GLubyte* vendorStr = pxGetString(GL_VENDOR);
+		const GLubyte* rendererStr = pxGetString(GL_RENDERER);
 
 		CLOVER_VERBOSE("OGL information:			\
 			\nOpenGL version: %s				\
@@ -79,16 +80,12 @@ namespace insigne {
 			\nRenderer: %s", verStr, glslStr, vendorStr, rendererStr);
 
 		GLint numExtension = 0;
-		OpenGLDriver::pfGetIntegerv(GL_NUM_EXTENSIONS, &numExtension);
+		pxGetIntegerv(GL_NUM_EXTENSIONS, &numExtension);
 		CLOVER_VERBOSE("Number of extensions: %d", numExtension);
 		for (s32 i = 0; i < numExtension; i++) {
-			const GLubyte* extStr = OpenGLDriver::pfGetStringi(GL_EXTENSIONS, i);
+			const GLubyte* extStr = pxGetStringi(GL_EXTENSIONS, i);
 			CLOVER_VERBOSE("Ext %d: %s", i, extStr);
 		}
-
-		driver::g_GraphicsDriverStates.pm_VSyncEnable = true;
-		driver::Initialize();
-		*/
 	}
 
 	void create_main_context()

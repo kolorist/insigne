@@ -163,6 +163,9 @@ extern glGetShaderiv_t glGetShaderiv;
 typedef APICALL const GLubyte* (APIENTRY *glGetString_t)(GLenum name);
 extern glGetString_t glGetString;
 
+typedef APICALL const GLubyte* (APIENTRY *glGetStringi_t)(GLenum name, GLuint index);
+extern glGetStringi_t glGetStringi;
+
 typedef APICALL GLint (APIENTRY *glGetUniformLocation_t)(GLuint program, const GLchar* name);
 extern glGetUniformLocation_t glGetUniformLocation;
 

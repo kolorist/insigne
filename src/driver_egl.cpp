@@ -70,7 +70,28 @@ namespace insigne {
 		EGLint width = 0, height = 0;
 		eglQuerySurface(g_android_context_attribs.display, g_android_context_attribs.surface, EGL_WIDTH, &width);
 		eglQuerySurface(g_android_context_attribs.display, g_android_context_attribs.surface, EGL_HEIGHT, &height);
-		CLOVER_INFO("native surface resolution: %d x %d", width, height);
+
+		// informations
+		CLOVER_INFO("NativeSurface resolution: %d x %d", width, height);
+
+		const GLubyte* verStr = pxGetString(GL_VERSION);
+		const GLubyte* glslStr = pxGetString(GL_SHADING_LANGUAGE_VERSION);
+		const GLubyte* vendorStr = pxGetString(GL_VENDOR);
+		const GLubyte* rendererStr = pxGetString(GL_RENDERER);
+
+		CLOVER_VERBOSE("OGL information:			\
+			\nOpenGL version: %s				\
+			\nGLSL version: %s					\
+			\nVendor: %s						\
+			\nRenderer: %s", verStr, glslStr, vendorStr, rendererStr);
+
+		GLint numExtension = 0;
+		pxGetIntegerv(GL_NUM_EXTENSIONS, &numExtension);
+		CLOVER_VERBOSE("Number of extensions: %d", numExtension);
+		for (s32 i = 0; i < numExtension; i++) {
+			const GLubyte* extStr = pxGetStringi(GL_EXTENSIONS, i);
+			CLOVER_VERBOSE("Ext %d: %s", i, extStr);
+		}
 	}
 
 	void create_shared_context()
