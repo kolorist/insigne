@@ -67,7 +67,22 @@ namespace insigne {
 
 		wglMakeCurrent(nullptr, nullptr);
 		wglDeleteContext(temphGL);
+	}
 
+	void create_main_context()
+	{
+		floral::lock_guard guard(g_gl_context.init_mtx);
+		int attribs[] =
+		{
+			GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
+			GLX_CONTEXT_MINOR_VERSION_ARB, 5,
+			GLX_CONTEXT_FLAGS_ARB, 0,
+			GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+			0
+		};
+		g_gl_context.main_context = wglCreateContextAttribsARB(g_gl_context.dc, 0, attribs);
+		wglMakeCurrent(g_gl_context.dc, g_gl_context.main_context);
+		
 		const GLubyte* verStr = pxGetString(GL_VERSION);
 		const GLubyte* glslStr = pxGetString(GL_SHADING_LANGUAGE_VERSION);
 		const GLubyte* vendorStr = pxGetString(GL_VENDOR);
@@ -86,21 +101,6 @@ namespace insigne {
 			const GLubyte* extStr = pxGetStringi(GL_EXTENSIONS, i);
 			CLOVER_VERBOSE("Ext %d: %s", i, extStr);
 		}
-	}
-
-	void create_main_context()
-	{
-		floral::lock_guard guard(g_gl_context.init_mtx);
-		int attribs[] =
-		{
-			GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
-			GLX_CONTEXT_MINOR_VERSION_ARB, 5,
-			GLX_CONTEXT_FLAGS_ARB, 0,
-			GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
-			0
-		};
-		g_gl_context.main_context = wglCreateContextAttribsARB(g_gl_context.dc, 0, attribs);
-		wglMakeCurrent(g_gl_context.dc, g_gl_context.main_context);
 	}
 
 	void create_shared_context()
