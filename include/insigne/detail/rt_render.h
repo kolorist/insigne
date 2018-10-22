@@ -43,6 +43,8 @@ typedef floral::fixed_array<framebuffer_desc_t, linear_allocator_t> framebuffers
 extern framebuffers_pool_t						g_framebuffers_pool;
 
 const framebuffer_handle_t						create_framebuffer(const insigne::framebuffer_desc_t& i_desc); /* ut */
+const texture_handle_t							extract_color_attachment(const framebuffer_handle_t i_fb, const u32 i_idx); /* ut */
+const texture_handle_t							extract_depth_stencil_attachment(const framebuffer_handle_t i_fb); /* ut */
 
 // ---------------------------------------------
 template <typename t_surface_list>

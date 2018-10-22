@@ -217,6 +217,22 @@ const framebuffer_handle_t create_framebuffer(const insigne::framebuffer_desc_t&
 	return framebuffer_handle_t(idx);
 }
 
+/* ut */
+const texture_handle_t extract_color_attachment(const framebuffer_handle_t i_fb, const u32 i_idx)
+{
+	framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_fb];
+
+	return desc.color_attach_textures[i_idx];
+}
+
+/* ut */
+const texture_handle_t extract_depth_stencil_attachment(const framebuffer_handle_t i_fb)
+{
+	framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_fb];
+
+	return desc.depth_texture;
+}
+
 void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::framebuffer_desc_t& i_desc)
 {
 	framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_hdl];
@@ -290,14 +306,18 @@ void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const
 	if ((s32)i_hdl == DEFAULT_FRAMEBUFFER_HANDLE) {
 		pxBindFramebuffer(GL_FRAMEBUFFER, 0);
 		pxClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		set_scissor_test<false_type>(0, 0, 0, 0);
+		pxViewport(0, 0, 1280, 720);
 		clear_framebuffer(true, true);
 	} else {
 		framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_hdl];
 		pxBindFramebuffer(GL_FRAMEBUFFER, desc.gpu_handle);
 		if (i_width < 0 && i_height < 0) {
 			set_scissor_test<false_type>(0, 0, 0, 0);
+			pxViewport(0, 0, desc.width, desc.height);
 		} else {
 			set_scissor_test<true_type>(i_x, desc.height - i_y, i_width, i_height);
+			pxViewport(i_x, desc.height - i_y, i_width, i_height);
 		}
 		pxClearColor(desc.clear_color.x, desc.clear_color.y, desc.clear_color.z, desc.clear_color.w);
 		clear_framebuffer(true, desc.has_depth);

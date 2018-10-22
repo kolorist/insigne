@@ -119,6 +119,16 @@ const framebuffer_handle_t create_framebuffer(const framebuffer_desc_t& i_desc)
 	return newFbHdl;
 }
 
+const texture_handle_t extract_color_attachment(const framebuffer_handle_t i_fb, const u32 i_idx)
+{
+	return detail::extract_color_attachment(i_fb, i_idx);
+}
+
+const texture_handle_t extract_depth_stencil_attachment(const framebuffer_handle_t i_fb)
+{
+	return detail::extract_depth_stencil_attachment(i_fb);
+}
+
 // ---------------------------------------------
 void cleanup_render_module()
 {

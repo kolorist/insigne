@@ -18,7 +18,7 @@ extern floral::mutex							g_init_mtx;
 extern size										g_composing_cmdbuff;
 extern std::atomic<bool>						g_scene_presented;
 
-typedef floral::inplaced_ring_buffer_mt_spsc<size, BUFFERS_COUNT * 2> waiting_cmdbuffs_t;
+typedef floral::inplaced_ring_buffer_mt_spsc<size, BUFFERS_COUNT - 1> waiting_cmdbuffs_t;
 extern waiting_cmdbuffs_t						g_waiting_cmdbuffs;
 
 // render---------------------------------------

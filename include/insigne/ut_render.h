@@ -48,6 +48,8 @@ void											dispatch_render_pass();
 // framebuffer----------------------------------
 framebuffer_desc_t								create_framebuffer_desc();
 const framebuffer_handle_t						create_framebuffer(const framebuffer_desc_t& i_desc);
+const texture_handle_t							extract_color_attachment(const framebuffer_handle_t i_fb, const u32 i_idx);
+const texture_handle_t							extract_depth_stencil_attachment(const framebuffer_handle_t i_fb);
 
 // drawcall-------------------------------------
 template <typename t_surface>
