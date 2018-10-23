@@ -10,6 +10,7 @@ set (file_list
 	"${PROJECT_SOURCE_DIR}/src/generated_code/proxy.cpp"
 	"${PROJECT_SOURCE_DIR}/src/generated_code/oglapis.cpp"
 
+	"${PROJECT_SOURCE_DIR}/src/configs.cpp"
 	"${PROJECT_SOURCE_DIR}/src/context.cpp"
 	"${PROJECT_SOURCE_DIR}/src/memory.cpp"
 	"${PROJECT_SOURCE_DIR}/src/system.cpp"

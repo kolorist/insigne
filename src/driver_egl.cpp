@@ -56,7 +56,7 @@ namespace insigne {
 		eglChooseConfig(g_android_context_attribs.display, attribs, &config, 1, &numConfigs);
 		eglGetConfigAttrib(g_android_context_attribs.display, config, EGL_NATIVE_VISUAL_ID, &format);
 
-		ANativeWindow_setBuffersGeometry(g_android_context_attribs.native_window, 0, 0, format);
+		ANativeWindow_setBuffersGeometry(g_android_context_attribs.native_window, 1280, 720, format);
 
 		g_android_context_attribs.surface = eglCreateWindowSurface(g_android_context_attribs.display,
 				config, g_android_context_attribs.native_window, 0);

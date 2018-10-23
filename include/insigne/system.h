@@ -8,18 +8,6 @@
 namespace insigne {
 
 // -----------------------------------------
-struct settings_t {
-	u32											frame_shader_allocator_size_mb;
-	u32											frame_buffers_allocator_size_mb;
-	u32											frame_textures_allocator_size_mb;
-	u32											frame_render_allocator_size_mb;
-	u32											frame_draw_allocator_size_mb;
-
-	u32											draw_command_buffer_size;
-};
-extern settings_t								g_settings;
-
-// -----------------------------------------
 template <typename t_surface_list>
 void											initialize_render_thread();
 

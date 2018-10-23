@@ -1,5 +1,6 @@
 #include "insigne/detail/rt_render.h"
 
+#include "insigne/configs.h"
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/proxy.h"
 #include "insigne/detail/rt_shading.h"
@@ -307,7 +308,7 @@ void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const
 		pxBindFramebuffer(GL_FRAMEBUFFER, 0);
 		pxClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		set_scissor_test<false_type>(0, 0, 0, 0);
-		pxViewport(0, 0, 1280, 720);
+		pxViewport(0, 0, g_settings.native_res_x, g_settings.native_res_y);
 		clear_framebuffer(true, true);
 	} else {
 		framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_hdl];
