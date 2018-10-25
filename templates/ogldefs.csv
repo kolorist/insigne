@@ -56,6 +56,7 @@ __TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE
 0;StencilFunc;GLenum func, GLint ref, GLuint mask;func, ref, mask;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;StencilOp;GLenum sfail, GLenum dpfail, GLenum dppass;sfail, dpfail, dppass;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;TexImage2D;GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data;target, level, internalFormat, width, height, border, format, type, data;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;TexStorage2D;GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height;target, levels, internalFormat, width, height;void;since OpenGL ES 3.0
 0;TexParameteri;GLenum target, GLenum pname, GLint param;target, pname, param;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;Uniform1f;GLint location, GLfloat v0;location, v0;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;Uniform1i;GLint location, GLint v0;location, v0;void;since OpenGL 2.0 / OpenGL ES 2.0

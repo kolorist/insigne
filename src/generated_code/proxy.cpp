@@ -412,6 +412,12 @@ void pxTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
 	assert_driver_no_error();
 }
 
+void pxTexStorage2D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height)
+{
+	glTexStorage2D(target, levels, internalFormat, width, height);
+	assert_driver_no_error();
+}
+
 void pxTexParameteri(GLenum target, GLenum pname, GLint param)
 {
 	glTexParameteri(target, pname, param);

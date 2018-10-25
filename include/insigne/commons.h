@@ -235,6 +235,7 @@ typedef s32										color_attachment_id;
 typedef s32										vb_handle_t;
 typedef s32										ib_handle_t;
 typedef s32										ub_handle_t;
+typedef s32										pb_handle_t;
 
 // ---------------------------------------------
 /* pixel data alignment

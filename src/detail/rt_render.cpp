@@ -272,28 +272,8 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 		depthDesc.min_filter = filtering_e::linear; depthDesc.mag_filter = filtering_e::linear;
 		depthDesc.dimension = texture_dimension_e::tex_2d;
 		depthDesc.has_mipmap = false;
-
-		static GLenum s_GLInternalFormat[] = {
-			GL_RG8,									// rg
-			GL_RG16F,								// hdr_rg
-			GL_RGB8,								// rgb
-			GL_RGB16F,								// hdr_rgb
-			GL_SRGB8,								// srgb
-			GL_RGBA8,								// rgba
-			GL_RGBA16F,								// hdr_rgba
-			GL_DEPTH_COMPONENT24,					// depth
-			GL_DEPTH24_STENCIL8						// depth_stencil
-		};
-
-		GLuint depthRenderBuffer;
-		pxGenRenderbuffers(1, &depthRenderBuffer);
-		pxBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
-		pxRenderbufferStorage(GL_RENDERBUFFER, s_GLInternalFormat[(s32)depthDesc.format], swidth, sheight);
-		pxFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
-		pxBindRenderbuffer(GL_RENDERBUFFER, 0);
-
 		upload_texture(desc.depth_texture, depthDesc);
-
+		// attach texture to fbo
 		texture_desc_t& depthTex = g_textures_pool[(s32)desc.depth_texture];
 		pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex.gpu_handle, 0);
 	}

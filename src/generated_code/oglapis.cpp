@@ -121,6 +121,8 @@ glStencilOp_t glStencilOp;
 
 glTexImage2D_t glTexImage2D;
 
+glTexStorage2D_t glTexStorage2D;
+
 glTexParameteri_t glTexParameteri;
 
 glUniform1f_t glUniform1f;

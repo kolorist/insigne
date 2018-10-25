@@ -196,6 +196,9 @@ extern glStencilOp_t glStencilOp;
 typedef APICALL void (APIENTRY *glTexImage2D_t)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data);
 extern glTexImage2D_t glTexImage2D;
 
+typedef APICALL void (APIENTRY *glTexStorage2D_t)(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height);
+extern glTexStorage2D_t glTexStorage2D;
+
 typedef APICALL void (APIENTRY *glTexParameteri_t)(GLenum target, GLenum pname, GLint param);
 extern glTexParameteri_t glTexParameteri;
 

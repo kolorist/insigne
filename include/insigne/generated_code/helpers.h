@@ -118,6 +118,8 @@ API_HELPER(void, StencilOp);
 
 API_HELPER(void, TexImage2D);
 
+API_HELPER(void, TexStorage2D);
+
 API_HELPER(void, TexParameteri);
 
 API_HELPER(void, Uniform1f);

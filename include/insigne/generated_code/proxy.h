@@ -126,6 +126,8 @@ void pxStencilOp(GLenum sfail, GLenum dpfail, GLenum dppass);
 
 void pxTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data);
 
+void pxTexStorage2D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height);
+
 void pxTexParameteri(GLenum target, GLenum pname, GLint param);
 
 void pxUniform1f(GLint location, GLfloat v0);
