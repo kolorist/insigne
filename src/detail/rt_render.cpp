@@ -297,8 +297,10 @@ void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const
 			set_scissor_test<false_type>(0, 0, 0, 0);
 			pxViewport(0, 0, desc.width, desc.height);
 		} else {
-			set_scissor_test<true_type>(i_x, desc.height - i_y, i_width, i_height);
-			pxViewport(i_x, desc.height - i_y, i_width, i_height);
+			//set_scissor_test<true_type>(i_x, desc.height - i_y, i_width, i_height);
+			set_scissor_test<true_type>(i_x, desc.height - i_y - i_height, i_width, i_height);
+			//pxViewport(i_x, desc.height - i_y, i_width, i_height);
+			pxViewport(i_x, desc.height - i_y - i_height, i_width, i_height);
 		}
 		pxClearColor(desc.clear_color.x, desc.clear_color.y, desc.clear_color.z, desc.clear_color.w);
 		clear_framebuffer(true, desc.has_depth);
