@@ -291,11 +291,17 @@ struct name_value_pair_t {
 template <typename t_value, u32 t_capacity>
 using params_array_t = floral::inplace_array<name_value_pair_t<t_value>, t_capacity>;
 
+struct ubmat_desc_t {
+	size										offset;
+	size										range;
+	ub_handle_t									ub_handle;
+};
+
 struct material_desc_t {
 	shader_handle_t								shader_handle;
 
 	params_array_t<texture_handle_t, MAX_TEXTURE_SAMPLERS>	textures;
-	params_array_t<ub_handle_t, MAX_UNIFORM_BLOCKS>			uniform_blocks;
+	params_array_t<ubmat_desc_t, MAX_UNIFORM_BLOCKS>		uniform_blocks;
 };
 
 //------------------------------------------

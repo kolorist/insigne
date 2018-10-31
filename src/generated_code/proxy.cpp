@@ -479,6 +479,12 @@ void pxBindBufferBase(GLenum target, GLuint index, GLuint buffer)
 	assert_driver_no_error();
 }
 
+void pxBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+{
+	glBindBufferRange(target, index, buffer, offset, size);
+	assert_driver_no_error();
+}
+
 void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
 {
 	glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);

@@ -150,9 +150,9 @@ void infuse_material(const shader_handle_t i_hdl, insigne::material_desc_t& o_ma
 	}
 
 	for (u32 i = 0; i < matTemplate.uniform_blocks.get_size(); i++) {
-		insigne::name_value_pair_t<ub_handle_t> nvp;
+		insigne::name_value_pair_t<ubmat_desc_t> nvp;
 		nvp.name = matTemplate.uniform_blocks[i];
-		nvp.value = ub_handle_t(-1);
+		nvp.value = ubmat_desc_t { 0, 0, -1 };
 		o_mat.uniform_blocks.push_back(nvp);
 	}
 }

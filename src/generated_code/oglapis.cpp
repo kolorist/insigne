@@ -143,6 +143,8 @@ glGetUniformBlockIndex_t glGetUniformBlockIndex;
 
 glBindBufferBase_t glBindBufferBase;
 
+glBindBufferRange_t glBindBufferRange;
+
 glUniformBlockBinding_t glUniformBlockBinding;
 
 }

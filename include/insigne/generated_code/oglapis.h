@@ -229,6 +229,9 @@ extern glGetUniformBlockIndex_t glGetUniformBlockIndex;
 typedef APICALL void (APIENTRY *glBindBufferBase_t)(GLenum target, GLuint index, GLuint buffer);
 extern glBindBufferBase_t glBindBufferBase;
 
+typedef APICALL void (APIENTRY *glBindBufferRange_t)(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
+extern glBindBufferRange_t glBindBufferRange;
+
 typedef APICALL void (APIENTRY *glUniformBlockBinding_t)(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 extern glUniformBlockBinding_t glUniformBlockBinding;
 

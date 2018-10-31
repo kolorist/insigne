@@ -140,5 +140,7 @@ API_HELPER(GLuint, GetUniformBlockIndex);
 
 API_HELPER(void, BindBufferBase);
 
+API_HELPER(void, BindBufferRange);
+
 API_HELPER(void, UniformBlockBinding);
 

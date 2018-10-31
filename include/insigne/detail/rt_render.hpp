@@ -165,8 +165,13 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 	}
 
 	for (u32 i = 0; i < i_mat->uniform_blocks.get_size(); i++) {
-		const insigne::detail::ubdesc_t& ubDesc = insigne::detail::g_ubs_pool[s32(i_mat->uniform_blocks[i].value)];
-		pxBindBufferBase(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle);
+		const ubmat_desc_t ubMatDesc = i_mat->uniform_blocks[i].value;
+		const insigne::detail::ubdesc_t& ubDesc = insigne::detail::g_ubs_pool[ubMatDesc.ub_handle];
+		if (ubMatDesc.offset == 0) {
+			pxBindBufferBase(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle);
+		} else {
+			pxBindBufferRange(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle, ubMatDesc.offset, ubMatDesc.range);
+		}
 		pxUniformBlockBinding(shaderDesc.gpu_handle, shaderDesc.slots_config.uniform_blocks[i], i);
 	}
 

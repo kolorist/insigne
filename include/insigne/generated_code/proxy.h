@@ -148,6 +148,8 @@ GLuint pxGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
 
 void pxBindBufferBase(GLenum target, GLuint index, GLuint buffer);
 
+void pxBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
+
 void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 
 }
