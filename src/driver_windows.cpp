@@ -97,10 +97,18 @@ namespace insigne {
 		GLint numExtension = 0;
 		pxGetIntegerv(GL_NUM_EXTENSIONS, &numExtension);
 		CLOVER_VERBOSE("Number of extensions: %d", numExtension);
-		for (s32 i = 0; i < numExtension; i++) {
-			const GLubyte* extStr = pxGetStringi(GL_EXTENSIONS, i);
-			CLOVER_VERBOSE("Ext %d: %s", i, extStr);
-		}
+
+		GLint ubOffsetAlignment = 0;
+		GLint ubMaxBinding = 0;
+		GLint ubMaxBlockSize = 0;
+		pxGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &ubOffsetAlignment);
+		pxGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &ubMaxBinding);
+		pxGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &ubMaxBlockSize);
+		CLOVER_VERBOSE("Uniform Buffer Specifications:\
+				\n\tOffset Alignment: %d\
+				\n\tMax Bindings Count: %d\
+				\n\tMax Uniform Block Size: %d",
+				ubOffsetAlignment, ubMaxBinding, ubMaxBlockSize);
 	}
 
 	void create_shared_context()

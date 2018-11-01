@@ -1,10 +1,12 @@
 #pragma once
 
 #include <floral.h>
+#include <atomic>
 
 namespace insigne {
 
 struct global_counters {
+	std::atomic<u64>							current_frame_idx;
 	u64											current_render_frame_idx;		// actually, this is the current FBO frame idx
 	u64											current_submit_frame_idx;
 };
@@ -42,5 +44,8 @@ struct debug_frame_counters {
 extern global_counters							g_global_counters;
 extern debug_global_counters					g_debug_global_counters;
 extern debug_frame_counters						g_debug_frame_counters;
+
+// ---------------------------------------------
+const u64										get_current_frame_idx();
 
 }

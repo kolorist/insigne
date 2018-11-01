@@ -152,4 +152,8 @@ void pxBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offs
 
 void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 
+void pxReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data);
+
+void pxReadBuffer(GLenum src);
+
 }

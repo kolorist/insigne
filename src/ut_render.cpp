@@ -129,6 +129,17 @@ const texture_handle_t extract_depth_stencil_attachment(const framebuffer_handle
 	return detail::extract_depth_stencil_attachment(i_fb);
 }
 
+const u64 schedule_framebuffer_capture(const framebuffer_handle_t i_fb, voidptr o_data)
+{
+	render_command_t cmd;
+	cmd.command_type = render_command_type_e::framebuffer_capture;
+	cmd.framebuffer_capture_data.fb_handle = i_fb;
+	cmd.framebuffer_capture_data.pixel_data = o_data;
+
+	push_command(cmd);
+	return get_current_frame_idx() + 2;
+}
+
 // ---------------------------------------------
 void cleanup_render_module()
 {

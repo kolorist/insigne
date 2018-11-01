@@ -47,6 +47,7 @@ void render_thread_func(voidptr i_data)
 
 		if (swapThisRenderPass) {
 			swap_buffers();
+			g_global_counters.current_frame_idx.fetch_add(1);
 			detail::g_scene_presented.store(true);
 		}
 	}
@@ -58,6 +59,7 @@ void initialize_render_thread()
 {
 	g_global_counters.current_render_frame_idx = 0;
 	g_global_counters.current_submit_frame_idx = 0;
+	g_global_counters.current_frame_idx.store(0);
 	g_debug_global_counters.submitted_frames = 0;
 	g_debug_global_counters.rendered_frames = 0;
 

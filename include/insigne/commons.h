@@ -304,7 +304,7 @@ struct material_desc_t {
 	params_array_t<ubmat_desc_t, MAX_UNIFORM_BLOCKS>		uniform_blocks;
 };
 
-//------------------------------------------
+//----------------------------------------------
 struct vbdesc_t {
 	size										region_size;
 	size										stride;
@@ -327,7 +327,7 @@ struct ubdesc_t {
 	buffer_usage_e								usage;
 };
 
-//------------------------------------------
+//----------------------------------------------
 
 struct framebuffer_descriptor_t {
 	s32										width, height;

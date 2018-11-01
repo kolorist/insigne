@@ -491,4 +491,16 @@ void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint unif
 	assert_driver_no_error();
 }
 
+void pxReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data)
+{
+	glReadPixels(x, y, width, height, format, type, data);
+	assert_driver_no_error();
+}
+
+void pxReadBuffer(GLenum src)
+{
+	glReadBuffer(src);
+	assert_driver_no_error();
+}
+
 }

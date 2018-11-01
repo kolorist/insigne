@@ -69,3 +69,5 @@ __TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE
 0;BindBufferBase;GLenum target, GLuint index, GLuint buffer;target, index, buffer;void;since OpenGL ES 3.0
 0;BindBufferRange;GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size;target, index, buffer, offset, size;void;since OpenGL ES 3.0
 0;UniformBlockBinding;GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding;program, uniformBlockIndex, uniformBlockBinding;void;since OpenGL ES 3.0
+0;ReadPixels;GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data;x, y, width, height, format, type, data;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;ReadBuffer;GLenum src;src;void;since OpenGL ES 3.0

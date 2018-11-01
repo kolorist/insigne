@@ -144,3 +144,7 @@ API_HELPER(void, BindBufferRange);
 
 API_HELPER(void, UniformBlockBinding);
 
+API_HELPER(void, ReadPixels);
+
+API_HELPER(void, ReadBuffer);
+

@@ -235,4 +235,10 @@ extern glBindBufferRange_t glBindBufferRange;
 typedef APICALL void (APIENTRY *glUniformBlockBinding_t)(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 extern glUniformBlockBinding_t glUniformBlockBinding;
 
+typedef APICALL void (APIENTRY *glReadPixels_t)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data);
+extern glReadPixels_t glReadPixels;
+
+typedef APICALL void (APIENTRY *glReadBuffer_t)(GLenum src);
+extern glReadBuffer_t glReadBuffer;
+
 }

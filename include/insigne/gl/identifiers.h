@@ -29,6 +29,10 @@ typedef void									GLvoid;
 #define GL_EXTENSIONS                     0x1F03
 #define GL_NUM_EXTENSIONS                 0x821D
 #define GL_SHADING_LANGUAGE_VERSION       0x8B8C
+#define GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT 0x8A34
+#define GL_MAX_UNIFORM_BUFFER_BINDINGS    0x8A2F
+#define GL_MAX_UNIFORM_BLOCK_SIZE         0x8A30
+#define GL_READ_FRAMEBUFFER_BINDING       0x8CAA
 
 /* AlphaFunction */
 #define GL_NEVER                          0x0200
@@ -161,6 +165,10 @@ typedef void									GLvoid;
 #define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z    0x851A
 
 /* TextureFormat */
+#define GL_RED                            0x1903
+#define GL_GREEN                          0x1904
+#define GL_BLUE                           0x1905
+#define GL_ALPHA                          0x1906
 #define GL_RG                             0x8227
 #define GL_RGB                            0x1907
 #define GL_RGBA                           0x1908

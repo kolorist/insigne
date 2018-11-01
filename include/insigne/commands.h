@@ -13,7 +13,8 @@ enum class render_command_type_e {
 	present_render,
 	draw_call,
 	framebuffer_create,
-	framebuffer_activate
+	framebuffer_activate,
+	framebuffer_capture
 };
 
 struct render_command_t {
@@ -34,6 +35,10 @@ struct render_command_t {
 			framebuffer_handle_t				fb_handle;
 			s32									x, y, width, height;
 		} framebuffer_activate_data;
+		struct {
+			voidptr								pixel_data;
+			framebuffer_handle_t				fb_handle;
+		} framebuffer_capture_data;
 	};
 };
 

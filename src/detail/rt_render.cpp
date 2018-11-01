@@ -307,6 +307,30 @@ void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const
 	}
 }
 
+void capture_framebuffer(const framebuffer_handle_t i_hdl, voidptr o_data)
+{
+	// TODO: async reading
+	const framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_hdl];
+	const texture_desc_t& texDesc = g_textures_pool[(s32)desc.color_attach_textures[0]];
+	GLint oldFb;
+	pxGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &oldFb);
+	pxBindFramebuffer(GL_READ_FRAMEBUFFER, desc.gpu_handle);
+	pxReadBuffer(GL_COLOR_ATTACHMENT0);
+	static GLenum s_GLReadFormat[] = {
+		GL_RG,									// rg
+		GL_RG,									// hdr_rg
+		GL_RGB,									// rgb
+		GL_RGB,									// hdr_rgb
+		GL_RGB,									// srgb
+		GL_RGBA,								// rgba
+		GL_RGBA,								// hdr_rgba
+		GL_RED,									// depth
+		GL_RED									// depth_stencil
+	};
+	pxReadPixels(0, 0, desc.width, desc.height, s_GLReadFormat[(s32)texDesc.format], GL_FLOAT, o_data);
+	pxBindFramebuffer(GL_READ_FRAMEBUFFER, oldFb);
+}
+
 // ---------------------------------------------
 inline detail::gpu_command_buffer_t& get_render_command_buffer(const size i_cmdBuffId) {
 	return detail::g_render_command_buffer[i_cmdBuffId];
@@ -340,6 +364,10 @@ const bool process_render_command_buffer(const size i_cmdBuffId)
 									cmd.framebuffer_activate_data.y,
 									cmd.framebuffer_activate_data.width,
 									cmd.framebuffer_activate_data.height);
+							break;
+						case render_command_type_e::framebuffer_capture:
+							capture_framebuffer(cmd.framebuffer_capture_data.fb_handle,
+									cmd.framebuffer_capture_data.pixel_data);
 							break;
 						default:
 							break;

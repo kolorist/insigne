@@ -147,4 +147,8 @@ glBindBufferRange_t glBindBufferRange;
 
 glUniformBlockBinding_t glUniformBlockBinding;
 
+glReadPixels_t glReadPixels;
+
+glReadBuffer_t glReadBuffer;
+
 }
