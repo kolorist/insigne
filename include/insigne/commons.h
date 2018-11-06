@@ -238,6 +238,12 @@ typedef s32										ub_handle_t;
 typedef s32										pb_handle_t;
 
 // ---------------------------------------------
+/* rendering callbacks
+ */
+typedef void									(*states_setup_func_t)();
+typedef void									(*vertex_data_setup_func_t)();
+
+// ---------------------------------------------
 /* pixel data alignment
  *	> for 2d texture:
  * 		pixel data is stored as a list of scanlines in a order from top to bottom of an image

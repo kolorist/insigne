@@ -5,14 +5,10 @@
 #include <floral.h>
 
 #include "commons.h"
+#include "commands.h"
 #include "detail/rt_render.h"
 
 namespace insigne {
-
-// ---------------------------------------------
-template <typename t_surface>
-struct renderable_surface_t : detail::render_interface_t<t_surface> {
-};
 
 // render entrypoint----------------------------
 void											begin_frame();
@@ -58,6 +54,7 @@ void											draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, cons
 
 // ---------------------------------------------
 void											cleanup_render_module();
+void											push_draw_command(const u32 i_surfaceTypeIdx, const draw_command_t& i_cmd);
 }
 
 #include "ut_render.hpp"

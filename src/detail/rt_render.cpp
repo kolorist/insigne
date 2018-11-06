@@ -331,12 +331,106 @@ void capture_framebuffer(const framebuffer_handle_t i_hdl, voidptr o_data)
 	pxBindFramebuffer(GL_READ_FRAMEBUFFER, oldFb);
 }
 
+void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t* i_mat,
+		const u32 i_segSize, const voidptr i_segOffset, geometry_mode_e i_geometryMode,
+		states_setup_func_t i_stateSetup, vertex_data_setup_func_t i_vertexSetup)
+{
+	i_stateSetup();
+	const insigne::detail::vbdesc_t& vbDesc = insigne::detail::g_vbs_pool[s32(i_vb)];
+	const insigne::detail::ibdesc_t& ibDesc = insigne::detail::g_ibs_pool[s32(i_ib)];
+	const insigne::detail::shader_desc_t& shaderDesc = insigne::detail::g_shaders_pool[s32(i_mat->shader_handle)];
+
+	pxUseProgram(shaderDesc.gpu_handle);
+
+	for (u32 i = 0; i < i_mat->textures.get_size(); i++) {
+		const insigne::detail::texture_desc_t& texDesc = insigne::detail::g_textures_pool[(s32)i_mat->textures[i].value];
+		pxActiveTexture(GL_TEXTURE0 + i);
+		if (texDesc.dimension == texture_dimension_e::tex_2d) {
+			pxBindTexture(GL_TEXTURE_2D, texDesc.gpu_handle);
+		} else if (texDesc.dimension == texture_dimension_e::tex_cube) {
+			pxBindTexture(GL_TEXTURE_CUBE_MAP, texDesc.gpu_handle);
+		}
+		pxUniform1i(shaderDesc.slots_config.textures[i], i);
+	}
+
+	for (u32 i = 0; i < i_mat->uniform_blocks.get_size(); i++) {
+		const ubmat_desc_t ubMatDesc = i_mat->uniform_blocks[i].value;
+		const insigne::detail::ubdesc_t& ubDesc = insigne::detail::g_ubs_pool[ubMatDesc.ub_handle];
+		if (ubMatDesc.offset == 0) {
+			pxBindBufferBase(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle);
+		} else {
+			pxBindBufferRange(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle, ubMatDesc.offset, ubMatDesc.range);
+		}
+		pxUniformBlockBinding(shaderDesc.gpu_handle, shaderDesc.slots_config.uniform_blocks[i], i);
+	}
+
+	// draw
+	static GLenum s_geometryMode[] = {
+		GL_POINTS,
+		GL_LINE_STRIP,
+		GL_LINE_LOOP,
+		GL_LINES,
+		GL_TRIANGLE_STRIP,
+		GL_TRIANGLE_FAN,
+		GL_TRIANGLES
+	};
+
+	pxBindBuffer(GL_ARRAY_BUFFER, vbDesc.gpu_handle);
+	pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibDesc.gpu_handle);
+	i_vertexSetup();
+	{
+		pxDrawElements(s_geometryMode[(s32)i_geometryMode], ibDesc.count, GL_UNSIGNED_INT, 0);
+	}
+}
+
+
 // ---------------------------------------------
 inline detail::gpu_command_buffer_t& get_render_command_buffer(const size i_cmdBuffId) {
 	return detail::g_render_command_buffer[i_cmdBuffId];
 }
 
 // ---------------------------------------------
+void initialize_render_module()
+{
+	g_draw_command_buffers.init(g_settings.surface_types_count, &g_persistance_allocator);
+	// create default framebuffer desc
+	g_framebuffers_pool.init(32u, &g_persistance_allocator);
+}
+
+// ---------------------------------------------
+void process_draw_command_buffer(const size i_cmdBuffId)
+{
+	// geometry render phase
+	for (u32 i = 0; i < g_settings.surface_types_count; i++) {
+		detail::gpu_command_buffer_t& cmdbuff = g_draw_command_buffers[i].command_buffer[i_cmdBuffId];
+		states_setup_func_t stateSetupFunc = g_draw_command_buffers[i].states_setup_func;
+		vertex_data_setup_func_t vertexSetupFunc = g_draw_command_buffers[i].vertex_data_setup_func;
+		geometry_mode_e geometryMode = g_draw_command_buffers[i].geometry_mode;
+		for (u32 j = 0; j < cmdbuff.get_size(); j++) {
+			gpu_command& gpuCmd = cmdbuff[j];
+			gpuCmd.reset_cursor();
+			switch (gpuCmd.opcode) {
+				case command::draw_command:
+					{
+						draw_command_t cmd;
+						gpuCmd.serialize(cmd);
+						detail::draw_indexed_surface(cmd.vb_handle, cmd.ib_handle, cmd.material_snapshot,
+								cmd.segment_size, cmd.segment_offset, geometryMode, stateSetupFunc, vertexSetupFunc);
+						break;
+					}
+				default:
+					break;
+			}
+		}
+	}
+
+	// cleaning up
+	for (u32 i = 0; i < g_settings.surface_types_count; i++) {
+		detail::gpu_command_buffer_t& cmdBuff = g_draw_command_buffers[i].command_buffer[i_cmdBuffId];
+		cmdBuff.empty();
+	}
+}
+
 const bool process_render_command_buffer(const size i_cmdBuffId)
 {
 	bool endOfFrameMarked = false;

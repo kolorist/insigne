@@ -61,10 +61,6 @@ namespace detail {
 
 // draw-----------------------------------------
 typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
-template <typename t_surface>
-struct draw_command_buffer_t {
-	static gpu_command_buffer_t					command_buffer[BUFFERS_COUNT];
-};
 
 }
 }

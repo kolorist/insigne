@@ -24,6 +24,7 @@ struct settings_t {
 	u32											frame_render_allocator_size_mb;
 	u32											frame_draw_allocator_size_mb;
 
+	u32											surface_types_count;
 	u32											draw_command_buffer_size;
 
 	u32											native_res_x;

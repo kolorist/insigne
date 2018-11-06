@@ -20,6 +20,10 @@ static inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
 	return detail::g_render_command_buffer[detail::g_composing_cmdbuff];
 }
 
+static inline detail::gpu_command_buffer_t& get_composing_draw_command_buffer(const u32 i_surfaceTypeIdx) {
+	return detail::g_draw_command_buffers[i_surfaceTypeIdx].command_buffer[detail::g_composing_cmdbuff];
+}
+
 // ---------------------------------------------
 static inline void push_command(const render_command_t& i_cmd)
 {
@@ -28,6 +32,14 @@ static inline void push_command(const render_command_t& i_cmd)
 	newCmd.deserialize(i_cmd);
 
 	get_composing_command_buffer().push_back(newCmd);
+}
+
+void push_draw_command(const u32 i_surfaceTypeIdx, const draw_command_t& i_cmd)
+{
+	gpu_command newCmd;
+	newCmd.opcode = command::draw_command;
+	newCmd.deserialize(i_cmd);
+	get_composing_draw_command_buffer(i_surfaceTypeIdx).push_back(newCmd);
 }
 
 // render entrypoint----------------------------

@@ -7,12 +7,8 @@
 
 namespace insigne {
 
-// -----------------------------------------
-template <typename t_surface_list>
-void											initialize_render_thread();
-
+// ---------------------------------------------
+void											initialize_render_thread(const u32 i_surfaceTypesCount);
 void											wait_for_initialization();
 
 }
-
-#include "system.hpp"
