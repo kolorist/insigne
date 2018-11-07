@@ -53,11 +53,13 @@ void render_thread_func(voidptr i_data)
 }
 
 // ---------------------------------------------
-
-void initialize_render_thread(const u32 i_surfaceTypesCount)
+void allocate_draw_command_buffers(const u32 i_maxSurfaceTypes)
 {
-	g_settings.surface_types_count = i_surfaceTypesCount;
+	detail::g_draw_command_buffers.init(i_maxSurfaceTypes, &g_persistance_allocator);
+}
 
+void initialize_render_thread()
+{
 	g_global_counters.current_render_frame_idx = 0;
 	g_global_counters.current_submit_frame_idx = 0;
 	g_global_counters.current_frame_idx.store(0);

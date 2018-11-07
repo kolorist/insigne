@@ -58,9 +58,8 @@ struct gpu_command {
 
 // ------------payload----------------------
 namespace detail {
-
 // draw-----------------------------------------
 typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
-
 }
+
 }

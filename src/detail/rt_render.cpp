@@ -392,7 +392,6 @@ inline detail::gpu_command_buffer_t& get_render_command_buffer(const size i_cmdB
 // ---------------------------------------------
 void initialize_render_module()
 {
-	g_draw_command_buffers.init(g_settings.surface_types_count, &g_persistance_allocator);
 	// create default framebuffer desc
 	g_framebuffers_pool.init(32u, &g_persistance_allocator);
 }
