@@ -37,6 +37,11 @@ const vb_handle_t create_vb(const insigne::vbdesc_t& i_desc)
 	return vb_handle_t(idx);
 }
 
+const vbdesc_t& get_vb_desc(const vb_handle_t i_hdl)
+{
+	return g_vbs_pool[(u32)i_hdl];
+}
+
 /* ut */
 const ib_handle_t create_ib(const insigne::ibdesc_t& i_desc)
 {
@@ -44,6 +49,11 @@ const ib_handle_t create_ib(const insigne::ibdesc_t& i_desc)
 	g_ibs_pool.push_back(ibdesc_t());
 
 	return ib_handle_t(idx);
+}
+
+const ibdesc_t& get_ib_desc(const ib_handle_t i_hdl)
+{
+	return g_ibs_pool[(u32)i_hdl];
 }
 
 /* ut */

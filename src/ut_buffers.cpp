@@ -79,6 +79,14 @@ void update_vb(const vb_handle_t i_hdl, voidptr i_data, const u32 i_vcount, cons
 	push_command(cmd);
 }
 
+void copy_update_vb(const vb_handle_t i_hdl, voidptr i_data, const u32 i_vcount, const u32 i_stride, const u32 i_offsetElem)
+{
+	size dataSize = i_vcount * i_stride;
+	voidptr data = get_composing_allocator()->allocate(dataSize);
+	memcpy(data, i_data, dataSize);
+	update_vb(i_hdl, data, i_vcount, i_offsetElem);
+}
+
 void update_ib(const ib_handle_t i_hdl, voidptr i_data, const u32 i_icount, const u32 i_offsetElem)
 {
 	buffers_command_t cmd;
@@ -89,6 +97,14 @@ void update_ib(const ib_handle_t i_hdl, voidptr i_data, const u32 i_icount, cons
 	cmd.stream_ib_data.offset_elements = i_offsetElem;
 
 	push_command(cmd);
+}
+
+void copy_update_ib(const ib_handle_t i_hdl, voidptr i_data, const u32 i_icount, const u32 i_offsetElem)
+{
+	size dataSize = i_icount * sizeof(s32);
+	voidptr data = get_composing_allocator()->allocate(dataSize);
+	memcpy(data, i_data, dataSize);
+	update_ib(i_hdl, data, i_icount, i_offsetElem);
 }
 
 void update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const size i_offset)
