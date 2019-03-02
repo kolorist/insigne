@@ -44,7 +44,7 @@ struct render_command_t {
 
 struct draw_command_t {
 	material_desc_t*							material_snapshot;
-	voidptr										segment_offset;
+	s32											segment_offset;
 	vb_handle_t									vb_handle;
 	ib_handle_t									ib_handle;
 	s32											segment_size;

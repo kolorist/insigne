@@ -332,7 +332,7 @@ void capture_framebuffer(const framebuffer_handle_t i_hdl, voidptr o_data)
 }
 
 void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t* i_mat,
-		const u32 i_segSize, const voidptr i_segOffset, geometry_mode_e i_geometryMode,
+		const s32 i_segSize, const s32 i_segOffset, geometry_mode_e i_geometryMode,
 		states_setup_func_t i_stateSetup, vertex_data_setup_func_t i_vertexSetup)
 {
 	i_stateSetup();
@@ -378,8 +378,13 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 	pxBindBuffer(GL_ARRAY_BUFFER, vbDesc.gpu_handle);
 	pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibDesc.gpu_handle);
 	i_vertexSetup();
+	if (i_segOffset == 0 && i_segSize == 0)
 	{
 		pxDrawElements(s_geometryMode[(s32)i_geometryMode], ibDesc.count, GL_UNSIGNED_INT, 0);
+	}
+	else
+	{
+		pxDrawElements(s_geometryMode[(s32)i_geometryMode], i_segSize, GL_UNSIGNED_INT, (voidptr)(i_segOffset * sizeof(s32)));
 	}
 }
 

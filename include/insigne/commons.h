@@ -304,6 +304,11 @@ struct ubmat_desc_t {
 };
 
 struct material_desc_t {
+	material_desc_t()
+	{
+		int i = 0;
+	}
+
 	shader_handle_t								shader_handle;
 
 	params_array_t<texture_handle_t, MAX_TEXTURE_SAMPLERS>	textures;

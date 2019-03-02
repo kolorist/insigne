@@ -51,6 +51,8 @@ const u64										schedule_framebuffer_capture(const framebuffer_handle_t i_fb,
 // drawcall-------------------------------------
 template <typename t_surface>
 void											draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t& i_mat);
+template <typename t_surface>
+void											draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t& i_mat, const s32 i_idxOffset, const s32 i_elemCount);
 
 // ---------------------------------------------
 void											cleanup_render_module();
