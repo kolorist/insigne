@@ -54,6 +54,10 @@ void											draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, cons
 template <typename t_surface>
 void											draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t& i_mat, const s32 i_idxOffset, const s32 i_elemCount);
 
+// origin (0; 0) locates at the lower-left corner
+template <typename t_surface>
+void											setup_scissor(const bool i_enabled, const s32 i_x = 0, const s32 i_y = 0, const s32 i_width = 0, const s32 i_height = 0);
+
 // ---------------------------------------------
 void											cleanup_render_module();
 void											push_draw_command(const u32 i_surfaceTypeIdx, const draw_command_t& i_cmd);

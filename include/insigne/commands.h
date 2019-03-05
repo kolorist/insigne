@@ -11,6 +11,7 @@ namespace insigne {
 enum class render_command_type_e {
 	invalid = 0,
 	present_render,
+	draw_state_scissor,
 	draw_call,
 	framebuffer_create,
 	framebuffer_activate,
@@ -42,12 +43,31 @@ struct render_command_t {
 	};
 };
 
+// draw-----------------------------------------
+
+enum class draw_command_type_e {
+	invalid = 0,
+	state_setup_scissor,
+	draw_surface
+};
+
 struct draw_command_t {
-	material_desc_t*							material_snapshot;
-	s32											segment_offset;
-	vb_handle_t									vb_handle;
-	ib_handle_t									ib_handle;
-	s32											segment_size;
+	draw_command_type_e							command_type;
+	union {
+		struct {
+			material_desc_t*					material_snapshot;
+			s32									segment_offset;
+			vb_handle_t							vb_handle;
+			ib_handle_t							ib_handle;
+			s32									segment_size;
+		} draw_surface_data;
+
+		struct {
+			s32									x, y;			// top-left corner
+			s32									width, height;
+			bool								enabled;
+		} state_setup_scissor_data;
+	};
 };
 
 

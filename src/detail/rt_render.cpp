@@ -406,10 +406,12 @@ void process_draw_command_buffer(const size i_cmdBuffId)
 {
 	// geometry render phase
 	for (u32 i = 0; i < g_settings.surface_types_count; i++) {
+
 		detail::gpu_command_buffer_t& cmdbuff = g_draw_command_buffers[i].command_buffer[i_cmdBuffId];
 		states_setup_func_t stateSetupFunc = g_draw_command_buffers[i].states_setup_func;
 		vertex_data_setup_func_t vertexSetupFunc = g_draw_command_buffers[i].vertex_data_setup_func;
 		geometry_mode_e geometryMode = g_draw_command_buffers[i].geometry_mode;
+
 		for (u32 j = 0; j < cmdbuff.get_size(); j++) {
 			gpu_command& gpuCmd = cmdbuff[j];
 			gpuCmd.reset_cursor();
@@ -418,9 +420,35 @@ void process_draw_command_buffer(const size i_cmdBuffId)
 					{
 						draw_command_t cmd;
 						gpuCmd.serialize(cmd);
-						detail::draw_indexed_surface(cmd.vb_handle, cmd.ib_handle, cmd.material_snapshot,
-								cmd.segment_size, cmd.segment_offset, geometryMode, stateSetupFunc, vertexSetupFunc);
-						break;
+
+						switch (cmd.command_type) {
+							case draw_command_type_e::draw_surface:
+							{
+								detail::draw_indexed_surface(
+										cmd.draw_surface_data.vb_handle,
+										cmd.draw_surface_data.ib_handle,
+										cmd.draw_surface_data.material_snapshot,
+										cmd.draw_surface_data.segment_size,
+										cmd.draw_surface_data.segment_offset,
+										geometryMode,
+										stateSetupFunc,
+										vertexSetupFunc);
+								break;
+							}
+							case draw_command_type_e::state_setup_scissor:
+							{
+								if (cmd.state_setup_scissor_data.enabled) {
+									detail::set_scissor_test<true_type>(
+											cmd.state_setup_scissor_data.x,
+											cmd.state_setup_scissor_data.y,
+											cmd.state_setup_scissor_data.width,
+											cmd.state_setup_scissor_data.height);
+								} else {
+									detail::set_scissor_test<false_type>(0, 0, 0, 0);
+								}
+								break;
+							}
+						}
 					}
 				default:
 					break;
