@@ -12,6 +12,7 @@ set (file_list
 
 	"${PROJECT_SOURCE_DIR}/src/configs.cpp"
 	"${PROJECT_SOURCE_DIR}/src/context.cpp"
+	"${PROJECT_SOURCE_DIR}/src/driver.cpp"
 	"${PROJECT_SOURCE_DIR}/src/memory.cpp"
 	"${PROJECT_SOURCE_DIR}/src/system.cpp"
 	"${PROJECT_SOURCE_DIR}/src/counters.cpp"

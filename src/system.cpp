@@ -36,6 +36,13 @@ void render_thread_func(voidptr i_data)
 	detail::g_init_condvar.notify_one();
 
 	while (true) {
+
+		while (detail::g_render_paused.load());
+
+		while (detail::g_context_dirty.load()) {
+			refresh_context();
+		}
+
 		size toSubmitCmdBuff = detail::g_waiting_cmdbuffs.wait_and_pop();
 
 		detail::process_shading_command_buffer(toSubmitCmdBuff);
@@ -100,10 +107,22 @@ void initialize_render_thread()
 
 	detail::g_composing_cmdbuff = 0;
 	detail::g_scene_presented = true;
+	detail::g_render_paused = false;
+	detail::g_context_dirty = true;
 
 	g_render_thread.entry_point = &insigne::render_thread_func;
 	g_render_thread.ptr_data = nullptr;
 	g_render_thread.start();
+}
+
+void pause_render_thread()
+{
+	detail::g_render_paused.store(true);
+}
+
+void resume_render_thread()
+{
+	detail::g_render_paused.store(false);
 }
 
 void wait_for_initialization()

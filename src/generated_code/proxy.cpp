@@ -34,6 +34,10 @@ void assert_driver_no_error()
 			CLOVER_DEBUG("Something wrong with the driver!");
 			break;
 	}
+	if (error != GL_NO_ERROR) {
+		volatile int* ptr = nullptr;
+		*ptr = 10;
+	}
 }
 
 void assert_framebuffer_completed()

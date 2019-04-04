@@ -8,10 +8,18 @@
 #include <context.h>
 
 namespace insigne {
-	void										initialize_driver();
 
-	void										create_main_context();
-	void										create_shared_context();
+void											initialize_driver();
 
-	void										swap_buffers();
+void											create_main_context();
+void											refresh_context();
+void											create_shared_context();
+
+void											swap_buffers();
+
+//----------------------------------------------
+
+gl_debug_info&									get_driver_info();
+void											request_refresh_context();
+
 }
