@@ -1,11 +1,10 @@
 #pragma once
 
 #include <floral.h>
+#include <calyx/context.h>
 
 #include "generated_code/proxy.h"
-
 #include "context.h"
-#include <context.h>
 
 namespace insigne {
 

@@ -2,7 +2,7 @@
 
 #include <clover.h>
 
-#include <platform/windows/system.h>
+#include <calyx/platform/windows/system.h>
 
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/oglapis.h"
@@ -40,7 +40,10 @@ void initialize_apis()
 
 void initialize_driver()
 {
-	g_gl_context.hwnd = calyx::g_windows_context_attribs.hwnd;
+	using namespace calyx::platform::windows;
+	windows_context_attribs* windowsCtx = get_windows_context_attribs();
+
+	g_gl_context.hwnd = windowsCtx->hwnd;
 	HDC hDC = GetDC(g_gl_context.hwnd);
 
 	PIXELFORMATDESCRIPTOR pxFormatDesc;
@@ -124,6 +127,12 @@ void create_main_context()
 			\n\tMax Bindings Count: %d\
 			\n\tMax Uniform Block Size: %d",
 			ubOffsetAlignment, ubMaxBinding, ubMaxBlockSize);
+}
+
+void refresh_context()
+{
+	using namespace calyx;
+	CLOVER_VERBOSE("Finished refreshing GL Surface.");
 }
 
 void create_shared_context()
