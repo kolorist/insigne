@@ -3,6 +3,7 @@
 #include <floral.h>
 
 #include "commons.h"
+#include "configs.h"
 #include "internal_states.h"
 
 namespace insigne {

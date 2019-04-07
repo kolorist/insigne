@@ -10,7 +10,7 @@ void register_surface_type()
 	detail::g_draw_command_buffers.push_back(detail::cmdbuffs_t());
 	detail::cmdbuffs_t& cmdbuff = detail::g_draw_command_buffers[idx];
 	for (u32 i = 0; i < BUFFERS_COUNT; i++) {
-		cmdbuff.command_buffer[i].init(g_settings.draw_command_buffer_size, &g_persistance_allocator);
+		cmdbuff.command_buffer[i].init(t_surface::draw_calls_budget, &g_persistance_allocator);
 	}
 	cmdbuff.states_setup_func = &t_surface::setup_states;
 	cmdbuff.vertex_data_setup_func = &t_surface::describe_vertex_data;

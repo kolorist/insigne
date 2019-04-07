@@ -14,6 +14,16 @@
 
 #define MAX_COLOR_ATTACHMENTS					4u
 
+#define MAX_RENDER_COMMANDS_IN_BUFFER			1u << 10
+#define MAX_DRAW_COMMANDS_IN_BUFFER				4u << 10
+#define MAX_SHADING_COMMANDS_IN_BUFFER			2u << 10
+#define MAX_BUFFERS_COMMANDS_IN_BUFFER			2u << 10
+#define MAX_TEXTURES_COMMANDS_IN_BUFFER			2u << 10
+
+#define DYNAMIC_VERTEX_BUFFER_PAGE_SIZE			2u << 20
+#define DYNAMIC_INDEX_BUFFER_PAGE_SIZE			1u << 20
+#define DYNAMIC_UNIFORM_BUFFER_PAGE_SIZE		1u << 20
+
 namespace insigne {
 
 // -----------------------------------------
@@ -25,7 +35,6 @@ struct settings_t {
 	u32											frame_draw_allocator_size_mb;
 
 	u32											surface_types_count;
-	u32											draw_command_buffer_size;
 
 	u32											native_res_x;
 	u32											native_res_y;

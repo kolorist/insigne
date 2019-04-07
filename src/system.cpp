@@ -111,29 +111,25 @@ void initialize_render_thread()
 				SIZE_MB(g_settings.frame_render_allocator_size_mb));
 		detail::g_frame_draw_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 				SIZE_MB(g_settings.frame_draw_allocator_size_mb));
-		// TODO: hardcode!!!
-		detail::g_render_command_buffer[i].init(16u, &g_persistance_allocator);
+		detail::g_render_command_buffer[i].init(MAX_RENDER_COMMANDS_IN_BUFFER, &g_persistance_allocator);
 	}
 	// shading
 	for (u32 i = 0; i < BUFFERS_COUNT; i++) {
 		detail::g_frame_shader_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 				SIZE_MB(g_settings.frame_shader_allocator_size_mb));
-		// TODO: hardcode!!!
-		detail::g_shading_command_buffer[i].init(16u, &g_persistance_allocator);
+		detail::g_shading_command_buffer[i].init(MAX_SHADING_COMMANDS_IN_BUFFER, &g_persistance_allocator);
 	}
 	// buffers
 	for (u32 i = 0; i < BUFFERS_COUNT; i++) {
 		detail::g_frame_buffers_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 				SIZE_MB(g_settings.frame_buffers_allocator_size_mb));
-		// TODO: hardcode!!!
-		detail::g_buffers_command_buffer[i].init(128u, &g_persistance_allocator);
+		detail::g_buffers_command_buffer[i].init(MAX_BUFFERS_COMMANDS_IN_BUFFER, &g_persistance_allocator);
 	}
 	// textures
 	for (u32 i = 0; i < BUFFERS_COUNT; i++) {
 		detail::g_frame_textures_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 				SIZE_MB(g_settings.frame_textures_allocator_size_mb));
-		// TODO: hardcode!!!
-		detail::g_textures_command_buffer[i].init(128u, &g_persistance_allocator);
+		detail::g_textures_command_buffer[i].init(MAX_TEXTURES_COMMANDS_IN_BUFFER, &g_persistance_allocator);
 	}
 	// ---
 
