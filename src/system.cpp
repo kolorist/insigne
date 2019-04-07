@@ -2,6 +2,11 @@
 
 #include <lotus/profiler.h>
 
+#include <thread/mutex.h>
+#include <thread/condition_variable.h>
+
+#include <atomic>
+
 #include "insigne/configs.h"
 #include "insigne/counters.h"
 #include "insigne/generated_code/proxy.h"
@@ -12,6 +17,12 @@
 #include "insigne/detail/rt_render.h"
 
 namespace insigne {
+
+std::atomic_bool s_is_initialized(false);
+
+bool s_resumed;
+floral::mutex s_resumed_mtx;
+floral::condition_variable s_resumed_cdv;
 
 // ---------------------------------------------
 void initialize_renderer()
@@ -27,35 +38,56 @@ void initialize_renderer()
 	pxBindVertexArray(vao);
 }
 
+void check_and_pause()
+{
+	floral::lock_guard guard(s_resumed_mtx);
+	while (!s_resumed)
+	{
+		s_resumed_cdv.wait(s_resumed_mtx);
+	}
+}
+
+void dispatch_frame()
+{
+	size toSubmitCmdBuff = -1;
+	const bool hasCmdBuff = detail::g_waiting_cmdbuffs.try_pop_into(toSubmitCmdBuff);
+	if (hasCmdBuff)
+	{
+		detail::process_shading_command_buffer(toSubmitCmdBuff);
+		detail::process_buffers_command_buffer(toSubmitCmdBuff);
+		detail::process_textures_command_buffer(toSubmitCmdBuff);
+
+		bool swapBuffersThisPass = detail::process_render_command_buffer(toSubmitCmdBuff);
+		detail::process_draw_command_buffer(toSubmitCmdBuff);
+
+		if (swapBuffersThisPass) {
+			swap_buffers();
+			g_global_counters.current_frame_idx.fetch_add(1, std::memory_order_relaxed);
+			detail::g_scene_presented.store(true);
+		}
+	}
+	else
+	{
+		detail::g_is_dispatching.store(false, std::memory_order_relaxed);
+	}
+}
+
 void render_thread_func(voidptr i_data)
 {
 	// profiler init
 	lotus::init_capture_for_this_thread(1, "render_thread");
 	create_main_context();
 	initialize_renderer();
-	detail::g_init_condvar.notify_one();
+	s_is_initialized.store(true, std::memory_order_release);
 
-	while (true) {
-
-		while (detail::g_render_paused.load());
-
-		while (detail::g_context_dirty.load()) {
-			refresh_context();
+	while (true)
+	{
+		while (!detail::g_is_dispatching.load(std::memory_order_acquire))
+		{
+			check_and_pause();
 		}
 
-		size toSubmitCmdBuff = detail::g_waiting_cmdbuffs.wait_and_pop();
-
-		detail::process_shading_command_buffer(toSubmitCmdBuff);
-		detail::process_buffers_command_buffer(toSubmitCmdBuff);
-		detail::process_textures_command_buffer(toSubmitCmdBuff);
-		bool swapThisRenderPass = detail::process_render_command_buffer(toSubmitCmdBuff);
-		detail::process_draw_command_buffer(toSubmitCmdBuff);
-
-		if (swapThisRenderPass) {
-			swap_buffers();
-			g_global_counters.current_frame_idx.fetch_add(1);
-			detail::g_scene_presented.store(true);
-		}
+		dispatch_frame();
 	}
 }
 
@@ -69,7 +101,7 @@ void initialize_render_thread()
 {
 	g_global_counters.current_render_frame_idx = 0;
 	g_global_counters.current_submit_frame_idx = 0;
-	g_global_counters.current_frame_idx.store(0);
+	g_global_counters.current_frame_idx.store(0, std::memory_order_relaxed);
 	g_debug_global_counters.submitted_frames = 0;
 	g_debug_global_counters.rendered_frames = 0;
 
@@ -107,8 +139,14 @@ void initialize_render_thread()
 
 	detail::g_composing_cmdbuff = 0;
 	detail::g_scene_presented = true;
-	detail::g_render_paused = false;
 	detail::g_context_dirty = true;
+
+	detail::g_is_dispatching.store(false, std::memory_order_relaxed);
+	s_is_initialized.store(false, std::memory_order_relaxed);
+	{
+		floral::lock_guard guard(s_resumed_mtx);
+		s_resumed = false;
+	}
 
 	g_render_thread.entry_point = &insigne::render_thread_func;
 	g_render_thread.ptr_data = nullptr;
@@ -117,17 +155,22 @@ void initialize_render_thread()
 
 void pause_render_thread()
 {
-	detail::g_render_paused.store(true);
+	floral::lock_guard guard(s_resumed_mtx);
+	s_resumed = false;
 }
 
 void resume_render_thread()
 {
-	detail::g_render_paused.store(false);
+	floral::lock_guard guard(s_resumed_mtx);
+	s_resumed = true;
+	s_resumed_cdv.notify_one();
 }
 
 void wait_for_initialization()
 {
-	detail::g_init_condvar.wait(detail::g_init_mtx);
+	while (!s_is_initialized.load(std::memory_order_acquire))
+	{
+	}
 }
 
 }

@@ -8,9 +8,9 @@ floral::condition_variable						g_init_condvar;
 floral::mutex									g_init_mtx;
 
 size											g_composing_cmdbuff;
-std::atomic<bool>								g_scene_presented;
-std::atomic<bool>								g_render_paused;
-std::atomic<bool>								g_context_dirty;
+std::atomic_bool								g_scene_presented;
+std::atomic_bool								g_is_dispatching;
+std::atomic_bool								g_context_dirty;
 waiting_cmdbuffs_t								g_waiting_cmdbuffs;
 
 // render---------------------------------------

@@ -97,6 +97,7 @@ void mark_present_render()
 void dispatch_render_pass()
 {
 	detail::g_waiting_cmdbuffs.wait_and_push(detail::g_composing_cmdbuff);
+	detail::g_is_dispatching.store(true, std::memory_order_relaxed);
 
 	detail::g_composing_cmdbuff = (detail::g_composing_cmdbuff + 1) % BUFFERS_COUNT;
 	cleanup_shading_module();

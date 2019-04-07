@@ -16,9 +16,9 @@ extern floral::condition_variable				g_init_condvar;
 extern floral::mutex							g_init_mtx;
 
 extern size										g_composing_cmdbuff;
-extern std::atomic<bool>						g_scene_presented;
-extern std::atomic<bool>						g_render_paused;
-extern std::atomic<bool>						g_context_dirty;
+extern std::atomic_bool							g_scene_presented;
+extern std::atomic_bool							g_is_dispatching;
+extern std::atomic_bool							g_context_dirty;
 
 typedef floral::inplaced_ring_buffer_mt_spsc<size, BUFFERS_COUNT - 2> waiting_cmdbuffs_t;
 extern waiting_cmdbuffs_t						g_waiting_cmdbuffs;
