@@ -5,9 +5,9 @@
 #else
 #endif
 
-#include <stdaliases.h>
-#include <thread/mutex.h>
-#include <thread/thread.h>
+#include <floral/stdaliases.h>
+#include <floral/thread/mutex.h>
+#include <floral/thread/thread.h>
 
 namespace insigne {
 

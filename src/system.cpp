@@ -1,12 +1,5 @@
 #include "insigne/system.h"
 
-#include <lotus/profiler.h>
-
-#include <thread/mutex.h>
-#include <thread/condition_variable.h>
-
-#include <atomic>
-
 #include "insigne/configs.h"
 #include "insigne/counters.h"
 #include "insigne/generated_code/proxy.h"
@@ -15,6 +8,13 @@
 #include "insigne/detail/rt_buffers.h"
 #include "insigne/detail/rt_textures.h"
 #include "insigne/detail/rt_render.h"
+
+#include <lotus/profiler.h>
+
+#include <floral/thread/mutex.h>
+#include <floral/thread/condition_variable.h>
+
+#include <atomic>
 
 namespace insigne {
 

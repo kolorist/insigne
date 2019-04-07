@@ -1,7 +1,7 @@
 #pragma once
 
 // from floral
-#include <stdaliases.h>
+#include <floral/stdaliases.h>
 
 typedef u32										GLenum;
 typedef u8										GLboolean;
