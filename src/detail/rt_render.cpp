@@ -124,6 +124,7 @@ template <>
 void set_cull_face<false_type>(const face_side_e i_faceSide, const front_face_e i_frontFace)
 {
 	pxDisable(GL_CULL_FACE);
+	pxFrontFace(s_front_faces[(s32)i_frontFace]);
 }
 
 template <>
