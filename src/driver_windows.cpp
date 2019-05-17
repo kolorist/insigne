@@ -95,10 +95,10 @@ void create_main_context()
 	const GLubyte* rendererStr = pxGetString(GL_RENDERER);
 
 	CLOVER_VERBOSE("OGL information:			\
-		\nOpenGL version: %s				\
-		\nGLSL version: %s					\
-		\nVendor: %s						\
-		\nRenderer: %s", verStr, glslStr, vendorStr, rendererStr);
+		\n\tOpenGL version: %s				\
+		\n\tGLSL version: %s					\
+		\n\tVendor: %s						\
+		\n\tRenderer: %s", verStr, glslStr, vendorStr, rendererStr);
 
 	strcpy(debugInfo.renderer_name, (const char*)rendererStr);
 	strcpy(debugInfo.vendor_name, (const char*)vendorStr);
@@ -113,6 +113,8 @@ void create_main_context()
 	for (GLint i = 0; i < numExtension; i++)
 	{
 		const GLubyte* extStr = pxGetStringi(GL_EXTENSIONS, i);
+		CLOVER_VERBOSE("Ext %d: %s", i, extStr);
+
 		strcpy(debugInfo.extensions[i], (const char*)extStr);
 	}
 

@@ -2,7 +2,7 @@
 
 #include <clover.h>
 
-#include <platform/android/system.h>
+#include <calyx/platform/android/system.h>
 
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/oglapis.h"
@@ -11,6 +11,9 @@
 #include <android/native_window_jni.h>
 
 namespace insigne {
+
+static ANativeWindow* s_cachedNativeWindow = nullptr;
+static EGLint s_format;
 
 voidptr get_api_address(const_cstr funcName)
 {
@@ -33,6 +36,13 @@ void initialize_driver()
 void create_main_context()
 {
 	using namespace calyx;
+	using namespace calyx::platform::android;
+
+	android_context_attribs* androidCtx = get_android_context_attribs();
+	context_attribs* commonCtx = get_context_attribs();
+
+	s_cachedNativeWindow = androidCtx->native_window;
+
 	const EGLint attribs[] = {
 		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
 		EGL_BLUE_SIZE, 8,
@@ -47,29 +57,33 @@ void create_main_context()
 	const EGLint ctAttribs[] = {
 		EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
 
-	EGLint format;
+	//EGLint format;
 	EGLint numConfigs;
 
-	g_android_context_attribs.display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-	eglInitialize(g_android_context_attribs.display, 0, 0);
+	androidCtx->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+	eglInitialize(androidCtx->display, 0, 0);
 
-	eglChooseConfig(g_android_context_attribs.display, attribs, &g_android_context_attribs.config, 1, &numConfigs);
-	eglGetConfigAttrib(g_android_context_attribs.display, g_android_context_attribs.config, EGL_NATIVE_VISUAL_ID, &format);
+	eglChooseConfig(androidCtx->display, attribs, &androidCtx->config, 1, &numConfigs);
+	eglGetConfigAttrib(androidCtx->display, androidCtx->config, EGL_NATIVE_VISUAL_ID, &s_format);
 
-	ANativeWindow_setBuffersGeometry(g_android_context_attribs.native_window, 1280, 720, format);
+	ANativeWindow_setBuffersGeometry(
+			androidCtx->native_window,
+			commonCtx->window_width,
+			commonCtx->window_height,
+			s_format);
 
-	g_android_context_attribs.surface = eglCreateWindowSurface(g_android_context_attribs.display,
-			g_android_context_attribs.config, g_android_context_attribs.native_window, 0);
-	g_android_context_attribs.main_context = eglCreateContext(g_android_context_attribs.display, g_android_context_attribs.config,
+	androidCtx->surface = eglCreateWindowSurface(androidCtx->display,
+			androidCtx->config, androidCtx->native_window, 0);
+	androidCtx->main_context = eglCreateContext(androidCtx->display, androidCtx->config,
 			EGL_NO_CONTEXT, ctAttribs);
-	eglMakeCurrent(g_android_context_attribs.display,
-			g_android_context_attribs.surface,
-			g_android_context_attribs.surface,
-			g_android_context_attribs.main_context);
+	eglMakeCurrent(androidCtx->display,
+			androidCtx->surface,
+			androidCtx->surface,
+			androidCtx->main_context);
 
 	EGLint width = 0, height = 0;
-	eglQuerySurface(g_android_context_attribs.display, g_android_context_attribs.surface, EGL_WIDTH, &width);
-	eglQuerySurface(g_android_context_attribs.display, g_android_context_attribs.surface, EGL_HEIGHT, &height);
+	eglQuerySurface(androidCtx->display, androidCtx->surface, EGL_WIDTH, &width);
+	eglQuerySurface(androidCtx->display, androidCtx->surface, EGL_HEIGHT, &height);
 
 	gl_debug_info& debugInfo = get_driver_info();
 	memset(&debugInfo, 0, sizeof(gl_debug_info));
@@ -88,10 +102,10 @@ void create_main_context()
 	strcpy(debugInfo.glsl_version, (const char*)glslStr);
 
 	CLOVER_VERBOSE("OGL information:			\
-		\nOpenGL version: %s				\
-		\nGLSL version: %s					\
-		\nVendor: %s						\
-		\nRenderer: %s", verStr, glslStr, vendorStr, rendererStr);
+		\n\tOpenGL version: %s				\
+		\n\tGLSL version: %s					\
+		\n\tVendor: %s						\
+		\n\tRenderer: %s", verStr, glslStr, vendorStr, rendererStr);
 
 	GLint numExtension = 0;
 	pxGetIntegerv(GL_NUM_EXTENSIONS, &numExtension);
@@ -105,33 +119,57 @@ void create_main_context()
 		strcpy(debugInfo.extensions[i], (const char*)extStr);
 	}
 
-	detail::g_context_dirty.store(false);
+	GLint ubOffsetAlignment = 0;
+	GLint ubMaxBinding = 0;
+	GLint ubMaxBlockSize = 0;
+	pxGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &ubOffsetAlignment);
+	pxGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &ubMaxBinding);
+	pxGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &ubMaxBlockSize);
+	CLOVER_VERBOSE("Uniform Buffer Specifications:\
+			\n\tOffset Alignment: %d\
+			\n\tMax Bindings Count: %d\
+			\n\tMax Uniform Block Size: %d",
+			ubOffsetAlignment, ubMaxBinding, ubMaxBlockSize);
 }
 
 void refresh_context()
 {
 	using namespace calyx;
-	if (!g_android_context_attribs.native_window) {
+	using namespace calyx::platform::android;
+	android_context_attribs* androidCtx = get_android_context_attribs();
+	context_attribs* commonCtx = get_context_attribs();
+
+	if (!androidCtx->native_window) {
 		return;
 	}
 
+	if (s_cachedNativeWindow == androidCtx->native_window)
+	{
+		return;
+	}
+	s_cachedNativeWindow = androidCtx->native_window;
+
 	// destroy the old one
-	eglMakeCurrent(g_android_context_attribs.display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-	eglDestroySurface(g_android_context_attribs.display, g_android_context_attribs.surface);
-	g_android_context_attribs.surface = EGL_NO_SURFACE;
+	eglMakeCurrent(androidCtx->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+	eglDestroySurface(androidCtx->display, androidCtx->surface);
+	androidCtx->surface = EGL_NO_SURFACE;
+
+	ANativeWindow_setBuffersGeometry(
+			androidCtx->native_window,
+			commonCtx->window_width,
+			commonCtx->window_height,
+			s_format);
 
 	// create a new one
-	g_android_context_attribs.surface = eglCreateWindowSurface(g_android_context_attribs.display,
-			g_android_context_attribs.config, g_android_context_attribs.native_window, 0);
+	androidCtx->surface = eglCreateWindowSurface(androidCtx->display,
+			androidCtx->config, androidCtx->native_window, 0);
 
-	eglMakeCurrent(g_android_context_attribs.display,
-			g_android_context_attribs.surface,
-			g_android_context_attribs.surface,
-			g_android_context_attribs.main_context);
+	eglMakeCurrent(androidCtx->display,
+			androidCtx->surface,
+			androidCtx->surface,
+			androidCtx->main_context);
 
 	CLOVER_VERBOSE("Finished refreshing GL Surface.");
-
-	detail::g_context_dirty.store(false);
 }
 
 void create_shared_context()
@@ -140,8 +178,10 @@ void create_shared_context()
 
 void swap_buffers()
 {
-	using namespace calyx;
-	eglSwapBuffers(g_android_context_attribs.display, g_android_context_attribs.surface);
+	using namespace calyx::platform::android;
+	android_context_attribs* androidCtx = get_android_context_attribs();
+
+	eglSwapBuffers(androidCtx->display, androidCtx->surface);
 }
 
 }

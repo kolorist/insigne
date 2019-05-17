@@ -9,6 +9,8 @@
 #include "insigne/detail/rt_textures.h"
 #include "insigne/detail/rt_render.h"
 
+#include <clover/Logger.h>
+
 #include <lotus/profiler.h>
 
 #include <floral/thread/mutex.h>
@@ -43,7 +45,10 @@ void check_and_pause()
 	floral::lock_guard guard(s_resumed_mtx);
 	while (!s_resumed)
 	{
+		CLOVER_VERBOSE("Render thread paused");
 		s_resumed_cdv.wait(s_resumed_mtx);
+		insigne::refresh_context();
+		CLOVER_VERBOSE("Render thread resumed");
 	}
 }
 
@@ -76,6 +81,10 @@ void render_thread_func(voidptr i_data)
 {
 	// profiler init
 	lotus::init_capture_for_this_thread(1, "render_thread");
+
+	CLOVER_INIT_THIS_THREAD("render_thread", clover::LogLevel::Verbose);
+	CLOVER_VERBOSE("Render Thread started");
+
 	create_main_context();
 	initialize_renderer();
 	s_is_initialized.store(true, std::memory_order_release);
@@ -160,6 +169,13 @@ void resume_render_thread()
 	floral::lock_guard guard(s_resumed_mtx);
 	s_resumed = true;
 	s_resumed_cdv.notify_one();
+}
+
+void wait_finish_dispatching()
+{
+	while (detail::g_is_dispatching.load(std::memory_order_acquire))
+	{
+	}
 }
 
 void wait_for_initialization()
