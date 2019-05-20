@@ -20,11 +20,11 @@
 
 namespace insigne {
 
-std::atomic_bool s_is_initialized(false);
+static std::atomic_bool s_is_initialized(false);
 
-bool s_resumed;
-floral::mutex s_resumed_mtx;
-floral::condition_variable s_resumed_cdv;
+static bool s_resumed;
+static floral::mutex s_resumed_mtx;
+static floral::condition_variable s_resumed_cdv;
 
 // ---------------------------------------------
 void initialize_renderer()
@@ -42,7 +42,7 @@ void initialize_renderer()
 
 void check_and_pause()
 {
-	floral::lock_guard guard(s_resumed_mtx);
+	floral::lock_guard2 guard(s_resumed_mtx);
 	while (!s_resumed)
 	{
 		CLOVER_VERBOSE("Render thread paused");
@@ -68,18 +68,17 @@ void dispatch_frame()
 		if (swapBuffersThisPass) {
 			swap_buffers();
 			g_global_counters.current_frame_idx.fetch_add(1, std::memory_order_relaxed);
+			// to avoid bubbles in the command buffer queue: if there is bubble, the rendering pipeline
+			// will be hanged
+			detail::g_is_dispatching.store(false, std::memory_order_relaxed);
 			detail::g_scene_presented.store(true);
 		}
 	}
-	else
-	{
-		detail::g_is_dispatching.store(false, std::memory_order_relaxed);
-	}
 }
 
+	// profiler init
 void render_thread_func(voidptr i_data)
 {
-	// profiler init
 	lotus::init_capture_for_this_thread(1, "render_thread");
 
 	CLOVER_INIT_THIS_THREAD("render_thread", clover::LogLevel::Verbose);
