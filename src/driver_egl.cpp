@@ -40,8 +40,12 @@ void create_main_context()
 
 	android_context_attribs* androidCtx = get_android_context_attribs();
 	context_attribs* commonCtx = get_context_attribs();
+	system_info_t* systemInfo = get_system_info();
 
 	s_cachedNativeWindow = androidCtx->native_window;
+
+	systemInfo->primary_screen_width = ANativeWindow_getWidth(s_cachedNativeWindow);
+	systemInfo->primary_screen_height = ANativeWindow_getHeight(s_cachedNativeWindow);
 
 	const EGLint attribs[] = {
 		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
@@ -89,7 +93,9 @@ void create_main_context()
 	memset(&debugInfo, 0, sizeof(gl_debug_info));
 
 	// informations
-	CLOVER_INFO("NativeSurface resolution: %d x %d", width, height);
+	CLOVER_INFO("system_info.primary_screen_width: %d", systemInfo->primary_screen_width);
+	CLOVER_INFO("system_info.primary_screen_height: %d", systemInfo->primary_screen_height);
+	CLOVER_INFO("Render resolution: %d x %d", width, height);
 
 	const GLubyte* verStr = pxGetString(GL_VERSION);
 	const GLubyte* glslStr = pxGetString(GL_SHADING_LANGUAGE_VERSION);
