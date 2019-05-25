@@ -14,7 +14,9 @@ namespace insigne {
 static HMODULE								s_ogl_module;
 
 typedef HGLRC								(_stdcall *wglCreateContextAttribsARB_t)(HDC i_hDC, HGLRC i_hShareContext, const int* i_attribList);
+typedef BOOL								(_stdcall *wglSwapIntervalEXT_t)(int interval);
 static wglCreateContextAttribsARB_t			wglCreateContextAttribsARB;
+static wglSwapIntervalEXT_t					wglSwapIntervalEXT;
 
 voidptr get_api_address(const_cstr funcName)
 {
@@ -36,6 +38,7 @@ void initialize_apis()
 #	include "insigne/generated_code/helpers.h"
 #undef	API_HELPER
 	wglCreateContextAttribsARB = (wglCreateContextAttribsARB_t)get_api_address("wglCreateContextAttribsARB");
+	wglSwapIntervalEXT = (wglSwapIntervalEXT_t)get_api_address("wglSwapIntervalEXT");
 }
 
 void initialize_driver()
@@ -85,6 +88,8 @@ void create_main_context()
 	};
 	g_gl_context.main_context = wglCreateContextAttribsARB(g_gl_context.dc, 0, attribs);
 	wglMakeCurrent(g_gl_context.dc, g_gl_context.main_context);
+
+	wglSwapIntervalEXT(1);
 
 	gl_debug_info& debugInfo = get_driver_info();
 	memset(&debugInfo, 0, sizeof(gl_debug_info));
