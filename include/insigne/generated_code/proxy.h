@@ -156,4 +156,6 @@ void pxReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format
 
 void pxReadBuffer(GLenum src);
 
+void pxPolygonMode(GLenum face, GLenum mode);
+
 }

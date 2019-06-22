@@ -241,4 +241,7 @@ extern glReadPixels_t glReadPixels;
 typedef APICALL void (APIENTRY *glReadBuffer_t)(GLenum src);
 extern glReadBuffer_t glReadBuffer;
 
+typedef APICALL void (APIENTRY *glPolygonMode_t)(GLenum face, GLenum mode);
+extern glPolygonMode_t glPolygonMode;
+
 }

@@ -81,6 +81,12 @@ static GLenum s_gl_data_types[] = {
 	GL_UNSIGNED_INT_24_8
 };
 
+static GLenum s_polygon_modes[] = {
+	GL_POINT,
+	GL_LINE,
+	GL_FILL
+};
+
 // -----------------------------------------
 void clear_color(const floral::vec4f& i_color)
 {
@@ -166,6 +172,11 @@ template <>
 void set_stencil_test<false_type>(const compare_func_e i_func, const u32 i_mask, const s32 i_ref, const operation_e i_sfail, const operation_e i_dpfail, const operation_e i_dppass)
 {
 	pxDisable(GL_STENCIL_TEST);
+}
+
+void set_polygon_mode(const polygon_mode_e i_mode)
+{
+	pxPolygonMode(GL_FRONT_AND_BACK, s_polygon_modes[(s32)i_mode]);
 }
 
 void enable_vertex_attrib(const u32 i_location)

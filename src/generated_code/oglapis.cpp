@@ -151,4 +151,6 @@ glReadPixels_t glReadPixels;
 
 glReadBuffer_t glReadBuffer;
 
+glPolygonMode_t glPolygonMode;
+
 }

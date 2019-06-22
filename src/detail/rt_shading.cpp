@@ -19,7 +19,7 @@ inline detail::gpu_command_buffer_t& get_shading_command_buffer(const size i_cmd
 /* ut */
 const shader_handle_t create_shader(const insigne::shader_desc_t& i_desc)
 {
-	u32 idx = g_shaders_pool.get_size();
+	size idx = g_shaders_pool.get_size();
 	g_shaders_pool.push_back(shader_desc_t());
 
 	shader_desc_t& desc = g_shaders_pool[idx];
@@ -29,12 +29,12 @@ const shader_handle_t create_shader(const insigne::shader_desc_t& i_desc)
 
 	// we have to create material_template here because user may infuse a material
 	// right after calling create_shader()
-	for (u32 i = 0; i < i_desc.reflection.textures->get_size(); i++) {
+	for (size i = 0; i < i_desc.reflection.textures->get_size(); i++) {
 		const_cstr pName = i_desc.reflection.textures->at(i).name;
 		desc.material_template.textures.push_back(floral::crc_string(pName));
 	}
 
-	for (u32 i = 0; i < i_desc.reflection.uniform_blocks->get_size(); i++) {
+	for (size i = 0; i < i_desc.reflection.uniform_blocks->get_size(); i++) {
 		const_cstr pName = i_desc.reflection.uniform_blocks->at(i).name;
 		desc.material_template.uniform_blocks.push_back(floral::crc_string(pName));
 	}

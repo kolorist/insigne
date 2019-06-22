@@ -148,3 +148,5 @@ API_HELPER(void, ReadPixels);
 
 API_HELPER(void, ReadBuffer);
 
+API_HELPER(void, PolygonMode);
+

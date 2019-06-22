@@ -34,10 +34,6 @@ void assert_driver_no_error()
 			CLOVER_DEBUG("Something wrong with the driver!");
 			break;
 	}
-	if (error != GL_NO_ERROR) {
-		volatile int* ptr = nullptr;
-		*ptr = 10;
-	}
 }
 
 void assert_framebuffer_completed()
@@ -504,6 +500,12 @@ void pxReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format
 void pxReadBuffer(GLenum src)
 {
 	glReadBuffer(src);
+	assert_driver_no_error();
+}
+
+void pxPolygonMode(GLenum face, GLenum mode)
+{
+	glPolygonMode(face, mode);
 	assert_driver_no_error();
 }
 

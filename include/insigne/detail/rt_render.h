@@ -23,6 +23,7 @@ template <typename t_switch>
 void											set_scissor_test(const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
 template <typename t_switch>
 void											set_stencil_test(const compare_func_e i_func, const u32 i_mask, const s32 i_ref, const operation_e i_sfail, const operation_e i_dpfail, const operation_e i_dppass);
+void											set_polygon_mode(const polygon_mode_e i_mode);
 
 void 											enable_vertex_attrib(const u32 i_location);
 void 											describe_vertex_data(const u32 i_location, const s32 i_size,

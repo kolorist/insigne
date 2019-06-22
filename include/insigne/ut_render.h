@@ -11,10 +11,12 @@
 namespace insigne {
 
 // render entrypoint----------------------------
-void											begin_frame();
 /* GPU synchronization point
  * 	wait for SwapBuffer()
  */
+void											begin_frame();
+void											begin_frame(const u32 i_maxWaitCycle);
+
 void											end_frame();
 
 // renderpass entrypoint------------------------

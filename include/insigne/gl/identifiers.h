@@ -249,6 +249,7 @@ typedef void									GLvoid;
 
 /* Framebuffer */
 #define GL_FRAMEBUFFER                    0x8D40
+#define GL_FRAMEBUFFER_SRGB               0x8DB9
 #define GL_COLOR_ATTACHMENT0              0x8CE0
 #define GL_COLOR_ATTACHMENT1              0x8CE1
 #define GL_COLOR_ATTACHMENT2              0x8CE2
@@ -268,3 +269,8 @@ typedef void									GLvoid;
 #define GL_FRAMEBUFFER_UNSUPPORTED        0x8CDD
 #define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE 0x8D56
 #define GL_FRAMEBUFFER_COMPLETE           0x8CD5
+
+/* PolygonMode */
+#define GL_POINT                          0x1B00
+#define GL_LINE                           0x1B01
+#define GL_FILL                           0x1B02

@@ -42,7 +42,7 @@ void initialize_renderer()
 
 void check_and_pause()
 {
-	floral::lock_guard2 guard(s_resumed_mtx);
+	floral::lock_guard guard(s_resumed_mtx);
 	while (!s_resumed)
 	{
 		CLOVER_VERBOSE("Render thread paused");

@@ -71,6 +71,12 @@ enum class blend_equation_e {
 	func_max
 };
 
+enum class polygon_mode_e {
+	point = 0,
+	line,
+	fill
+};
+
 enum class factor_e {
 	fact_zero = 0,
 	fact_one,
