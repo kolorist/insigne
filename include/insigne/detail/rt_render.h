@@ -39,6 +39,7 @@ const texture_handle_t							extract_depth_stencil_attachment(const framebuffer_
 
 // ---------------------------------------------
 void											initialize_render_module();
+void											cleanup_render_module();
 const bool										process_render_command_buffer(const size i_cmdBuffId);
 void											process_draw_command_buffer(const size i_cmdBuffId);
 

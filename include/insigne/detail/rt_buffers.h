@@ -5,8 +5,10 @@
 #include "../commands.h"
 #include "types.h"
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
 
 typedef floral::fixed_array<vbdesc_t, linear_allocator_t>	vbs_pool_t;
 typedef floral::fixed_array<ibdesc_t, linear_allocator_t>	ibs_pool_t;
@@ -22,6 +24,7 @@ const ub_handle_t								create_ub(const insigne::ubdesc_t& i_desc); /* ut */
 
 // ---------------------------------------------
 inline void										initialize_buffers_module();
+void											cleanup_buffers_module();
 void											process_buffers_command_buffer(const size i_cmdBuffId);
 
 }

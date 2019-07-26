@@ -6,13 +6,13 @@
 
 API_HELPER(void, ActiveTexture);
 
-API_HELPER(void, ClearDepthf);
-
-API_HELPER(void, ColorMask);
-
 API_HELPER(void, AttachShader);
 
 API_HELPER(void, BindBuffer);
+
+API_HELPER(void, BindBufferBase);
+
+API_HELPER(void, BindBufferRange);
 
 API_HELPER(void, BindFramebuffer);
 
@@ -38,6 +38,10 @@ API_HELPER(void, Clear);
 
 API_HELPER(void, ClearColor);
 
+API_HELPER(void, ClearDepthf);
+
+API_HELPER(void, ColorMask);
+
 API_HELPER(void, CompileShader);
 
 API_HELPER(GLuint, CreateProgram);
@@ -48,9 +52,15 @@ API_HELPER(void, CullFace);
 
 API_HELPER(void, DeleteBuffers);
 
+API_HELPER(void, DeleteProgram);
+
 API_HELPER(void, DeleteShader);
 
 API_HELPER(void, DeleteVertexArrays);
+
+API_HELPER(void, DeleteFramebuffers);
+
+API_HELPER(void, DeleteTextures);
 
 API_HELPER(void, DepthFunc);
 
@@ -98,11 +108,19 @@ API_HELPER(const GLubyte*, GetString);
 
 API_HELPER(const GLubyte*, GetStringi);
 
+API_HELPER(GLuint, GetUniformBlockIndex);
+
 API_HELPER(GLint, GetUniformLocation);
 
 API_HELPER(void, LinkProgram);
 
 API_HELPER(void, PixelStorei);
+
+API_HELPER(void, PolygonMode);
+
+API_HELPER(void, ReadBuffer);
+
+API_HELPER(void, ReadPixels);
 
 API_HELPER(void, RenderbufferStorage);
 
@@ -118,15 +136,17 @@ API_HELPER(void, StencilOp);
 
 API_HELPER(void, TexImage2D);
 
-API_HELPER(void, TexStorage2D);
-
 API_HELPER(void, TexParameteri);
+
+API_HELPER(void, TexStorage2D);
 
 API_HELPER(void, Uniform1f);
 
 API_HELPER(void, Uniform1i);
 
 API_HELPER(void, Uniform3fv);
+
+API_HELPER(void, UniformBlockBinding);
 
 API_HELPER(void, UniformMatrix4fv);
 
@@ -135,18 +155,4 @@ API_HELPER(void, UseProgram);
 API_HELPER(void, VertexAttribPointer);
 
 API_HELPER(void, Viewport);
-
-API_HELPER(GLuint, GetUniformBlockIndex);
-
-API_HELPER(void, BindBufferBase);
-
-API_HELPER(void, BindBufferRange);
-
-API_HELPER(void, UniformBlockBinding);
-
-API_HELPER(void, ReadPixels);
-
-API_HELPER(void, ReadBuffer);
-
-API_HELPER(void, PolygonMode);
 

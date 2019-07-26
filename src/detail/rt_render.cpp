@@ -8,8 +8,12 @@
 #include "insigne/detail/rt_textures.h"
 #include "insigne/internal_states.h"
 
-namespace insigne {
-namespace detail {
+#include <clover/Logger.h>
+
+namespace insigne
+{
+namespace detail
+{
 
 framebuffers_pool_t								g_framebuffers_pool;
 
@@ -414,8 +418,23 @@ void initialize_render_module()
 }
 
 // ---------------------------------------------
+void cleanup_render_module()
+{
+	CLOVER_VERBOSE("Cleaning up render module...");
+	for (ssize i = 0; i < g_framebuffers_pool.get_size(); i++)
+	{
+		framebuffer_desc_t& framebufferDesc = g_framebuffers_pool[i];
+		CLOVER_VERBOSE("Deleting framebuffer id %d", framebufferDesc.gpu_handle);
+		pxDeleteFramebuffers(1, &framebufferDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Free %zd frame buffers", g_framebuffers_pool.get_size());
+	CLOVER_VERBOSE("Finished cleaning up render module...");
+}
+
+// ---------------------------------------------
 void process_draw_command_buffer(const size i_cmdBuffId)
 {
+	floral::lock_guard guard(detail::g_draw_config_mtx);
 	// geometry render phase
 	for (u32 i = 0; i < g_settings.surface_types_count; i++) {
 

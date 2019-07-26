@@ -129,6 +129,9 @@ void create_main_context()
 	pxGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &ubOffsetAlignment);
 	pxGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &ubMaxBinding);
 	pxGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &ubMaxBlockSize);
+	
+	pxDisable(GL_FRAMEBUFFER_SRGB);
+	
 	CLOVER_VERBOSE("Uniform Buffer Specifications:\
 			\n\tOffset Alignment: %d\
 			\n\tMax Bindings Count: %d\

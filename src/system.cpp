@@ -18,7 +18,9 @@
 
 #include <atomic>
 
-namespace insigne {
+namespace insigne
+{
+//----------------------------------------------
 
 static std::atomic_bool s_is_initialized(false);
 
@@ -26,8 +28,12 @@ static bool s_resumed;
 static floral::mutex s_resumed_mtx;
 static floral::condition_variable s_resumed_cdv;
 
-// ---------------------------------------------
-void initialize_renderer()
+static std::atomic_bool s_stopped(false);
+static GLuint s_vao;
+
+//----------------------------------------------
+
+static void initialize_renderer()
 {
 	detail::initialize_shading_module();
 	detail::initialize_buffers_module();
@@ -35,10 +41,23 @@ void initialize_renderer()
 	detail::initialize_render_module();
 
 	// do we really need this?
-	GLuint vao;
-	pxGenVertexArrays(1, &vao);
-	pxBindVertexArray(vao);
+	pxGenVertexArrays(1, &s_vao);
+	pxBindVertexArray(s_vao);
 }
+
+//----------------------------------------------
+
+static void cleanup_renderer()
+{
+	pxDeleteVertexArrays(1, &s_vao);
+
+	detail::cleanup_render_module();
+	detail::cleanup_textures_module();
+	detail::cleanup_buffers_module();
+	detail::cleanup_shading_module();
+}
+
+//----------------------------------------------
 
 void check_and_pause()
 {
@@ -88,7 +107,7 @@ void render_thread_func(voidptr i_data)
 	initialize_renderer();
 	s_is_initialized.store(true, std::memory_order_release);
 
-	while (true)
+	while (s_stopped.load(std::memory_order_acquire) != true)
 	{
 		while (!detail::g_is_dispatching.load(std::memory_order_acquire))
 		{
@@ -97,6 +116,11 @@ void render_thread_func(voidptr i_data)
 
 		dispatch_frame();
 	}
+
+	cleanup_renderer();
+	s_is_initialized.store(false, std::memory_order_release);
+
+	CLOVER_VERBOSE("Render Thread stopped");
 }
 
 // ---------------------------------------------
@@ -170,11 +194,24 @@ void resume_render_thread()
 	s_resumed_cdv.notify_one();
 }
 
+void clean_up_and_stop_render_thread()
+{
+	s_stopped.store(true, std::memory_order_release);
+	while (s_is_initialized.load(std::memory_order_acquire))
+	{
+	}
+}
+
 void wait_finish_dispatching()
 {
 	while (detail::g_is_dispatching.load(std::memory_order_acquire))
 	{
 	}
+}
+
+void unregister_all_surface_types()
+{
+
 }
 
 void wait_for_initialization()

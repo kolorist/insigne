@@ -35,6 +35,7 @@ extern arena_allocator_t*						g_frame_render_allocator[BUFFERS_COUNT];
 extern arena_allocator_t*						g_frame_draw_allocator[BUFFERS_COUNT];
 extern gpu_command_buffer_t						g_render_command_buffer[BUFFERS_COUNT];
 // draw-----------------------------------------
+extern floral::mutex							g_draw_config_mtx;
 extern floral::fixed_array<cmdbuffs_t, linear_allocator_t>	g_draw_command_buffers;
 // shading--------------------------------------
 extern arena_allocator_t*						g_frame_shader_allocator[BUFFERS_COUNT];

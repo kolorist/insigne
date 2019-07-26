@@ -257,6 +257,19 @@ void initialize_textures_module()
 	g_textures_pool.init(64u, &g_persistance_allocator);
 }
 
+void cleanup_textures_module()
+{
+	CLOVER_VERBOSE("Cleaning up textures module...");
+	for (ssize i = 0; i < g_textures_pool.get_size(); i++)
+	{
+		texture_desc_t& texDesc = g_textures_pool[i];
+		CLOVER_VERBOSE("Deleting texture id %d", texDesc.gpu_handle);
+		pxDeleteTextures(1, &texDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Free %zd textures", g_textures_pool.get_size());
+	CLOVER_VERBOSE("Finished cleaning up textures module...");
+}
+
 void process_textures_command_buffer(const size i_cmdBuffId)
 {
 	detail::gpu_command_buffer_t& cmdbuff = get_textures_command_buffer(i_cmdBuffId);

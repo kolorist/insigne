@@ -9,13 +9,13 @@ namespace insigne {
 
 glActiveTexture_t glActiveTexture;
 
-glClearDepthf_t glClearDepthf;
-
-glColorMask_t glColorMask;
-
 glAttachShader_t glAttachShader;
 
 glBindBuffer_t glBindBuffer;
+
+glBindBufferBase_t glBindBufferBase;
+
+glBindBufferRange_t glBindBufferRange;
 
 glBindFramebuffer_t glBindFramebuffer;
 
@@ -41,6 +41,10 @@ glClear_t glClear;
 
 glClearColor_t glClearColor;
 
+glClearDepthf_t glClearDepthf;
+
+glColorMask_t glColorMask;
+
 glCompileShader_t glCompileShader;
 
 glCreateProgram_t glCreateProgram;
@@ -51,9 +55,15 @@ glCullFace_t glCullFace;
 
 glDeleteBuffers_t glDeleteBuffers;
 
+glDeleteProgram_t glDeleteProgram;
+
 glDeleteShader_t glDeleteShader;
 
 glDeleteVertexArrays_t glDeleteVertexArrays;
+
+glDeleteFramebuffers_t glDeleteFramebuffers;
+
+glDeleteTextures_t glDeleteTextures;
 
 glDepthFunc_t glDepthFunc;
 
@@ -101,11 +111,19 @@ glGetString_t glGetString;
 
 glGetStringi_t glGetStringi;
 
+glGetUniformBlockIndex_t glGetUniformBlockIndex;
+
 glGetUniformLocation_t glGetUniformLocation;
 
 glLinkProgram_t glLinkProgram;
 
 glPixelStorei_t glPixelStorei;
+
+glPolygonMode_t glPolygonMode;
+
+glReadBuffer_t glReadBuffer;
+
+glReadPixels_t glReadPixels;
 
 glRenderbufferStorage_t glRenderbufferStorage;
 
@@ -121,15 +139,17 @@ glStencilOp_t glStencilOp;
 
 glTexImage2D_t glTexImage2D;
 
-glTexStorage2D_t glTexStorage2D;
-
 glTexParameteri_t glTexParameteri;
+
+glTexStorage2D_t glTexStorage2D;
 
 glUniform1f_t glUniform1f;
 
 glUniform1i_t glUniform1i;
 
 glUniform3fv_t glUniform3fv;
+
+glUniformBlockBinding_t glUniformBlockBinding;
 
 glUniformMatrix4fv_t glUniformMatrix4fv;
 
@@ -138,19 +158,5 @@ glUseProgram_t glUseProgram;
 glVertexAttribPointer_t glVertexAttribPointer;
 
 glViewport_t glViewport;
-
-glGetUniformBlockIndex_t glGetUniformBlockIndex;
-
-glBindBufferBase_t glBindBufferBase;
-
-glBindBufferRange_t glBindBufferRange;
-
-glUniformBlockBinding_t glUniformBlockBinding;
-
-glReadPixels_t glReadPixels;
-
-glReadBuffer_t glReadBuffer;
-
-glPolygonMode_t glPolygonMode;
 
 }

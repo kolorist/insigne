@@ -14,13 +14,13 @@ void assert_framebuffer_completed();
 
 void pxActiveTexture(GLenum texture);
 
-void pxClearDepthf(GLfloat depth);
-
-void pxColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-
 void pxAttachShader(GLuint program, GLuint shader);
 
 void pxBindBuffer(GLenum target, GLuint buffer);
+
+void pxBindBufferBase(GLenum target, GLuint index, GLuint buffer);
+
+void pxBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
 
 void pxBindFramebuffer(GLenum target, GLuint framebuffer);
 
@@ -46,6 +46,10 @@ void pxClear(GLbitfield mask);
 
 void pxClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 
+void pxClearDepthf(GLfloat depth);
+
+void pxColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+
 void pxCompileShader(GLuint shader);
 
 GLuint pxCreateProgram();
@@ -56,9 +60,15 @@ void pxCullFace(GLenum mode);
 
 void pxDeleteBuffers(GLsizei n, const GLuint* buffers);
 
+void pxDeleteProgram(GLuint program);
+
 void pxDeleteShader(GLuint shader);
 
 void pxDeleteVertexArrays(GLsizei n, const GLuint* arrays);
+
+void pxDeleteFramebuffers(GLsizei n, GLuint* framebuffers);
+
+void pxDeleteTextures(GLsizei n, const GLuint* textures);
 
 void pxDepthFunc(GLenum func);
 
@@ -106,11 +116,19 @@ const GLubyte* pxGetString(GLenum name);
 
 const GLubyte* pxGetStringi(GLenum name, GLuint index);
 
+GLuint pxGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
+
 GLint pxGetUniformLocation(GLuint program, const GLchar* name);
 
 void pxLinkProgram(GLuint program);
 
 void pxPixelStorei(GLenum pname, GLint param);
+
+void pxPolygonMode(GLenum face, GLenum mode);
+
+void pxReadBuffer(GLenum src);
+
+void pxReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data);
 
 void pxRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 
@@ -126,15 +144,17 @@ void pxStencilOp(GLenum sfail, GLenum dpfail, GLenum dppass);
 
 void pxTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data);
 
-void pxTexStorage2D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height);
-
 void pxTexParameteri(GLenum target, GLenum pname, GLint param);
+
+void pxTexStorage2D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height);
 
 void pxUniform1f(GLint location, GLfloat v0);
 
 void pxUniform1i(GLint location, GLint v0);
 
 void pxUniform3fv(GLint location, GLsizei count, const GLfloat* value);
+
+void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 
 void pxUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
 
@@ -143,19 +163,5 @@ void pxUseProgram(GLuint program);
 void pxVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
 
 void pxViewport(GLint x, GLint y, GLsizei width, GLsizei height);
-
-GLuint pxGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
-
-void pxBindBufferBase(GLenum target, GLuint index, GLuint buffer);
-
-void pxBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
-
-void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
-
-void pxReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data);
-
-void pxReadBuffer(GLenum src);
-
-void pxPolygonMode(GLenum face, GLenum mode);
 
 }

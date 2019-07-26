@@ -1,10 +1,11 @@
 #include "insigne/detail/rt_shading.h"
 
-#include <clover.h>
-
 #include "insigne/memory.h"
 #include "insigne/generated_code/proxy.h"
 #include "insigne/internal_states.h"
+
+#include <clover/SinkTopic.h>
+#include <clover/Logger.h>
 
 namespace insigne {
 namespace detail {
@@ -158,6 +159,21 @@ void infuse_material(const shader_handle_t i_hdl, insigne::material_desc_t& o_ma
 }
 
 // ---------------------------------------------
+void cleanup_shading_module()
+{
+	CLOVER_VERBOSE("Cleaning up shading module...");
+	for (ssize i = 0; i < g_shaders_pool.get_size(); i++)
+	{
+		shader_desc_t& shaderDesc = g_shaders_pool[i];
+		CLOVER_VERBOSE("Deleting shader id %d: '%s' - '%s'",
+				shaderDesc.gpu_handle,
+				shaderDesc.vs_path.pm_PathStr, shaderDesc.fs_path.pm_PathStr);
+		pxDeleteProgram(shaderDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Free %zd shaders", g_shaders_pool.get_size());
+	CLOVER_VERBOSE("Finished cleaning up shading module...");
+}
+
 void process_shading_command_buffer(const size i_cmdBuffId)
 {
 	detail::gpu_command_buffer_t& cmdbuff = get_shading_command_buffer(i_cmdBuffId);

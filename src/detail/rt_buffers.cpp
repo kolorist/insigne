@@ -4,6 +4,8 @@
 #include "insigne/generated_code/proxy.h"
 #include "insigne/internal_states.h"
 
+#include <clover/Logger.h>
+
 /*
  * NOTE: we will not make shadow copy of vertex or index data for the command buffer for now
  * because it will consume too much memory and the copy operation may take a very long time with huge data
@@ -174,6 +176,33 @@ void stream_ub_data(const ub_handle_t i_hdl, const voidptr i_data, const size i_
 }
 
 // ---------------------------------------------
+void cleanup_buffers_module()
+{
+	CLOVER_VERBOSE("Cleaning up buffers module...");
+	for (ssize i = 0; i < g_vbs_pool.get_size(); i++)
+	{
+		vbdesc_t& vbDesc = g_vbs_pool[i];
+		CLOVER_VERBOSE("Deleting vertex buffer id %d : %zd bytes", vbDesc.gpu_handle, vbDesc.region_size);
+		pxDeleteBuffers(1, &vbDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Free %zd vertex buffers", g_vbs_pool.get_size());
+	for (ssize i = 0; i < g_ibs_pool.get_size(); i++)
+	{
+		ibdesc_t& ibDesc = g_ibs_pool[i];
+		CLOVER_VERBOSE("Deleting index buffer id %d : %zd bytes", ibDesc.gpu_handle, ibDesc.region_size);
+		pxDeleteBuffers(1, &ibDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Free %zd index buffers", g_ibs_pool.get_size());
+	for (ssize i = 0; i < g_ubs_pool.get_size(); i++)
+	{
+		ubdesc_t& ubDesc = g_ubs_pool[i];
+		CLOVER_VERBOSE("Deleting uniform buffer id %d : %zd bytes", ubDesc.gpu_handle, ubDesc.region_size);
+		pxDeleteBuffers(1, &ubDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Free %zd uniform buffers", g_ubs_pool.get_size());
+	CLOVER_VERBOSE("Finished cleaning up buffers module...");
+}
+
 void process_buffers_command_buffer(const size i_cmdBuffId)
 {
 	detail::gpu_command_buffer_t& cmdbuff = get_buffers_command_buffer(i_cmdBuffId);

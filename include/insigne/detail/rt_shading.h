@@ -10,8 +10,10 @@
 // rt = render thread
 // NOTE: if does not comment, these functions can and will only be executed in render thread internally
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
 
 typedef floral::fixed_array<shader_desc_t, linear_allocator_t>	shaders_pool_t;
 
@@ -23,6 +25,7 @@ void											infuse_material(const shader_handle_t i_hdl, insigne::material_de
 
 // ---------------------------------------------
 inline void										initialize_shading_module();
+void											cleanup_shading_module();
 void											process_shading_command_buffer(const size i_cmdBuffId);
 
 }

@@ -68,18 +68,6 @@ void pxActiveTexture(GLenum texture)
 	assert_driver_no_error();
 }
 
-void pxClearDepthf(GLfloat depth)
-{
-	glClearDepthf(depth);
-	assert_driver_no_error();
-}
-
-void pxColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
-{
-	glColorMask(red, green, blue, alpha);
-	assert_driver_no_error();
-}
-
 void pxAttachShader(GLuint program, GLuint shader)
 {
 	glAttachShader(program, shader);
@@ -89,6 +77,18 @@ void pxAttachShader(GLuint program, GLuint shader)
 void pxBindBuffer(GLenum target, GLuint buffer)
 {
 	glBindBuffer(target, buffer);
+	assert_driver_no_error();
+}
+
+void pxBindBufferBase(GLenum target, GLuint index, GLuint buffer)
+{
+	glBindBufferBase(target, index, buffer);
+	assert_driver_no_error();
+}
+
+void pxBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+{
+	glBindBufferRange(target, index, buffer, offset, size);
 	assert_driver_no_error();
 }
 
@@ -165,6 +165,18 @@ void pxClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 	assert_driver_no_error();
 }
 
+void pxClearDepthf(GLfloat depth)
+{
+	glClearDepthf(depth);
+	assert_driver_no_error();
+}
+
+void pxColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+{
+	glColorMask(red, green, blue, alpha);
+	assert_driver_no_error();
+}
+
 void pxCompileShader(GLuint shader)
 {
 	glCompileShader(shader);
@@ -197,6 +209,12 @@ void pxDeleteBuffers(GLsizei n, const GLuint* buffers)
 	assert_driver_no_error();
 }
 
+void pxDeleteProgram(GLuint program)
+{
+	glDeleteProgram(program);
+	assert_driver_no_error();
+}
+
 void pxDeleteShader(GLuint shader)
 {
 	glDeleteShader(shader);
@@ -206,6 +224,18 @@ void pxDeleteShader(GLuint shader)
 void pxDeleteVertexArrays(GLsizei n, const GLuint* arrays)
 {
 	glDeleteVertexArrays(n, arrays);
+	assert_driver_no_error();
+}
+
+void pxDeleteFramebuffers(GLsizei n, GLuint* framebuffers)
+{
+	glDeleteFramebuffers(n, framebuffers);
+	assert_driver_no_error();
+}
+
+void pxDeleteTextures(GLsizei n, const GLuint* textures)
+{
+	glDeleteTextures(n, textures);
 	assert_driver_no_error();
 }
 
@@ -351,6 +381,13 @@ const GLubyte* pxGetStringi(GLenum name, GLuint index)
 	return ret;
 }
 
+GLuint pxGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName)
+{
+	GLuint ret = glGetUniformBlockIndex(program, uniformBlockName);
+	assert_driver_no_error();
+	return ret;
+}
+
 GLint pxGetUniformLocation(GLuint program, const GLchar* name)
 {
 	GLint ret = glGetUniformLocation(program, name);
@@ -367,6 +404,24 @@ void pxLinkProgram(GLuint program)
 void pxPixelStorei(GLenum pname, GLint param)
 {
 	glPixelStorei(pname, param);
+	assert_driver_no_error();
+}
+
+void pxPolygonMode(GLenum face, GLenum mode)
+{
+	glPolygonMode(face, mode);
+	assert_driver_no_error();
+}
+
+void pxReadBuffer(GLenum src)
+{
+	glReadBuffer(src);
+	assert_driver_no_error();
+}
+
+void pxReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data)
+{
+	glReadPixels(x, y, width, height, format, type, data);
 	assert_driver_no_error();
 }
 
@@ -412,15 +467,15 @@ void pxTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
 	assert_driver_no_error();
 }
 
-void pxTexStorage2D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height)
-{
-	glTexStorage2D(target, levels, internalFormat, width, height);
-	assert_driver_no_error();
-}
-
 void pxTexParameteri(GLenum target, GLenum pname, GLint param)
 {
 	glTexParameteri(target, pname, param);
+	assert_driver_no_error();
+}
+
+void pxTexStorage2D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height)
+{
+	glTexStorage2D(target, levels, internalFormat, width, height);
 	assert_driver_no_error();
 }
 
@@ -439,6 +494,12 @@ void pxUniform1i(GLint location, GLint v0)
 void pxUniform3fv(GLint location, GLsizei count, const GLfloat* value)
 {
 	glUniform3fv(location, count, value);
+	assert_driver_no_error();
+}
+
+void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+{
+	glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
 	assert_driver_no_error();
 }
 
@@ -463,49 +524,6 @@ void pxVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean norm
 void pxViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	glViewport(x, y, width, height);
-	assert_driver_no_error();
-}
-
-GLuint pxGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName)
-{
-	GLuint ret = glGetUniformBlockIndex(program, uniformBlockName);
-	assert_driver_no_error();
-	return ret;
-}
-
-void pxBindBufferBase(GLenum target, GLuint index, GLuint buffer)
-{
-	glBindBufferBase(target, index, buffer);
-	assert_driver_no_error();
-}
-
-void pxBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
-{
-	glBindBufferRange(target, index, buffer, offset, size);
-	assert_driver_no_error();
-}
-
-void pxUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
-{
-	glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
-	assert_driver_no_error();
-}
-
-void pxReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data)
-{
-	glReadPixels(x, y, width, height, format, type, data);
-	assert_driver_no_error();
-}
-
-void pxReadBuffer(GLenum src)
-{
-	glReadBuffer(src);
-	assert_driver_no_error();
-}
-
-void pxPolygonMode(GLenum face, GLenum mode)
-{
-	glPolygonMode(face, mode);
 	assert_driver_no_error();
 }
 
