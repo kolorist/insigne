@@ -24,17 +24,20 @@
 #define DYNAMIC_INDEX_BUFFER_PAGE_SIZE			1u << 20
 #define DYNAMIC_UNIFORM_BUFFER_PAGE_SIZE		1u << 20
 
-namespace insigne {
+namespace insigne
+{
 
 // -----------------------------------------
-struct settings_t {
+struct settings_t
+{
 	u32											frame_shader_allocator_size_mb;
 	u32											frame_buffers_allocator_size_mb;
 	u32											frame_textures_allocator_size_mb;
 	u32											frame_render_allocator_size_mb;
 	u32											frame_draw_allocator_size_mb;
 
-	u32											surface_types_count;
+	ssize										surface_types_count;
+	ssize										post_surface_types_count;
 
 	u32											native_res_x;
 	u32											native_res_y;

@@ -124,10 +124,18 @@ void render_thread_func(voidptr i_data)
 }
 
 // ---------------------------------------------
+
 void allocate_draw_command_buffers(const u32 i_maxSurfaceTypes)
 {
 	detail::g_draw_command_buffers.init(i_maxSurfaceTypes, &g_persistance_allocator);
 }
+
+void allocate_post_draw_command_buffers(const u32 i_maxSurfaceTypes)
+{
+	detail::g_post_draw_command_buffers.init(i_maxSurfaceTypes, &g_persistance_allocator);
+}
+
+//----------------------------------------------
 
 void initialize_render_thread()
 {

@@ -8,8 +8,10 @@
 #include "insigne/buffers.h"
 #include "insigne/memory.h"
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
 
 // synchronization
 extern floral::condition_variable				g_init_condvar;
@@ -37,6 +39,8 @@ extern gpu_command_buffer_t						g_render_command_buffer[BUFFERS_COUNT];
 // draw-----------------------------------------
 extern floral::mutex							g_draw_config_mtx;
 extern floral::fixed_array<cmdbuffs_t, linear_allocator_t>	g_draw_command_buffers;
+extern floral::mutex							g_post_draw_config_mtx;
+extern floral::fixed_array<cmdbuffs_t, linear_allocator_t>	g_post_draw_command_buffers;
 // shading--------------------------------------
 extern arena_allocator_t*						g_frame_shader_allocator[BUFFERS_COUNT];
 extern gpu_command_buffer_t						g_shading_command_buffer[BUFFERS_COUNT];
