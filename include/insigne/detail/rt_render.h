@@ -6,8 +6,10 @@
 #include "../memory.h"
 #include "insigne/detail/types.h"
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
 
 // ---------------------------------------------
 
@@ -42,6 +44,7 @@ void											initialize_render_module();
 void											cleanup_render_module();
 const bool										process_render_command_buffer(const size i_cmdBuffId);
 void											process_draw_command_buffer(const size i_cmdBuffId);
+void											process_post_draw_command_buffer(const size i_cmdBuffId);
 
 }
 }

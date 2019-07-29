@@ -30,11 +30,13 @@ namespace insigne
 // -----------------------------------------
 struct settings_t
 {
-	u32											frame_shader_allocator_size_mb;
-	u32											frame_buffers_allocator_size_mb;
-	u32											frame_textures_allocator_size_mb;
-	u32											frame_render_allocator_size_mb;
-	u32											frame_draw_allocator_size_mb;
+	size										frame_shader_allocator_size_mb;
+	size										frame_buffers_allocator_size_mb;
+	size										frame_textures_allocator_size_mb;
+	size										frame_render_allocator_size_mb;
+	size										frame_draw_allocator_size_mb;
+	size										draw_cmdbuff_arena_size_mb;
+	size										post_draw_cmdbuff_arena_size_mb;
 
 	ssize										surface_types_count;
 	ssize										post_surface_types_count;

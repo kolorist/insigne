@@ -14,7 +14,7 @@ void register_surface_type()
 	detail::cmdbuffs_t& cmdbuff = detail::g_draw_command_buffers[idx];
 	for (ssize i = 0; i < BUFFERS_COUNT; i++)
 	{
-		cmdbuff.command_buffer[i].reserve(t_surface::draw_calls_budget, &g_persistance_allocator);
+		cmdbuff.command_buffer[i].reserve(t_surface::draw_calls_budget, detail::g_draw_cmdbuff_arena);
 	}
 	cmdbuff.states_setup_func = &t_surface::setup_states;
 	cmdbuff.vertex_data_setup_func = &t_surface::describe_vertex_data;
@@ -60,14 +60,14 @@ void register_post_surface_type()
 	detail::cmdbuffs_t& cmdbuff = detail::g_post_draw_command_buffers[idx];
 	for (ssize i = 0; i < BUFFERS_COUNT; i++)
 	{
-		cmdbuff.command_buffer[i].reserve(t_surface::draw_calls_budget, &g_persistance_allocator);
+		cmdbuff.command_buffer[i].reserve(t_surface::draw_calls_budget, detail::g_post_draw_cmdbuff_arena);
 	}
 	cmdbuff.states_setup_func = &t_surface::setup_states;
 	cmdbuff.vertex_data_setup_func = &t_surface::describe_vertex_data;
 	cmdbuff.geometry_mode = t_surface::geometry_mode;
 
 	g_settings.post_surface_types_count++;
-	t_surface::index = idx;
+	t_surface::index = idx | 0x8000;
 }
 
 template <typename t_surface>
@@ -77,7 +77,7 @@ void unregister_post_surface_type()
 	using namespace detail;
 	
 	ssize cmdBuffSize = g_post_draw_command_buffers.get_size();
-	ssize toRemoveCmdBuffIdx = t_surface::index;
+	ssize toRemoveCmdBuffIdx = t_surface::index & 0x7FFF;
 
 	FLORAL_ASSERT(cmdBuffSize - 1 == toRemoveCmdBuffIdx);
 	if (toRemoveCmdBuffIdx == cmdBuffSize - 1)

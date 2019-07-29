@@ -3,7 +3,8 @@
 
 #include "detail/rt_render.h"
 
-namespace insigne {
+namespace insigne
+{
 
 // -----------------------------------------
 template <typename t_surface>

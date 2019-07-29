@@ -2,6 +2,8 @@
 
 #include <lotus/profiler.h>
 
+#include <floral/math/utils.h>
+
 #include "insigne/internal_states.h"
 #include "insigne/counters.h"
 #include "insigne/commands.h"
@@ -12,16 +14,24 @@
 namespace insigne {
 
 // ---------------------------------------------
-static inline arena_allocator_t* get_composing_allocator() {
+static inline arena_allocator_t* get_composing_allocator()
+{
 	return detail::g_frame_render_allocator[detail::g_composing_cmdbuff];
 }
 
-static inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
+static inline detail::gpu_command_buffer_t& get_composing_command_buffer()
+{
 	return detail::g_render_command_buffer[detail::g_composing_cmdbuff];
 }
 
-static inline detail::gpu_command_buffer_t& get_composing_draw_command_buffer(const u32 i_surfaceTypeIdx) {
+static inline detail::gpu_command_buffer_t& get_composing_draw_command_buffer(const ssize i_surfaceTypeIdx)
+{
 	return detail::g_draw_command_buffers[i_surfaceTypeIdx].command_buffer[detail::g_composing_cmdbuff];
+}
+
+static inline detail::gpu_command_buffer_t& get_composing_post_draw_command_buffer(const ssize i_surfaceTypeIdx)
+{
+	return detail::g_post_draw_command_buffers[i_surfaceTypeIdx].command_buffer[detail::g_composing_cmdbuff];
 }
 
 // ---------------------------------------------
@@ -34,12 +44,20 @@ static inline void push_command(const render_command_t& i_cmd)
 	get_composing_command_buffer().push_back(newCmd);
 }
 
-void push_draw_command(const u32 i_surfaceTypeIdx, const draw_command_t& i_cmd)
+void push_draw_command(const ssize i_surfaceTypeIdx, const draw_command_t& i_cmd)
 {
 	gpu_command newCmd;
 	newCmd.opcode = command::draw_command;
 	newCmd.deserialize(i_cmd);
-	get_composing_draw_command_buffer(i_surfaceTypeIdx).push_back(newCmd);
+	if (TEST_BIT(i_surfaceTypeIdx, 0x8000))
+	{
+		ssize surfaceTypeIdx = i_surfaceTypeIdx & 0x7FFF;
+		get_composing_post_draw_command_buffer(surfaceTypeIdx).push_back(newCmd);
+	}
+	else
+	{
+		get_composing_draw_command_buffer(i_surfaceTypeIdx).push_back(newCmd);
+	}
 }
 
 // render entrypoint----------------------------

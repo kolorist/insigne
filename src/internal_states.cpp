@@ -21,7 +21,7 @@ gpu_command_buffer_t							g_render_command_buffer[BUFFERS_COUNT];
 floral::mutex									g_draw_config_mtx;
 floral::fixed_array<cmdbuffs_t, linear_allocator_t>	g_draw_command_buffers;
 floral::mutex									g_post_draw_config_mtx;
-floral::fixed_array<cmdbuffs_t, linear_allocator_t> g_post_draw_command_buffers;
+floral::fixed_array<cmdbuffs_t, linear_allocator_t>	g_post_draw_command_buffers;
 // shading--------------------------------------
 arena_allocator_t*								g_frame_shader_allocator[BUFFERS_COUNT];
 gpu_command_buffer_t							g_shading_command_buffer[BUFFERS_COUNT];

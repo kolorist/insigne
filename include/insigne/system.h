@@ -14,6 +14,8 @@ void											pause_render_thread();
 void											resume_render_thread();
 void											clean_up_and_stop_render_thread();
 void											wait_finish_dispatching();
+
+void											organize_memory();
 void											allocate_draw_command_buffers(const u32 i_maxSurfaceTypes);
 void											allocate_post_draw_command_buffers(const u32 i_maxSurfaceTypes);
 

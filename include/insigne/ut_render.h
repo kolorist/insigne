@@ -8,7 +8,8 @@
 #include "commands.h"
 #include "detail/rt_render.h"
 
-namespace insigne {
+namespace insigne
+{
 
 // render entrypoint----------------------------
 /* GPU synchronization point
@@ -62,7 +63,8 @@ void											setup_scissor(const bool i_enabled, const s32 i_x = 0, const s32 
 
 // ---------------------------------------------
 void											cleanup_render_module();
-void											push_draw_command(const u32 i_surfaceTypeIdx, const draw_command_t& i_cmd);
+void											push_draw_command(const ssize i_surfaceTypeIdx, const draw_command_t& i_cmd);
+
 }
 
 #include "ut_render.hpp"

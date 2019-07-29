@@ -83,6 +83,7 @@ void dispatch_frame()
 
 		bool swapBuffersThisPass = detail::process_render_command_buffer(toSubmitCmdBuff);
 		detail::process_draw_command_buffer(toSubmitCmdBuff);
+		detail::process_post_draw_command_buffer(toSubmitCmdBuff);
 
 		if (swapBuffersThisPass) {
 			swap_buffers();
@@ -125,14 +126,28 @@ void render_thread_func(voidptr i_data)
 
 // ---------------------------------------------
 
+void organize_memory()
+{
+	FLORAL_ASSERT_MSG(detail::g_draw_cmdbuff_arena == nullptr, "Already initialize g_draw_cmdbuff_arena");
+	FLORAL_ASSERT_MSG(detail::g_post_draw_cmdbuff_arena == nullptr, "Already initialize g_post_draw_cmdbuff_arena");
+	FLORAL_ASSERT_MSG(g_settings.draw_cmdbuff_arena_size_mb > 0, "Invalid size for g_draw_cmdbuff_arena");
+	FLORAL_ASSERT_MSG(g_settings.post_draw_cmdbuff_arena_size_mb > 0, "Invalid size for g_post_draw_cmdbuff_arena");
+	detail::g_draw_cmdbuff_arena = g_persistance_allocator.allocate_arena<linear_allocator_t>(
+			SIZE_MB(g_settings.draw_cmdbuff_arena_size_mb));
+	detail::g_post_draw_cmdbuff_arena = g_persistance_allocator.allocate_arena<linear_allocator_t>(
+			SIZE_MB(g_settings.post_draw_cmdbuff_arena_size_mb));
+}
+
 void allocate_draw_command_buffers(const u32 i_maxSurfaceTypes)
 {
-	detail::g_draw_command_buffers.init(i_maxSurfaceTypes, &g_persistance_allocator);
+	FLORAL_ASSERT(detail::g_draw_cmdbuff_arena != nullptr);
+	detail::g_draw_command_buffers.init(i_maxSurfaceTypes, detail::g_draw_cmdbuff_arena);
 }
 
 void allocate_post_draw_command_buffers(const u32 i_maxSurfaceTypes)
 {
-	detail::g_post_draw_command_buffers.init(i_maxSurfaceTypes, &g_persistance_allocator);
+	FLORAL_ASSERT(detail::g_draw_cmdbuff_arena != nullptr);
+	detail::g_post_draw_command_buffers.init(i_maxSurfaceTypes, detail::g_post_draw_cmdbuff_arena);
 }
 
 //----------------------------------------------
