@@ -254,7 +254,7 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 void initialize_textures_module()
 {
 	// TODO: hardcode!!!
-	g_textures_pool.init(64u, &g_persistance_allocator);
+	//g_textures_pool.init(64u, &g_persistance_allocator);
 }
 
 void cleanup_textures_module()
@@ -267,6 +267,7 @@ void cleanup_textures_module()
 		pxDeleteTextures(1, &texDesc.gpu_handle);
 	}
 	CLOVER_VERBOSE("Free %zd textures", g_textures_pool.get_size());
+	g_textures_pool.~textures_pool_t();
 	CLOVER_VERBOSE("Finished cleaning up textures module...");
 }
 

@@ -6,7 +6,8 @@
 #include "configs.h"
 #include "internal_states.h"
 
-namespace insigne {
+namespace insigne
+{
 
 // ---------------------------------------------
 void											initialize_render_thread();

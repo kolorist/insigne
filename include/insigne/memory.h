@@ -21,6 +21,7 @@ namespace detail
 {
 extern linear_allocator_t*						g_draw_cmdbuff_arena;
 extern linear_allocator_t*						g_post_draw_cmdbuff_arena;
+extern linear_allocator_t*						g_resource_arena;
 }
 
 }

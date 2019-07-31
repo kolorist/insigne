@@ -414,7 +414,7 @@ inline detail::gpu_command_buffer_t& get_render_command_buffer(const size i_cmdB
 void initialize_render_module()
 {
 	// create default framebuffer desc
-	g_framebuffers_pool.init(32u, &g_persistance_allocator);
+	//g_framebuffers_pool.init(32u, &g_persistance_allocator);
 }
 
 // ---------------------------------------------
@@ -428,6 +428,7 @@ void cleanup_render_module()
 		pxDeleteFramebuffers(1, &framebufferDesc.gpu_handle);
 	}
 	CLOVER_VERBOSE("Free %zd frame buffers", g_framebuffers_pool.get_size());
+	g_framebuffers_pool.~framebuffers_pool_t();
 	CLOVER_VERBOSE("Finished cleaning up render module...");
 }
 

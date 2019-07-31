@@ -128,6 +128,7 @@ void render_thread_func(voidptr i_data)
 
 void organize_memory()
 {
+	// draw buffers partition
 	FLORAL_ASSERT_MSG(detail::g_draw_cmdbuff_arena == nullptr, "Already initialize g_draw_cmdbuff_arena");
 	FLORAL_ASSERT_MSG(detail::g_post_draw_cmdbuff_arena == nullptr, "Already initialize g_post_draw_cmdbuff_arena");
 	FLORAL_ASSERT_MSG(g_settings.draw_cmdbuff_arena_size_mb > 0, "Invalid size for g_draw_cmdbuff_arena");
@@ -136,6 +137,30 @@ void organize_memory()
 			SIZE_MB(g_settings.draw_cmdbuff_arena_size_mb));
 	detail::g_post_draw_cmdbuff_arena = g_persistance_allocator.allocate_arena<linear_allocator_t>(
 			SIZE_MB(g_settings.post_draw_cmdbuff_arena_size_mb));
+
+	// scene memory partition
+	FLORAL_ASSERT_MSG(g_scene_settings.max_shaders > 0, "Invalid max shaders config");
+	FLORAL_ASSERT_MSG(g_scene_settings.max_ubos > 0, "Invalid max UBO config");
+	FLORAL_ASSERT_MSG(g_scene_settings.max_ibos > 0, "Invalid max IBO config");
+	FLORAL_ASSERT_MSG(g_scene_settings.max_vbos > 0, "Invalid max VBO config");
+	FLORAL_ASSERT_MSG(g_scene_settings.max_textures > 0, "Invalid max textures config");
+	FLORAL_ASSERT_MSG(g_scene_settings.max_fbos > 0, "Invalid max FBO config");
+	FLORAL_ASSERT_MSG(detail::g_resource_arena == nullptr, "Already initialize g_resource_arena");
+
+	size requiredMemory =
+		helich::stack_scheme<helich::no_tracking_policy>::get_real_data_size(g_scene_settings.max_shaders * sizeof(detail::shader_desc_t)) +
+		helich::stack_scheme<helich::no_tracking_policy>::get_real_data_size(g_scene_settings.max_ubos * sizeof(detail::ubdesc_t)) +
+		helich::stack_scheme<helich::no_tracking_policy>::get_real_data_size(g_scene_settings.max_ibos * sizeof(detail::ibdesc_t)) +
+		helich::stack_scheme<helich::no_tracking_policy>::get_real_data_size(g_scene_settings.max_vbos * sizeof(detail::vbdesc_t)) +
+		helich::stack_scheme<helich::no_tracking_policy>::get_real_data_size(g_scene_settings.max_textures * sizeof(detail::texture_desc_t)) +
+		helich::stack_scheme<helich::no_tracking_policy>::get_real_data_size(g_scene_settings.max_fbos * sizeof(detail::framebuffer_desc_t));
+	detail::g_resource_arena = g_persistance_allocator.allocate_arena<linear_allocator_t>(requiredMemory);
+	detail::g_shaders_pool.reserve(g_scene_settings.max_shaders, detail::g_resource_arena);
+	detail::g_vbs_pool.reserve(g_scene_settings.max_vbos, detail::g_resource_arena);
+	detail::g_ibs_pool.reserve(g_scene_settings.max_ibos, detail::g_resource_arena);
+	detail::g_ubs_pool.reserve(g_scene_settings.max_ubos, detail::g_resource_arena);
+	detail::g_textures_pool.reserve(g_scene_settings.max_textures, detail::g_resource_arena);
+	detail::g_framebuffers_pool.reserve(g_scene_settings.max_fbos, detail::g_resource_arena);
 }
 
 void allocate_draw_command_buffers(const u32 i_maxSurfaceTypes)

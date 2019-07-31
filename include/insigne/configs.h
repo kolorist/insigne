@@ -46,4 +46,14 @@ struct settings_t
 };
 extern settings_t								g_settings;
 
+// ---------------------------------------------
+struct scene_settings_t
+{
+	ssize										max_shaders;
+	ssize										max_ubos, max_ibos, max_vbos;
+	ssize										max_textures;
+	ssize										max_fbos;
+};
+extern scene_settings_t							g_scene_settings;
+
 }
