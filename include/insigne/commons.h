@@ -234,13 +234,13 @@ struct color_attachment_t {
 typedef floral::fixed_array<shader_param_t, arena_allocator_t>		shader_param_list_t;
 typedef floral::fixed_array<color_attachment_t, arena_allocator_t>	color_attachment_list_t;
 
-typedef s32										shader_handle_t;
-typedef s32										texture_handle_t;
-typedef s32										framebuffer_handle_t;
-typedef s32										color_attachment_id;
-typedef s32										vb_handle_t;
-typedef s32										ib_handle_t;
-typedef s32										ub_handle_t;
+typedef ssize									shader_handle_t;
+typedef ssize									texture_handle_t;
+typedef ssize									framebuffer_handle_t;
+typedef ssize									color_attachment_id;
+typedef ssize									vb_handle_t;
+typedef ssize									ib_handle_t;
+typedef ssize									ub_handle_t;
 typedef s32										pb_handle_t;
 
 // ---------------------------------------------

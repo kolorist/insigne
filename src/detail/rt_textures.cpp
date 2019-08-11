@@ -17,12 +17,19 @@ inline detail::gpu_command_buffer_t& get_textures_command_buffer(const size i_cm
 }
 
 // ---------------------------------------------
+/* ut */
 const texture_handle_t create_texture()
 {
 	u32 idx = g_textures_pool.get_size();
 	g_textures_pool.push_back(texture_desc_t());
 
 	return texture_handle_t(idx);
+}
+
+/* ut */
+const texture_handle_t get_last_texture()
+{
+	return g_textures_pool.get_size() - 1;
 }
 
 // ---------------------------------------------
@@ -250,6 +257,18 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 	texDesc.gpu_handle = newTexture;
 }
 
+static void clean_up_snapshot(const texture_handle_t i_textureHandle)
+{
+	CLOVER_VERBOSE("Cleaning up textures snapshot...");
+	while (i_textureHandle != g_textures_pool.get_size() - 1)
+	{
+		texture_desc_t texDesc = g_textures_pool.pop_back();
+		CLOVER_VERBOSE("Deleting texture id %d", texDesc.gpu_handle);
+		pxDeleteTextures(1, &texDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Finished cleaning up textures snapshot");
+}
+
 // ---------------------------------------------
 void initialize_textures_module()
 {
@@ -280,13 +299,25 @@ void process_textures_command_buffer(const size i_cmdBuffId)
 
 		switch (gpuCmd.opcode) {
 			case command::textures_command:
-				{
-					textures_command_t cmd;
-					gpuCmd.serialize(cmd);
+			{
+				textures_command_t cmd;
+				gpuCmd.serialize(cmd);
 
-					upload_texture(cmd.create_texture_data.texture_handle, cmd.create_texture_data.desc);
-					break;
+				switch (cmd.command_type) {
+					case textures_command_type_e::create_texture:
+					{
+						upload_texture(cmd.create_texture_data.texture_handle, cmd.create_texture_data.desc);
+						break;
+					}
+					case textures_command_type_e::clean_up_snapshot:
+					{
+						clean_up_snapshot(cmd.clean_up_snapshot_data.downto_handle);
+						break;
+					}
+					default:
+						break;
 				}
+			}
 			default:
 				break;
 		}

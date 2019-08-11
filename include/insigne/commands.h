@@ -74,7 +74,8 @@ struct draw_command_t {
 // textures-------------------------------------
 enum class textures_command_type_e {
 	invalid = 0,
-	create_texture
+	create_texture,
+	clean_up_snapshot
 };
 
 struct textures_command_t {
@@ -85,13 +86,18 @@ struct textures_command_t {
 			texture_handle_t					texture_handle;
 			insigne::texture_desc_t				desc;
 		} create_texture_data;
+		// clean_up_snapshot
+		struct {
+			texture_handle_t					downto_handle;
+		} clean_up_snapshot_data;
 	};
 };
 
 // shading--------------------------------------
 enum class shading_command_type_e {
 	invalid = 0,
-	shader_compile
+	shader_compile,
+	clean_up_snapshot
 };
 
 struct shading_command_t {
@@ -102,7 +108,11 @@ struct shading_command_t {
 			shader_handle_t						shader_handle;
 			const_cstr							vs, fs;
 			shader_reflection_t					reflection;
-		};
+		} shader_compile_data;
+		// clean_up_snapshot
+		struct {
+			shader_handle_t						downto_handle;
+		} clean_up_snapshot_data;
 	};
 };
 
@@ -114,7 +124,8 @@ enum class buffers_command_type_e {
 	create_ub_buffers,
 	stream_vb_data,
 	stream_ib_data,
-	stream_ub_data
+	stream_ub_data,
+	clean_up_snapshot
 };
 
 struct buffers_command_t {
@@ -156,6 +167,12 @@ struct buffers_command_t {
 			size								offset;
 			ub_handle_t							ub_handle;
 		} stream_ub_data;
+		// clean_up_snapshot
+		struct {
+			vb_handle_t							downto_vb;
+			ib_handle_t							downto_ib;
+			ub_handle_t							downto_ub;
+		} clean_up_snapshot_data;
 	};
 };
 

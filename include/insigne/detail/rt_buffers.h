@@ -19,8 +19,11 @@ extern ibs_pool_t								g_ibs_pool;
 extern ubs_pool_t								g_ubs_pool;
 
 const vb_handle_t								create_vb(const insigne::vbdesc_t& i_desc); /* ut */
+const vb_handle_t								get_last_vb();								/* ut */
 const ib_handle_t								create_ib(const insigne::ibdesc_t& i_desc); /* ut */
+const ib_handle_t								get_last_ib();								/* ut */
 const ub_handle_t								create_ub(const insigne::ubdesc_t& i_desc); /* ut */
+const ub_handle_t								get_last_ub();								/* ut */
 
 // ---------------------------------------------
 inline void										initialize_buffers_module();

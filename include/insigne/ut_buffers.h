@@ -17,6 +17,9 @@ void											copy_update_ib(const ib_handle_t i_hdl, voidptr i_data, const u32
 void											update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const size i_offset);
 void											copy_update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const size i_offset);
 
-void											cleanup_buffers_module();
+void											cleanup_buffers_module(); // not used
+
+ssize											get_buffers_resource_state();
+void											cleanup_buffers_resource(const ssize i_stateId);
 
 }

@@ -43,6 +43,12 @@ const shader_handle_t create_shader(const insigne::shader_desc_t& i_desc)
 	return shader_handle_t(idx);
 }
 
+/* ut */
+const shader_handle_t get_last_shader()
+{
+	return g_shaders_pool.get_size() - 1;
+}
+
 void compile_shader(shader_desc_t& io_desc, const_cstr i_vs, const_cstr i_fs, const shader_reflection_t& i_refl)
 {
 	LOG_TOPIC("rt_shading");
@@ -158,6 +164,20 @@ void infuse_material(const shader_handle_t i_hdl, insigne::material_desc_t& o_ma
 	}
 }
 
+static void clean_up_snapshot(const shader_handle_t i_shaderHandle)
+{
+	CLOVER_VERBOSE("Cleaning up shading snapshot...");
+	while (i_shaderHandle != g_shaders_pool.get_size() - 1)
+	{
+		shader_desc_t shaderDesc = g_shaders_pool.pop_back();
+		CLOVER_VERBOSE("Deleting shader id %d: '%s' - '%s'",
+				shaderDesc.gpu_handle,
+				shaderDesc.vs_path.pm_PathStr, shaderDesc.fs_path.pm_PathStr);
+		pxDeleteProgram(shaderDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Finished cleaning up shading snapshot");
+}
+
 // ---------------------------------------------
 void cleanup_shading_module()
 {
@@ -184,15 +204,29 @@ void process_shading_command_buffer(const size i_cmdBuffId)
 
 		switch (gpuCmd.opcode) {
 			case command::shading_command:
-				{
-					shading_command_t cmd;
-					gpuCmd.serialize(cmd);
-					// compile!!!
-					shader_desc_t& shaderDesc = g_shaders_pool[s32(cmd.shader_handle)];
-					compile_shader(shaderDesc, cmd.vs, cmd.fs, cmd.reflection);
-
-					break;
+			{
+				shading_command_t cmd;
+				gpuCmd.serialize(cmd);
+				switch (cmd.command_type) {
+					case shading_command_type_e::shader_compile:
+					{
+						shader_desc_t& shaderDesc = g_shaders_pool[s32(cmd.shader_compile_data.shader_handle)];
+						compile_shader(shaderDesc,
+								cmd.shader_compile_data.vs,
+								cmd.shader_compile_data.fs,
+								cmd.shader_compile_data.reflection);
+						break;
+					}
+					case shading_command_type_e::clean_up_snapshot:
+					{
+						clean_up_snapshot(cmd.clean_up_snapshot_data.downto_handle);
+						break;
+					}
+					default:
+						break;
 				}
+				break;
+			}
 
 			default:
 				break;

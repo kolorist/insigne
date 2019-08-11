@@ -10,6 +10,15 @@
 namespace insigne {
 
 // ---------------------------------------------
+
+struct shading_resource_snapshot_t
+{
+	shader_handle_t								handle;
+};
+
+static floral::inplace_array<shading_resource_snapshot_t, 8>	s_resource_snapshots;
+
+// ---------------------------------------------
 static inline arena_allocator_t* get_composing_allocator() {
 	return detail::g_frame_shader_allocator[detail::g_composing_cmdbuff];
 }
@@ -53,10 +62,10 @@ const shader_handle_t create_shader(const shader_desc_t& i_desc)
 
 	shading_command_t cmd;
 	cmd.command_type = shading_command_type_e::shader_compile;
-	cmd.vs = i_desc.vs;
-	cmd.fs = i_desc.fs;
-	cmd.reflection = i_desc.reflection;
-	cmd.shader_handle = newShaderHdl;
+	cmd.shader_compile_data.vs = i_desc.vs;
+	cmd.shader_compile_data.fs = i_desc.fs;
+	cmd.shader_compile_data.reflection = i_desc.reflection;
+	cmd.shader_compile_data.shader_handle = newShaderHdl;
 
 	push_command(cmd);
 
@@ -71,6 +80,27 @@ void infuse_material(const shader_handle_t i_hdl, material_desc_t& o_mat)
 void cleanup_shading_module()
 {
 	get_composing_allocator()->free_all();
+}
+
+ssize get_shading_resource_state()
+{
+	ssize stateId = s_resource_snapshots.get_size();
+	shading_resource_snapshot_t newSnapshot;
+	newSnapshot.handle = detail::get_last_shader();
+	s_resource_snapshots.push_back(newSnapshot);
+	return stateId;
+}
+
+void cleanup_shading_resource(const ssize i_stateId)
+{
+	FLORAL_ASSERT_MSG(i_stateId == s_resource_snapshots.get_size() - 1, "Clean up shading module does not according to snapshot order");
+	const shading_resource_snapshot_t snapShot = s_resource_snapshots.pop_back();
+
+	shading_command_t cmd;
+	cmd.command_type = shading_command_type_e::clean_up_snapshot;
+	cmd.clean_up_snapshot_data.downto_handle = snapShot.handle;
+
+	push_command(cmd);
 }
 
 }

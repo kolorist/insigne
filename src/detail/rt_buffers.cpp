@@ -33,38 +33,53 @@ static GLenum s_buffer_usage[] = {
 /* ut */
 const vb_handle_t create_vb(const insigne::vbdesc_t& i_desc)
 {
-	u32 idx = g_vbs_pool.get_size();
+	ssize idx = g_vbs_pool.get_size();
 	g_vbs_pool.push_back(vbdesc_t());
 
 	return vb_handle_t(idx);
 }
 
+const vb_handle_t get_last_vb()
+{
+	return g_vbs_pool.get_size() - 1;
+}
+
 const vbdesc_t& get_vb_desc(const vb_handle_t i_hdl)
 {
-	return g_vbs_pool[(u32)i_hdl];
+	return g_vbs_pool[i_hdl];
 }
 
 /* ut */
 const ib_handle_t create_ib(const insigne::ibdesc_t& i_desc)
 {
-	u32 idx = g_ibs_pool.get_size();
+	ssize idx = g_ibs_pool.get_size();
 	g_ibs_pool.push_back(ibdesc_t());
 
 	return ib_handle_t(idx);
 }
 
+const ib_handle_t get_last_ib()
+{
+	return g_ibs_pool.get_size() - 1;
+}
+
 const ibdesc_t& get_ib_desc(const ib_handle_t i_hdl)
 {
-	return g_ibs_pool[(u32)i_hdl];
+	return g_ibs_pool[i_hdl];
 }
 
 /* ut */
 const ub_handle_t create_ub(const insigne::ubdesc_t& i_desc)
 {
-	u32 idx = g_ubs_pool.get_size();
+	ssize idx = g_ubs_pool.get_size();
 	g_ubs_pool.push_back(ubdesc_t());
 
 	return ub_handle_t(idx);
+}
+
+const ub_handle_t get_last_ub()
+{
+	return g_ubs_pool.get_size() - 1;
 }
 
 void upload_vb(const vb_handle_t i_hdl, const insigne::vbdesc_t& i_desc)
@@ -175,6 +190,30 @@ void stream_ub_data(const ub_handle_t i_hdl, const voidptr i_data, const size i_
 	pxBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
+static void clean_up_snapshot(const vb_handle_t i_vb, const ib_handle_t i_ib, const ub_handle_t i_ub)
+{
+	CLOVER_VERBOSE("Cleaning up buffers snapshot...");
+	while (i_vb != g_vbs_pool.get_size() - 1)
+	{
+		vbdesc_t vbDesc = g_vbs_pool.pop_back();
+		CLOVER_VERBOSE("Deleting vertex buffer id %d : %zd bytes", vbDesc.gpu_handle, vbDesc.region_size);
+		pxDeleteBuffers(1, &vbDesc.gpu_handle);
+	}
+	while (i_ib != g_ibs_pool.get_size() - 1)
+	{
+		ibdesc_t ibDesc = g_ibs_pool.pop_back();
+		CLOVER_VERBOSE("Deleting index buffer id %d : %zd bytes", ibDesc.gpu_handle, ibDesc.region_size);
+		pxDeleteBuffers(1, &ibDesc.gpu_handle);
+	}
+	while (i_ub != g_ubs_pool.get_size() - 1)
+	{
+		ubdesc_t ubDesc = g_ubs_pool.pop_back();
+		CLOVER_VERBOSE("Deleting uniform buffer id %d : %zd bytes", ubDesc.gpu_handle, ubDesc.region_size);
+		pxDeleteBuffers(1, &ubDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Finished cleaning up buffers snapshot");
+}
+
 // ---------------------------------------------
 void cleanup_buffers_module()
 {
@@ -203,7 +242,7 @@ void cleanup_buffers_module()
 	g_ubs_pool.~ubs_pool_t();
 	g_ibs_pool.~ibs_pool_t();
 	g_vbs_pool.~vbs_pool_t();
-	CLOVER_VERBOSE("Finished cleaning up buffers module...");
+	CLOVER_VERBOSE("Finished cleaning up buffers module");
 }
 
 void process_buffers_command_buffer(const size i_cmdBuffId)
@@ -240,6 +279,12 @@ void process_buffers_command_buffer(const size i_cmdBuffId)
 						case buffers_command_type_e::stream_ub_data:
 							stream_ub_data(cmd.stream_ub_data.ub_handle, cmd.stream_ub_data.data,
 									cmd.stream_ub_data.data_size, cmd.stream_ub_data.offset);
+							break;
+						case buffers_command_type_e::clean_up_snapshot:
+							clean_up_snapshot(cmd.clean_up_snapshot_data.downto_vb,
+									cmd.clean_up_snapshot_data.downto_ib,
+									cmd.clean_up_snapshot_data.downto_ub);
+							break;
 						default:
 							break;
 					}

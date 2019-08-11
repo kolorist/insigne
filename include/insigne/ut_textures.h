@@ -11,4 +11,7 @@ const texture_handle_t							create_texture(const texture_desc_t& i_desc);
 
 void											cleanup_textures_module();
 
+ssize											get_textures_resource_state();
+void											cleanup_textures_resource(const ssize i_stateId);
+
 }

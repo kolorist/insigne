@@ -9,6 +9,15 @@
 namespace insigne {
 
 // ---------------------------------------------
+
+struct textures_resource_snapshot_t
+{
+	texture_handle_t							handle;
+};
+
+static floral::inplace_array<textures_resource_snapshot_t, 8>	s_resource_snapshots;
+
+// ---------------------------------------------
 static inline arena_allocator_t* get_composing_allocator() {
 	return detail::g_frame_textures_allocator[detail::g_composing_cmdbuff];
 }
@@ -79,6 +88,27 @@ const texture_handle_t create_texture(const texture_desc_t& i_desc)
 void cleanup_textures_module()
 {
 	get_composing_allocator()->free_all();
+}
+
+ssize get_textures_resource_state()
+{
+	ssize stateId = s_resource_snapshots.get_size();
+	textures_resource_snapshot_t newSnapshot;
+	newSnapshot.handle = detail::get_last_texture();
+	s_resource_snapshots.push_back(newSnapshot);
+	return stateId;
+}
+
+void cleanup_textures_resource(const ssize i_stateId)
+{
+	FLORAL_ASSERT_MSG(i_stateId == s_resource_snapshots.get_size() - 1, "Clean up textures module does not according to snapshot order");
+	const textures_resource_snapshot_t snapShot = s_resource_snapshots.pop_back();
+
+	textures_command_t cmd;
+	cmd.command_type = textures_command_type_e::clean_up_snapshot;
+	cmd.clean_up_snapshot_data.downto_handle = snapShot.handle;
+
+	push_command(cmd);
 }
 
 }

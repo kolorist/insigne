@@ -7,6 +7,17 @@
 namespace insigne {
 
 // ---------------------------------------------
+
+struct buffers_resource_snapshot_t
+{
+	vb_handle_t									vb;
+	ib_handle_t									ib;
+	ub_handle_t									ub;
+};
+
+static floral::inplace_array<buffers_resource_snapshot_t, 8>	s_resource_snapshots;
+
+// ---------------------------------------------
 static inline arena_allocator_t* get_composing_allocator() {
 	return detail::g_frame_buffers_allocator[detail::g_composing_cmdbuff];
 }
@@ -129,6 +140,31 @@ void copy_update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, 
 void cleanup_buffers_module()
 {
 	get_composing_allocator()->free_all();
+}
+
+ssize get_buffers_resource_state()
+{
+	ssize stateId = s_resource_snapshots.get_size();
+	buffers_resource_snapshot_t newSnapshot;
+	newSnapshot.vb = detail::get_last_vb();
+	newSnapshot.ib = detail::get_last_ib();
+	newSnapshot.ub = detail::get_last_ub();
+	s_resource_snapshots.push_back(newSnapshot);
+	return stateId;
+}
+
+void cleanup_buffers_resource(const ssize i_stateId)
+{
+	FLORAL_ASSERT_MSG(i_stateId == s_resource_snapshots.get_size() - 1, "Clean up buffers module does not according to snapshot order");
+	const buffers_resource_snapshot_t snapShot = s_resource_snapshots.pop_back();
+
+	buffers_command_t cmd;
+	cmd.command_type = buffers_command_type_e::clean_up_snapshot;
+	cmd.clean_up_snapshot_data.downto_vb = snapShot.vb;
+	cmd.clean_up_snapshot_data.downto_ib = snapShot.ib;
+	cmd.clean_up_snapshot_data.downto_ub = snapShot.ub;
+
+	push_command(cmd);
 }
 
 }
