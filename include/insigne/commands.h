@@ -15,7 +15,8 @@ enum class render_command_type_e {
 	draw_call,
 	framebuffer_create,
 	framebuffer_activate,
-	framebuffer_capture
+	framebuffer_capture,
+	clean_up_snapshot
 };
 
 struct render_command_t {
@@ -26,20 +27,28 @@ struct render_command_t {
 
 	render_command_type_e						command_type;
 	union {
+		// present_render
 		struct  {
 		} present_render_data;
+		// framebuffer_activate
 		struct {
 			framebuffer_handle_t				fb_handle;
 			insigne::framebuffer_desc_t			desc;
-		} framebuffer_create_data;
+		} framebuffer_activate_data;
+		// framebuffer_activate
 		struct {
 			framebuffer_handle_t				fb_handle;
 			s32									x, y, width, height;
 		} framebuffer_activate_data;
+		// framebuffer_capture
 		struct {
 			voidptr								pixel_data;
 			framebuffer_handle_t				fb_handle;
 		} framebuffer_capture_data;
+		// clean_up_snapshot
+		struct {
+			framebuffer_handle_t				downto_handle;
+		} clean_up_snapshot_data;
 	};
 };
 

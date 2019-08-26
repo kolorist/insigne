@@ -418,6 +418,20 @@ void initialize_render_module()
 }
 
 // ---------------------------------------------
+
+static void clean_up_snapshot(const framebuffer_handle_t i_fb)
+{
+	CLOVER_VERBOSE("Cleaning up render buffers snapshot...");
+	while (i_fb != g_framebuffers_pool.get_size() - 1)
+	{
+		framebuffer_desc_t framebufferDesc = g_framebuffers_pool.pop_back();
+		CLOVER_VERBOSE("Deleting framebuffer id %d", framebufferDesc.gpu_handle);
+		pxDeleteFramebuffers(1, &framebufferDesc.gpu_handle);
+	}
+	CLOVER_VERBOSE("Finished cleaning up render buffers snapshot");
+}
+
+// ---------------------------------------------
 void cleanup_render_module()
 {
 	CLOVER_VERBOSE("Cleaning up render module...");
@@ -590,6 +604,9 @@ const bool process_render_command_buffer(const size i_cmdBuffId)
 						case render_command_type_e::framebuffer_capture:
 							capture_framebuffer(cmd.framebuffer_capture_data.fb_handle,
 									cmd.framebuffer_capture_data.pixel_data);
+							break;
+						case render_command_type_e::clean_up_snapshot:
+							clean_up_snapshot(cmd.clean_up_snapshot_data.downto_handle);
 							break;
 						default:
 							break;

@@ -88,11 +88,19 @@ void dispatch_frame()
 		if (swapBuffersThisPass) {
 			swap_buffers();
 			g_global_counters.current_frame_idx.fetch_add(1, std::memory_order_relaxed);
+			#if 0
 			// to avoid bubbles in the command buffer queue: if there is bubble, the rendering pipeline
 			// will be hanged
 			detail::g_is_dispatching.store(false, std::memory_order_relaxed);
+			#endif
 			detail::g_scene_presented.store(true);
 		}
+	}
+	else
+	{
+		// to avoid bubbles in the command buffer queue: if there is bubble, the rendering pipeline
+		// will be hanged
+		detail::g_is_dispatching.store(false, std::memory_order_relaxed);
 	}
 }
 
