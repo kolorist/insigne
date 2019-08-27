@@ -235,6 +235,12 @@ const framebuffer_handle_t create_framebuffer(const insigne::framebuffer_desc_t&
 }
 
 /* ut */
+const framebuffer_handle_t get_last_framebuffer()
+{
+	return g_framebuffers_pool.get_size() - 1;
+}
+
+/* ut */
 const texture_handle_t extract_color_attachment(const framebuffer_handle_t i_fb, const u32 i_idx)
 {
 	framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_fb];

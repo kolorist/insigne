@@ -14,6 +14,15 @@
 namespace insigne {
 
 // ---------------------------------------------
+
+struct render_resource_snapshot_t
+{
+	framebuffer_handle_t						handle;
+};
+
+static floral::inplace_array<render_resource_snapshot_t, 8>	s_resource_snapshots;
+
+// ---------------------------------------------
 static inline arena_allocator_t* get_composing_allocator()
 {
 	return detail::g_frame_render_allocator[detail::g_composing_cmdbuff];
@@ -192,6 +201,27 @@ void cleanup_render_module()
 	get_composing_allocator()->free_all();
 	// draw call allocator
 	detail::g_frame_draw_allocator[detail::g_composing_cmdbuff]->free_all();
+}
+
+ssize get_render_resource_state()
+{
+	ssize stateId = s_resource_snapshots.get_size();
+	render_resource_snapshot_t newSnapshot;
+	newSnapshot.handle = detail::get_last_framebuffer();
+	s_resource_snapshots.push_back(newSnapshot);
+	return stateId;
+}
+
+void cleanup_render_resource(const ssize i_stateId)
+{
+	FLORAL_ASSERT_MSG(i_stateId == s_resource_snapshots.get_size() - 1, "Clean up render module does not according to snapshot order");
+	const render_resource_snapshot_t snapShot = s_resource_snapshots.pop_back();
+
+	render_command_t cmd;
+	cmd.command_type = render_command_type_e::clean_up_snapshot;
+	cmd.clean_up_snapshot_data.downto_handle = snapShot.handle;
+
+	push_command(cmd);
 }
 
 }

@@ -30,11 +30,11 @@ struct render_command_t {
 		// present_render
 		struct  {
 		} present_render_data;
-		// framebuffer_activate
+		// framebuffer_create
 		struct {
 			framebuffer_handle_t				fb_handle;
 			insigne::framebuffer_desc_t			desc;
-		} framebuffer_activate_data;
+		} framebuffer_create_data;
 		// framebuffer_activate
 		struct {
 			framebuffer_handle_t				fb_handle;
