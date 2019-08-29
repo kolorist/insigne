@@ -72,7 +72,7 @@ void push_draw_command(const ssize i_surfaceTypeIdx, const draw_command_t& i_cmd
 // render entrypoint----------------------------
 void begin_frame()
 {
-	while (!detail::g_scene_presented.load());
+	while (!detail::g_scene_presented.load() && detail::g_is_dispatching.load());
 	detail::g_scene_presented.store(false);
 }
 
