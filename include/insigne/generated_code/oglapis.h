@@ -25,232 +25,232 @@
 #endif
 
 namespace insigne {
-typedef APICALL void (APIENTRY *glActiveTexture_t)(GLenum texture);
+typedef void (APIENTRY *glActiveTexture_t)(GLenum texture);
 extern glActiveTexture_t glActiveTexture;
 
-typedef APICALL void (APIENTRY *glAttachShader_t)(GLuint program, GLuint shader);
+typedef void (APIENTRY *glAttachShader_t)(GLuint program, GLuint shader);
 extern glAttachShader_t glAttachShader;
 
-typedef APICALL void (APIENTRY *glBindBuffer_t)(GLenum target, GLuint buffer);
+typedef void (APIENTRY *glBindBuffer_t)(GLenum target, GLuint buffer);
 extern glBindBuffer_t glBindBuffer;
 
-typedef APICALL void (APIENTRY *glBindBufferBase_t)(GLenum target, GLuint index, GLuint buffer);
+typedef void (APIENTRY *glBindBufferBase_t)(GLenum target, GLuint index, GLuint buffer);
 extern glBindBufferBase_t glBindBufferBase;
 
-typedef APICALL void (APIENTRY *glBindBufferRange_t)(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
+typedef void (APIENTRY *glBindBufferRange_t)(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
 extern glBindBufferRange_t glBindBufferRange;
 
-typedef APICALL void (APIENTRY *glBindFramebuffer_t)(GLenum target, GLuint framebuffer);
+typedef void (APIENTRY *glBindFramebuffer_t)(GLenum target, GLuint framebuffer);
 extern glBindFramebuffer_t glBindFramebuffer;
 
-typedef APICALL void (APIENTRY *glBindRenderbuffer_t)(GLenum target, GLuint renderbuffer);
+typedef void (APIENTRY *glBindRenderbuffer_t)(GLenum target, GLuint renderbuffer);
 extern glBindRenderbuffer_t glBindRenderbuffer;
 
-typedef APICALL void (APIENTRY *glBindTexture_t)(GLenum target, GLuint texture);
+typedef void (APIENTRY *glBindTexture_t)(GLenum target, GLuint texture);
 extern glBindTexture_t glBindTexture;
 
-typedef APICALL void (APIENTRY *glBindVertexArray_t)(GLuint targetArray);
+typedef void (APIENTRY *glBindVertexArray_t)(GLuint targetArray);
 extern glBindVertexArray_t glBindVertexArray;
 
-typedef APICALL void (APIENTRY *glBlendEquation_t)(GLenum mode);
+typedef void (APIENTRY *glBlendEquation_t)(GLenum mode);
 extern glBlendEquation_t glBlendEquation;
 
-typedef APICALL void (APIENTRY *glBlendFunc_t)(GLenum sfactor, GLenum dfactor);
+typedef void (APIENTRY *glBlendFunc_t)(GLenum sfactor, GLenum dfactor);
 extern glBlendFunc_t glBlendFunc;
 
-typedef APICALL void (APIENTRY *glBlitFramebuffer_t)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+typedef void (APIENTRY *glBlitFramebuffer_t)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 extern glBlitFramebuffer_t glBlitFramebuffer;
 
-typedef APICALL void (APIENTRY *glBufferData_t)(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
+typedef void (APIENTRY *glBufferData_t)(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
 extern glBufferData_t glBufferData;
 
-typedef APICALL void (APIENTRY *glBufferSubData_t)(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data);
+typedef void (APIENTRY *glBufferSubData_t)(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data);
 extern glBufferSubData_t glBufferSubData;
 
-typedef APICALL GLenum (APIENTRY *glCheckFramebufferStatus_t)(GLenum target);
+typedef GLenum (APIENTRY *glCheckFramebufferStatus_t)(GLenum target);
 extern glCheckFramebufferStatus_t glCheckFramebufferStatus;
 
-typedef APICALL void (APIENTRY *glClear_t)(GLbitfield mask);
+typedef void (APIENTRY *glClear_t)(GLbitfield mask);
 extern glClear_t glClear;
 
-typedef APICALL void (APIENTRY *glClearColor_t)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+typedef void (APIENTRY *glClearColor_t)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 extern glClearColor_t glClearColor;
 
-typedef APICALL void (APIENTRY *glClearDepthf_t)(GLfloat depth);
+typedef void (APIENTRY *glClearDepthf_t)(GLfloat depth);
 extern glClearDepthf_t glClearDepthf;
 
-typedef APICALL void (APIENTRY *glColorMask_t)(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+typedef void (APIENTRY *glColorMask_t)(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 extern glColorMask_t glColorMask;
 
-typedef APICALL void (APIENTRY *glCompileShader_t)(GLuint shader);
+typedef void (APIENTRY *glCompileShader_t)(GLuint shader);
 extern glCompileShader_t glCompileShader;
 
-typedef APICALL GLuint (APIENTRY *glCreateProgram_t)();
+typedef GLuint (APIENTRY *glCreateProgram_t)();
 extern glCreateProgram_t glCreateProgram;
 
-typedef APICALL GLuint (APIENTRY *glCreateShader_t)(GLenum shaderType);
+typedef GLuint (APIENTRY *glCreateShader_t)(GLenum shaderType);
 extern glCreateShader_t glCreateShader;
 
-typedef APICALL void (APIENTRY *glCullFace_t)(GLenum mode);
+typedef void (APIENTRY *glCullFace_t)(GLenum mode);
 extern glCullFace_t glCullFace;
 
-typedef APICALL void (APIENTRY *glDeleteBuffers_t)(GLsizei n, const GLuint* buffers);
+typedef void (APIENTRY *glDeleteBuffers_t)(GLsizei n, const GLuint* buffers);
 extern glDeleteBuffers_t glDeleteBuffers;
 
-typedef APICALL void (APIENTRY *glDeleteProgram_t)(GLuint program);
+typedef void (APIENTRY *glDeleteProgram_t)(GLuint program);
 extern glDeleteProgram_t glDeleteProgram;
 
-typedef APICALL void (APIENTRY *glDeleteShader_t)(GLuint shader);
+typedef void (APIENTRY *glDeleteShader_t)(GLuint shader);
 extern glDeleteShader_t glDeleteShader;
 
-typedef APICALL void (APIENTRY *glDeleteVertexArrays_t)(GLsizei n, const GLuint* arrays);
+typedef void (APIENTRY *glDeleteVertexArrays_t)(GLsizei n, const GLuint* arrays);
 extern glDeleteVertexArrays_t glDeleteVertexArrays;
 
-typedef APICALL void (APIENTRY *glDeleteFramebuffers_t)(GLsizei n, GLuint* framebuffers);
+typedef void (APIENTRY *glDeleteFramebuffers_t)(GLsizei n, GLuint* framebuffers);
 extern glDeleteFramebuffers_t glDeleteFramebuffers;
 
-typedef APICALL void (APIENTRY *glDeleteTextures_t)(GLsizei n, const GLuint* textures);
+typedef void (APIENTRY *glDeleteTextures_t)(GLsizei n, const GLuint* textures);
 extern glDeleteTextures_t glDeleteTextures;
 
-typedef APICALL void (APIENTRY *glDepthFunc_t)(GLenum func);
+typedef void (APIENTRY *glDepthFunc_t)(GLenum func);
 extern glDepthFunc_t glDepthFunc;
 
-typedef APICALL void (APIENTRY *glDepthMask_t)(GLboolean flag);
+typedef void (APIENTRY *glDepthMask_t)(GLboolean flag);
 extern glDepthMask_t glDepthMask;
 
-typedef APICALL void (APIENTRY *glDisable_t)(GLenum cap);
+typedef void (APIENTRY *glDisable_t)(GLenum cap);
 extern glDisable_t glDisable;
 
-typedef APICALL void (APIENTRY *glDrawBuffers_t)(GLsizei n, const GLenum* bufs);
+typedef void (APIENTRY *glDrawBuffers_t)(GLsizei n, const GLenum* bufs);
 extern glDrawBuffers_t glDrawBuffers;
 
-typedef APICALL void (APIENTRY *glDrawElements_t)(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
+typedef void (APIENTRY *glDrawElements_t)(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
 extern glDrawElements_t glDrawElements;
 
-typedef APICALL void (APIENTRY *glEnable_t)(GLenum cap);
+typedef void (APIENTRY *glEnable_t)(GLenum cap);
 extern glEnable_t glEnable;
 
-typedef APICALL void (APIENTRY *glEnableVertexAttribArray_t)(GLuint index);
+typedef void (APIENTRY *glEnableVertexAttribArray_t)(GLuint index);
 extern glEnableVertexAttribArray_t glEnableVertexAttribArray;
 
-typedef APICALL void (APIENTRY *glFramebufferRenderbuffer_t)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+typedef void (APIENTRY *glFramebufferRenderbuffer_t)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 extern glFramebufferRenderbuffer_t glFramebufferRenderbuffer;
 
-typedef APICALL void (APIENTRY *glFramebufferTexture2D_t)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+typedef void (APIENTRY *glFramebufferTexture2D_t)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
 extern glFramebufferTexture2D_t glFramebufferTexture2D;
 
-typedef APICALL void (APIENTRY *glFrontFace_t)(GLenum mode);
+typedef void (APIENTRY *glFrontFace_t)(GLenum mode);
 extern glFrontFace_t glFrontFace;
 
-typedef APICALL void (APIENTRY *glGenBuffers_t)(GLsizei n, GLuint* buffers);
+typedef void (APIENTRY *glGenBuffers_t)(GLsizei n, GLuint* buffers);
 extern glGenBuffers_t glGenBuffers;
 
-typedef APICALL void (APIENTRY *glGenFramebuffers_t)(GLsizei n, GLuint* framebuffers);
+typedef void (APIENTRY *glGenFramebuffers_t)(GLsizei n, GLuint* framebuffers);
 extern glGenFramebuffers_t glGenFramebuffers;
 
-typedef APICALL void (APIENTRY *glGenRenderbuffers_t)(GLsizei n, GLuint* renderbuffers);
+typedef void (APIENTRY *glGenRenderbuffers_t)(GLsizei n, GLuint* renderbuffers);
 extern glGenRenderbuffers_t glGenRenderbuffers;
 
-typedef APICALL void (APIENTRY *glGenTextures_t)(GLsizei n, GLuint* textures);
+typedef void (APIENTRY *glGenTextures_t)(GLsizei n, GLuint* textures);
 extern glGenTextures_t glGenTextures;
 
-typedef APICALL void (APIENTRY *glGenVertexArrays_t)(GLsizei n, GLuint* arrays);
+typedef void (APIENTRY *glGenVertexArrays_t)(GLsizei n, GLuint* arrays);
 extern glGenVertexArrays_t glGenVertexArrays;
 
-typedef APICALL void (APIENTRY *glGenerateMipmap_t)(GLenum target);
+typedef void (APIENTRY *glGenerateMipmap_t)(GLenum target);
 extern glGenerateMipmap_t glGenerateMipmap;
 
-typedef APICALL GLint (APIENTRY *glGetAttribLocation_t)(GLuint program, const GLchar* name);
+typedef GLint (APIENTRY *glGetAttribLocation_t)(GLuint program, const GLchar* name);
 extern glGetAttribLocation_t glGetAttribLocation;
 
-typedef APICALL GLenum (APIENTRY *glGetError_t)();
+typedef GLenum (APIENTRY *glGetError_t)();
 extern glGetError_t glGetError;
 
-typedef APICALL void (APIENTRY *glGetIntegerv_t)(GLenum pname, GLint* data);
+typedef void (APIENTRY *glGetIntegerv_t)(GLenum pname, GLint* data);
 extern glGetIntegerv_t glGetIntegerv;
 
-typedef APICALL void (APIENTRY *glGetShaderInfoLog_t)(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog);
+typedef void (APIENTRY *glGetShaderInfoLog_t)(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog);
 extern glGetShaderInfoLog_t glGetShaderInfoLog;
 
-typedef APICALL void (APIENTRY *glGetShaderiv_t)(GLuint shader, GLenum pname, GLint* params);
+typedef void (APIENTRY *glGetShaderiv_t)(GLuint shader, GLenum pname, GLint* params);
 extern glGetShaderiv_t glGetShaderiv;
 
-typedef APICALL const GLubyte* (APIENTRY *glGetString_t)(GLenum name);
+typedef const GLubyte* (APIENTRY *glGetString_t)(GLenum name);
 extern glGetString_t glGetString;
 
-typedef APICALL const GLubyte* (APIENTRY *glGetStringi_t)(GLenum name, GLuint index);
+typedef const GLubyte* (APIENTRY *glGetStringi_t)(GLenum name, GLuint index);
 extern glGetStringi_t glGetStringi;
 
-typedef APICALL GLuint (APIENTRY *glGetUniformBlockIndex_t)(GLuint program, const GLchar *uniformBlockName);
+typedef GLuint (APIENTRY *glGetUniformBlockIndex_t)(GLuint program, const GLchar *uniformBlockName);
 extern glGetUniformBlockIndex_t glGetUniformBlockIndex;
 
-typedef APICALL GLint (APIENTRY *glGetUniformLocation_t)(GLuint program, const GLchar* name);
+typedef GLint (APIENTRY *glGetUniformLocation_t)(GLuint program, const GLchar* name);
 extern glGetUniformLocation_t glGetUniformLocation;
 
-typedef APICALL void (APIENTRY *glLinkProgram_t)(GLuint program);
+typedef void (APIENTRY *glLinkProgram_t)(GLuint program);
 extern glLinkProgram_t glLinkProgram;
 
-typedef APICALL void (APIENTRY *glPixelStorei_t)(GLenum pname, GLint param);
+typedef void (APIENTRY *glPixelStorei_t)(GLenum pname, GLint param);
 extern glPixelStorei_t glPixelStorei;
 
-typedef APICALL void (APIENTRY *glPolygonMode_t)(GLenum face, GLenum mode);
+typedef void (APIENTRY *glPolygonMode_t)(GLenum face, GLenum mode);
 extern glPolygonMode_t glPolygonMode;
 
-typedef APICALL void (APIENTRY *glReadBuffer_t)(GLenum src);
+typedef void (APIENTRY *glReadBuffer_t)(GLenum src);
 extern glReadBuffer_t glReadBuffer;
 
-typedef APICALL void (APIENTRY *glReadPixels_t)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data);
+typedef void (APIENTRY *glReadPixels_t)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid * data);
 extern glReadPixels_t glReadPixels;
 
-typedef APICALL void (APIENTRY *glRenderbufferStorage_t)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+typedef void (APIENTRY *glRenderbufferStorage_t)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 extern glRenderbufferStorage_t glRenderbufferStorage;
 
-typedef APICALL void (APIENTRY *glRenderbufferStorageMultisample_t)(GLenum target, GLsizei samples, GLenum internalFormat, GLsizei width, GLsizei height);
+typedef void (APIENTRY *glRenderbufferStorageMultisample_t)(GLenum target, GLsizei samples, GLenum internalFormat, GLsizei width, GLsizei height);
 extern glRenderbufferStorageMultisample_t glRenderbufferStorageMultisample;
 
-typedef APICALL void (APIENTRY *glScissor_t)(GLint x, GLint y, GLsizei width, GLsizei height);
+typedef void (APIENTRY *glScissor_t)(GLint x, GLint y, GLsizei width, GLsizei height);
 extern glScissor_t glScissor;
 
-typedef APICALL void (APIENTRY *glShaderSource_t)(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+typedef void (APIENTRY *glShaderSource_t)(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
 extern glShaderSource_t glShaderSource;
 
-typedef APICALL void (APIENTRY *glStencilFunc_t)(GLenum func, GLint ref, GLuint mask);
+typedef void (APIENTRY *glStencilFunc_t)(GLenum func, GLint ref, GLuint mask);
 extern glStencilFunc_t glStencilFunc;
 
-typedef APICALL void (APIENTRY *glStencilOp_t)(GLenum sfail, GLenum dpfail, GLenum dppass);
+typedef void (APIENTRY *glStencilOp_t)(GLenum sfail, GLenum dpfail, GLenum dppass);
 extern glStencilOp_t glStencilOp;
 
-typedef APICALL void (APIENTRY *glTexImage2D_t)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data);
+typedef void (APIENTRY *glTexImage2D_t)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* data);
 extern glTexImage2D_t glTexImage2D;
 
-typedef APICALL void (APIENTRY *glTexParameteri_t)(GLenum target, GLenum pname, GLint param);
+typedef void (APIENTRY *glTexParameteri_t)(GLenum target, GLenum pname, GLint param);
 extern glTexParameteri_t glTexParameteri;
 
-typedef APICALL void (APIENTRY *glTexStorage2D_t)(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height);
+typedef void (APIENTRY *glTexStorage2D_t)(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height);
 extern glTexStorage2D_t glTexStorage2D;
 
-typedef APICALL void (APIENTRY *glUniform1f_t)(GLint location, GLfloat v0);
+typedef void (APIENTRY *glUniform1f_t)(GLint location, GLfloat v0);
 extern glUniform1f_t glUniform1f;
 
-typedef APICALL void (APIENTRY *glUniform1i_t)(GLint location, GLint v0);
+typedef void (APIENTRY *glUniform1i_t)(GLint location, GLint v0);
 extern glUniform1i_t glUniform1i;
 
-typedef APICALL void (APIENTRY *glUniform3fv_t)(GLint location, GLsizei count, const GLfloat* value);
+typedef void (APIENTRY *glUniform3fv_t)(GLint location, GLsizei count, const GLfloat* value);
 extern glUniform3fv_t glUniform3fv;
 
-typedef APICALL void (APIENTRY *glUniformBlockBinding_t)(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
+typedef void (APIENTRY *glUniformBlockBinding_t)(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 extern glUniformBlockBinding_t glUniformBlockBinding;
 
-typedef APICALL void (APIENTRY *glUniformMatrix4fv_t)(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
+typedef void (APIENTRY *glUniformMatrix4fv_t)(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
 extern glUniformMatrix4fv_t glUniformMatrix4fv;
 
-typedef APICALL void (APIENTRY *glUseProgram_t)(GLuint program);
+typedef void (APIENTRY *glUseProgram_t)(GLuint program);
 extern glUseProgram_t glUseProgram;
 
-typedef APICALL void (APIENTRY *glVertexAttribPointer_t)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
+typedef void (APIENTRY *glVertexAttribPointer_t)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
 extern glVertexAttribPointer_t glVertexAttribPointer;
 
-typedef APICALL void (APIENTRY *glViewport_t)(GLint x, GLint y, GLsizei width, GLsizei height);
+typedef void (APIENTRY *glViewport_t)(GLint x, GLint y, GLsizei width, GLsizei height);
 extern glViewport_t glViewport;
 
 }
