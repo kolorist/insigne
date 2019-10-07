@@ -138,6 +138,7 @@ void upload_ub(const ub_handle_t i_hdl, const insigne::ubdesc_t& i_desc)
 	ubdesc_t& desc = g_ubs_pool[s32(i_hdl)];
 
 	desc.region_size = i_desc.region_size;
+	desc.data_size = i_desc.data_size;
 	desc.usage = i_desc.usage;
 
 	GLuint uboHandle;
