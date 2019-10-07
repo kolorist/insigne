@@ -130,7 +130,7 @@ void update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const
 	push_command(cmd);
 }
 
-void copy_update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const size i_offset)
+void copy_update_ub(const ub_handle_t i_hdl, const voidptr i_data, const size i_size, const size i_offset)
 {
 	voidptr data = get_composing_allocator()->allocate(i_size);
 	memcpy(data, i_data, i_size);

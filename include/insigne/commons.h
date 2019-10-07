@@ -3,12 +3,12 @@
 #include <floral.h>
 
 #include "configs.h"
-
 #include "memory.h"
 
 #define DEFAULT_FRAMEBUFFER_HANDLE				-1
 
-namespace insigne {
+namespace insigne
+{
 
 enum class render_state_togglemask_e {
 	depth_test								= 1u << 0,
