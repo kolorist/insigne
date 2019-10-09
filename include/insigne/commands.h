@@ -84,6 +84,7 @@ struct draw_command_t {
 enum class textures_command_type_e {
 	invalid = 0,
 	create_texture,
+	stream_texture,
 	clean_up_snapshot
 };
 
@@ -95,6 +96,11 @@ struct textures_command_t {
 			texture_handle_t					texture_handle;
 			insigne::texture_desc_t				desc;
 		} create_texture_data;
+		// stream_texture_data
+		struct {
+			texture_handle_t					texture_handle;
+			voidptr								data;
+		} stream_texture_data;
 		// clean_up_snapshot
 		struct {
 			texture_handle_t					downto_handle;

@@ -84,6 +84,16 @@ const texture_handle_t create_texture(const texture_desc_t& i_desc)
 	return newTextureHdl;
 }
 
+void copy_update_texture(const texture_handle_t i_hdl, voidptr i_data)
+{
+	textures_command_t cmd;
+	cmd.command_type = textures_command_type_e::stream_texture;
+	cmd.stream_texture_data.texture_handle = i_hdl;
+	cmd.stream_texture_data.data = i_data;
+
+	push_command(cmd);
+}
+
 // ---------------------------------------------
 void cleanup_textures_module()
 {
