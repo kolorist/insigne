@@ -257,9 +257,12 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 	texDesc.gpu_handle = newTexture;
 }
 
-void update_texture(const texture_handle_t i_hdl, const voidptr i_data)
+void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const size i_dataSize)
 {
 	texture_desc_t& texDesc = g_textures_pool[(s32)i_hdl];
+
+	//TODO: assert i_dataSize
+
 	static GLenum s_GLFormat[] = {
 		GL_RG,									// rg
 		GL_RG,									// hdr_rg
@@ -524,7 +527,7 @@ void process_textures_command_buffer(const size i_cmdBuffId)
 					}
 					case textures_command_type_e::stream_texture:
 					{
-						update_texture(cmd.stream_texture_data.texture_handle, cmd.stream_texture_data.data);
+						update_texture(cmd.stream_texture_data.texture_handle, cmd.stream_texture_data.data, cmd.stream_texture_data.dataSize);
 						break;
 					}
 					case textures_command_type_e::clean_up_snapshot:

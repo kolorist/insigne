@@ -84,12 +84,15 @@ const texture_handle_t create_texture(const texture_desc_t& i_desc)
 	return newTextureHdl;
 }
 
-void copy_update_texture(const texture_handle_t i_hdl, voidptr i_data)
+void copy_update_texture(const texture_handle_t i_hdl, voidptr i_data, const size i_dataSize)
 {
+	voidptr data = get_composing_allocator()->allocate(i_dataSize);
+	memcpy(data, i_data, i_dataSize);
+
 	textures_command_t cmd;
 	cmd.command_type = textures_command_type_e::stream_texture;
 	cmd.stream_texture_data.texture_handle = i_hdl;
-	cmd.stream_texture_data.data = i_data;
+	cmd.stream_texture_data.data = data;
 
 	push_command(cmd);
 }

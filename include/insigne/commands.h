@@ -99,6 +99,7 @@ struct textures_command_t {
 		// stream_texture_data
 		struct {
 			texture_handle_t					texture_handle;
+			size								dataSize;
 			voidptr								data;
 		} stream_texture_data;
 		// clean_up_snapshot
