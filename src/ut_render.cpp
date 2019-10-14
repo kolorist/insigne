@@ -72,22 +72,7 @@ void push_draw_command(const ssize i_surfaceTypeIdx, const draw_command_t& i_cmd
 // render entrypoint----------------------------
 void begin_frame()
 {
-	while (!detail::g_scene_presented.load() && detail::g_is_dispatching.load());
-	detail::g_scene_presented.store(false);
-}
-
-void begin_frame(const u32 i_maxWaitCycle)
-{
-	u32 waitCycle = 0;
-	while (!detail::g_scene_presented.load())
-	{
-		waitCycle++;
-		if (waitCycle > i_maxWaitCycle)
-		{
-			FLORAL_CRASH;
-		}
-	}
-	detail::g_scene_presented.store(false);
+	while (!detail::g_scene_presented.load() && !detail::g_waiting_cmdbuffs.is_empty());
 }
 
 void end_frame()
@@ -138,7 +123,6 @@ void mark_present_render()
 void dispatch_render_pass()
 {
 	detail::g_waiting_cmdbuffs.wait_and_push(detail::g_composing_cmdbuff);
-	detail::g_is_dispatching.store(true, std::memory_order_relaxed);
 
 	detail::g_composing_cmdbuff = (detail::g_composing_cmdbuff + 1) % BUFFERS_COUNT;
 	cleanup_shading_module();

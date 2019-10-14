@@ -88,19 +88,8 @@ void dispatch_frame()
 		if (swapBuffersThisPass) {
 			swap_buffers();
 			g_global_counters.current_frame_idx.fetch_add(1, std::memory_order_relaxed);
-			#if 0
-			// to avoid bubbles in the command buffer queue: if there is bubble, the rendering pipeline
-			// will be hanged
-			detail::g_is_dispatching.store(false, std::memory_order_relaxed);
-			#endif
 			detail::g_scene_presented.store(true);
 		}
-	}
-	else
-	{
-		// to avoid bubbles in the command buffer queue: if there is bubble, the rendering pipeline
-		// will be hanged
-		detail::g_is_dispatching.store(false, std::memory_order_relaxed);
 	}
 }
 
@@ -118,7 +107,7 @@ void render_thread_func(voidptr i_data)
 
 	while (s_stopped.load(std::memory_order_acquire) != true)
 	{
-		while (!detail::g_is_dispatching.load(std::memory_order_acquire))
+		while (detail::g_waiting_cmdbuffs.is_empty())
 		{
 			check_and_pause();
 		}
@@ -225,7 +214,6 @@ void initialize_render_thread()
 	detail::g_scene_presented = true;
 	detail::g_context_dirty = true;
 
-	detail::g_is_dispatching.store(false, std::memory_order_relaxed);
 	s_is_initialized.store(false, std::memory_order_relaxed);
 	{
 		floral::lock_guard guard(s_resumed_mtx);
@@ -260,7 +248,7 @@ void clean_up_and_stop_render_thread()
 
 void wait_finish_dispatching()
 {
-	while (detail::g_is_dispatching.load(std::memory_order_acquire))
+	while (!detail::g_waiting_cmdbuffs.is_empty())
 	{
 	}
 }

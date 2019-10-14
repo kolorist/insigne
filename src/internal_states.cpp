@@ -9,7 +9,6 @@ floral::mutex									g_init_mtx;
 
 size											g_composing_cmdbuff;
 std::atomic_bool								g_scene_presented;
-std::atomic_bool								g_is_dispatching;
 std::atomic_bool								g_context_dirty;
 waiting_cmdbuffs_t								g_waiting_cmdbuffs;
 
