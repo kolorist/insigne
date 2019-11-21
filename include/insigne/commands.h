@@ -39,6 +39,8 @@ struct render_command_t {
 		struct {
 			framebuffer_handle_t				fb_handle;
 			s32									x, y, width, height;
+			cubemap_face_e						face;
+			s32									to_mip;
 		} framebuffer_activate_data;
 		// framebuffer_capture
 		struct {
@@ -181,6 +183,7 @@ struct buffers_command_t {
 			voidptr								data;
 			size								data_size;
 			size								offset;
+			size								alignment;
 			ub_handle_t							ub_handle;
 		} stream_ub_data;
 		// clean_up_snapshot

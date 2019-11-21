@@ -31,6 +31,8 @@ void											begin_render_pass(const framebuffer_handle_t i_fb);
  * 	y: 0 -> framebuffer_height from bottom to top
  */
 void											begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height);
+void											begin_render_pass(const framebuffer_handle_t i_fb, const cubemap_face_e i_face);
+void											begin_render_pass(const framebuffer_handle_t i_fb, const cubemap_face_e i_face, const s32 i_mip);
 /* do nothing, LUL */
 void											end_render_pass(const framebuffer_handle_t i_fb);
 /* mark that this render pass will be the last one,

@@ -527,4 +527,10 @@ void pxViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 	assert_driver_no_error();
 }
 
+void pxDisableVertexAttribArray(GLuint index)
+{
+	glDisableVertexAttribArray(index);
+	assert_driver_no_error();
+}
+
 }

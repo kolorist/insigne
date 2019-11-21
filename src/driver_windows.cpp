@@ -4,6 +4,7 @@
 
 #include <calyx/platform/windows/system.h>
 
+#include "insigne/configs.h"
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/oglapis.h"
 
@@ -130,13 +131,14 @@ void create_main_context()
 	pxGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &ubMaxBinding);
 	pxGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &ubMaxBlockSize);
 	
-	pxDisable(GL_FRAMEBUFFER_SRGB);
-	
 	CLOVER_VERBOSE("Uniform Buffer Specifications:\
 			\n\tOffset Alignment: %d\
 			\n\tMax Bindings Count: %d\
 			\n\tMax Uniform Block Size: %d",
 			ubOffsetAlignment, ubMaxBinding, ubMaxBlockSize);
+
+	g_gpu_capacities.ub_max_size = ubMaxBlockSize;
+	g_gpu_capacities.ub_desired_offset = ubOffsetAlignment;
 }
 
 void refresh_context()

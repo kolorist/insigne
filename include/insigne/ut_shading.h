@@ -21,6 +21,12 @@ void											cleanup_shading_module(); // not used
 ssize											get_shading_resource_state();
 void											cleanup_shading_resource(const ssize i_stateId);
 
+namespace helpers
+{
+void											assign_uniform_block(material_desc_t& io_mat, const_cstr i_id, const size i_offset, const size i_range, const ub_handle_t i_ub);
+void											assign_texture(material_desc_t& io_mat, const_cstr i_id, const texture_handle_t i_tex);
+}
+
 }
 
 #include "ut_shading.hpp"

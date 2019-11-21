@@ -159,4 +159,6 @@ glVertexAttribPointer_t glVertexAttribPointer;
 
 glViewport_t glViewport;
 
+glDisableVertexAttribArray_t glDisableVertexAttribArray;
+
 }

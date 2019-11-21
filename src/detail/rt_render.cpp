@@ -188,6 +188,11 @@ void enable_vertex_attrib(const u32 i_location)
 	pxEnableVertexAttribArray(i_location);
 }
 
+void disable_vertex_attrib(const u32 i_location)
+{
+	pxDisableVertexAttribArray(i_location);
+}
+
 void describe_vertex_data(const u32 i_location, const s32 i_size,
 		const data_type_e i_type, const bool i_normalized, const s32 i_stride, const voidptr offset)
 {
@@ -271,18 +276,34 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 	s32 swidth = (s32)((f32)desc.width * desc.scale);
 	s32 sheight = (s32)((f32)desc.height * desc.scale);
 
-	for (u32 i = 0; i < colorAttachsCount; i++) {
+	for (u32 i = 0; i < colorAttachsCount; i++)
+	{
 		insigne::texture_desc_t colorDesc;
 		colorDesc.data = nullptr;
 		colorDesc.width = i_desc.width; colorDesc.height = i_desc.height;
 		colorDesc.format = i_desc.color_attachments->at(i).texture_format;
-		colorDesc.min_filter = filtering_e::linear; colorDesc.mag_filter = filtering_e::linear;
-		colorDesc.dimension = texture_dimension_e::tex_2d;
-		colorDesc.has_mipmap = false;
+		colorDesc.mag_filter = filtering_e::linear;
+		colorDesc.has_mipmap = i_desc.color_has_mipmap;
+		if (colorDesc.has_mipmap)
+		{
+			colorDesc.min_filter = filtering_e::linear_mipmap_linear;
+		}
+		else
+		{
+			colorDesc.min_filter = filtering_e::linear;
+		}
+		colorDesc.dimension = i_desc.color_attachments->at(i).texture_dimension;
 		upload_texture(desc.color_attach_textures[i], colorDesc);
-		// attach texture to fbo
 		texture_desc_t& colorTex = g_textures_pool[(s32)desc.color_attach_textures[i]];
-		pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorTex.gpu_handle, 0);
+		if (colorDesc.dimension == texture_dimension_e::tex_2d)
+		{
+			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorTex.gpu_handle, 0);
+		}
+		else
+		{
+			FLORAL_ASSERT(colorAttachsCount == 1);
+			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_CUBE_MAP_POSITIVE_X, colorTex.gpu_handle, 0);
+		}
 	}
 
 	if (desc.has_depth)
@@ -295,7 +316,7 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 		depthDesc.dimension = texture_dimension_e::tex_2d;
 		depthDesc.has_mipmap = false;
 		upload_texture(desc.depth_texture, depthDesc);
-		// attach texture to fbo
+
 		texture_desc_t& depthTex = g_textures_pool[(s32)desc.depth_texture];
 		pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex.gpu_handle, 0);
 	}
@@ -304,26 +325,56 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 	pxBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height)
+void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height, const cubemap_face_e i_face, const s32 i_toMip)
 {
-	if ((s32)i_hdl == DEFAULT_FRAMEBUFFER_HANDLE) {
-		pxBindFramebuffer(GL_FRAMEBUFFER, 0);
-		pxClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		set_scissor_test<false_type>(0, 0, 0, 0);
-		pxViewport(0, 0, g_settings.native_res_x, g_settings.native_res_y);
-		clear_framebuffer(true, true);
-	} else {
+	if (i_face == cubemap_face_e::invalid)
+	{
+		if ((s32)i_hdl == DEFAULT_FRAMEBUFFER_HANDLE)
+		{
+			pxBindFramebuffer(GL_FRAMEBUFFER, 0);
+			pxClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			set_scissor_test<false_type>(0, 0, 0, 0);
+			pxViewport(0, 0, g_settings.native_res_x, g_settings.native_res_y);
+			clear_framebuffer(true, true);
+		}
+		else
+		{
+			framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_hdl];
+			pxBindFramebuffer(GL_FRAMEBUFFER, desc.gpu_handle);
+			if (i_width < 0 && i_height < 0) {
+				set_scissor_test<false_type>(0, 0, 0, 0);
+				pxViewport(0, 0, desc.width, desc.height);
+			} else {
+				set_scissor_test<true_type>(i_x, desc.height - i_y - i_height, i_width, i_height);
+				pxViewport(i_x, desc.height - i_y - i_height, i_width, i_height);
+			}
+			pxClearColor(desc.clear_color.x, desc.clear_color.y, desc.clear_color.z, desc.clear_color.w);
+			clear_framebuffer(true, desc.has_depth);
+		}
+	}
+	else
+	{
+		static GLenum s_GLCubemapFaces[] =
+		{
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X,		// invalid
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+		};
+
 		framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_hdl];
 		pxBindFramebuffer(GL_FRAMEBUFFER, desc.gpu_handle);
-		if (i_width < 0 && i_height < 0) {
-			set_scissor_test<false_type>(0, 0, 0, 0);
-			pxViewport(0, 0, desc.width, desc.height);
-		} else {
-			//set_scissor_test<true_type>(i_x, desc.height - i_y, i_width, i_height);
-			set_scissor_test<true_type>(i_x, desc.height - i_y - i_height, i_width, i_height);
-			//pxViewport(i_x, desc.height - i_y, i_width, i_height);
-			pxViewport(i_x, desc.height - i_y - i_height, i_width, i_height);
-		}
+		const texture_desc_t& colorTex = g_textures_pool[(s32)desc.color_attach_textures[0]];
+		pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_GLCubemapFaces[(size)i_face], colorTex.gpu_handle, i_toMip);
+
+		set_scissor_test<false_type>(0, 0, 0, 0);
+		s32 width = desc.width >> i_toMip;
+		s32 height = desc.height >> i_toMip;
+
+		pxViewport(0, 0, width, height);
 		pxClearColor(desc.clear_color.x, desc.clear_color.y, desc.clear_color.z, desc.clear_color.w);
 		clear_framebuffer(true, desc.has_depth);
 	}
@@ -365,7 +416,9 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 	pxUseProgram(shaderDesc.gpu_handle);
 
 	for (u32 i = 0; i < i_mat->textures.get_size(); i++) {
-		const insigne::detail::texture_desc_t& texDesc = insigne::detail::g_textures_pool[(s32)i_mat->textures[i].value];
+		s32 texId = i_mat->textures[i].value;
+		if (texId < 0) continue;
+		const insigne::detail::texture_desc_t& texDesc = insigne::detail::g_textures_pool[texId];
 		pxActiveTexture(GL_TEXTURE0 + i);
 		if (texDesc.dimension == texture_dimension_e::tex_2d) {
 			pxBindTexture(GL_TEXTURE_2D, texDesc.gpu_handle);
@@ -377,11 +430,17 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 
 	for (u32 i = 0; i < i_mat->uniform_blocks.get_size(); i++) {
 		const ubmat_desc_t ubMatDesc = i_mat->uniform_blocks[i].value;
+		if (ubMatDesc.ub_handle < 0) continue;
 		const insigne::detail::ubdesc_t& ubDesc = insigne::detail::g_ubs_pool[ubMatDesc.ub_handle];
-		if (ubMatDesc.offset == 0) {
+		if (ubMatDesc.offset == 0)
+		{
 			pxBindBufferBase(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle);
-		} else {
-			pxBindBufferRange(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle, ubMatDesc.offset, ubMatDesc.range);
+		}
+		else
+		{
+			pxBindBufferRange(GL_UNIFORM_BUFFER, i, ubDesc.gpu_handle,
+					ubMatDesc.offset * ubDesc.alignment,
+					ubMatDesc.range * ubDesc.alignment);
 		}
 		pxUniformBlockBinding(shaderDesc.gpu_handle, shaderDesc.slots_config.uniform_blocks[i], i);
 	}
@@ -605,7 +664,9 @@ const bool process_render_command_buffer(const size i_cmdBuffId)
 									cmd.framebuffer_activate_data.x,
 									cmd.framebuffer_activate_data.y,
 									cmd.framebuffer_activate_data.width,
-									cmd.framebuffer_activate_data.height);
+									cmd.framebuffer_activate_data.height,
+									cmd.framebuffer_activate_data.face,
+									cmd.framebuffer_activate_data.to_mip);
 							break;
 						case render_command_type_e::framebuffer_capture:
 							capture_framebuffer(cmd.framebuffer_capture_data.fb_handle,

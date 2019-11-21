@@ -56,4 +56,12 @@ struct scene_settings_t
 };
 extern scene_settings_t							g_scene_settings;
 
+// ---------------------------------------------
+struct gpu_capacities_t
+{
+	size										ub_max_size;
+	size										ub_desired_offset;
+};
+extern gpu_capacities_t							g_gpu_capacities;
+
 }

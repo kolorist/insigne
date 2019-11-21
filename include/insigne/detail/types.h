@@ -59,6 +59,7 @@ struct ibdesc_t {
 struct ubdesc_t {
 	size										region_size;
 	size										data_size;
+	size										alignment;
 	GLuint										gpu_handle;
 	buffer_usage_e								usage;
 };

@@ -253,4 +253,7 @@ extern glVertexAttribPointer_t glVertexAttribPointer;
 typedef void (APIENTRY *glViewport_t)(GLint x, GLint y, GLsizei width, GLsizei height);
 extern glViewport_t glViewport;
 
+typedef void (APIENTRY *glDisableVertexAttribArray_t)(GLuint index);
+extern glDisableVertexAttribArray_t glDisableVertexAttribArray;
+
 }

@@ -114,6 +114,16 @@ enum class data_type_e {
 	elem_unsigned_int_24_8
 };
 
+enum class cubemap_face_e {
+	invalid = 0,
+	positive_x,
+	positive_y,
+	positive_z,
+	negative_x,
+	negative_y,
+	negative_z
+};
+
 enum class material_data_type_e {
 	param_int = 0,
 	param_float,
@@ -221,11 +231,17 @@ struct shader_param_t {
 struct color_attachment_t {
 	c8											name[128];
 	texture_format_e							texture_format;
+	texture_dimension_e							texture_dimension;
 
-	color_attachment_t() = default;
+	color_attachment_t()
+		: texture_format(texture_format_e::rgb)
+		, texture_dimension(texture_dimension_e::tex_2d)
+	{
+	}
 	
 	color_attachment_t(const_cstr i_name, const texture_format_e i_texFormat)
 		: texture_format(i_texFormat)
+		, texture_dimension(texture_dimension_e::tex_2d)
 	{
 		strcpy(name, i_name);
 	}
@@ -276,6 +292,7 @@ struct framebuffer_desc_t {
 	s32											width, height;
 	f32											scale;
 	bool										has_depth;
+	bool										color_has_mipmap = false;
 };
 
 // ---------------------------------------------
@@ -336,6 +353,7 @@ struct ubdesc_t {
 	size										region_size;
 	voidptr										data;
 	size										data_size;
+	size										alignment;
 	buffer_usage_e								usage;
 };
 

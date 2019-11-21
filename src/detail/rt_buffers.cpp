@@ -140,6 +140,8 @@ void upload_ub(const ub_handle_t i_hdl, const insigne::ubdesc_t& i_desc)
 	desc.region_size = i_desc.region_size;
 	desc.data_size = i_desc.data_size;
 	desc.usage = i_desc.usage;
+	FLORAL_ASSERT(i_desc.alignment > 0);
+	desc.alignment = i_desc.alignment;
 
 	GLuint uboHandle;
 	GLenum bufferUsage = s_buffer_usage[s32(desc.usage)];

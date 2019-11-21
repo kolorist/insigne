@@ -88,6 +88,7 @@ void begin_render_pass(const framebuffer_handle_t i_fb)
 	cmd.framebuffer_activate_data.y = -1;
 	cmd.framebuffer_activate_data.width = -1;
 	cmd.framebuffer_activate_data.height = -1;
+	cmd.framebuffer_activate_data.face = cubemap_face_e::invalid;
 
 	push_command(cmd);
 }
@@ -103,6 +104,38 @@ void begin_render_pass(const framebuffer_handle_t i_fb, const s32 i_x, const s32
 	cmd.framebuffer_activate_data.y = i_y;
 	cmd.framebuffer_activate_data.width = i_width;
 	cmd.framebuffer_activate_data.height = i_height;
+	cmd.framebuffer_activate_data.face = cubemap_face_e::invalid;
+	cmd.framebuffer_activate_data.to_mip = 0;
+
+	push_command(cmd);
+}
+
+void begin_render_pass(const framebuffer_handle_t i_fb, const cubemap_face_e i_face)
+{
+	render_command_t cmd;
+	cmd.command_type = render_command_type_e::framebuffer_activate;
+	cmd.framebuffer_activate_data.fb_handle = i_fb;
+	cmd.framebuffer_activate_data.x = -1;
+	cmd.framebuffer_activate_data.y = -1;
+	cmd.framebuffer_activate_data.width = -1;
+	cmd.framebuffer_activate_data.height = -1;
+	cmd.framebuffer_activate_data.face = i_face;
+	cmd.framebuffer_activate_data.to_mip = 0;
+
+	push_command(cmd);
+}
+
+void begin_render_pass(const framebuffer_handle_t i_fb, const cubemap_face_e i_face, const s32 i_mip)
+{
+	render_command_t cmd;
+	cmd.command_type = render_command_type_e::framebuffer_activate;
+	cmd.framebuffer_activate_data.fb_handle = i_fb;
+	cmd.framebuffer_activate_data.x = -1;
+	cmd.framebuffer_activate_data.y = -1;
+	cmd.framebuffer_activate_data.width = -1;
+	cmd.framebuffer_activate_data.height = -1;
+	cmd.framebuffer_activate_data.face = i_face;
+	cmd.framebuffer_activate_data.to_mip = i_mip;
 
 	push_command(cmd);
 }

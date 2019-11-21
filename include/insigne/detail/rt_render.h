@@ -28,6 +28,7 @@ void											set_stencil_test(const compare_func_e i_func, const u32 i_mask, c
 void											set_polygon_mode(const polygon_mode_e i_mode);
 
 void 											enable_vertex_attrib(const u32 i_location);
+void 											disable_vertex_attrib(const u32 i_location);
 void 											describe_vertex_data(const u32 i_location, const s32 i_size,
 													const data_type_e i_type, const bool i_normalized, const s32 i_stride, const voidptr offset);
 

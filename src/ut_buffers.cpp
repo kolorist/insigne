@@ -1,5 +1,6 @@
 #include "insigne/ut_buffers.h"
 
+#include "insigne/configs.h"
 #include "insigne/commands.h"
 #include "insigne/internal_states.h"
 #include "insigne/detail/rt_buffers.h"
@@ -50,6 +51,25 @@ const vb_handle_t create_vb(const vbdesc_t& i_desc)
 	return newVBO;
 }
 
+const vb_handle_t copy_create_vb(const vbdesc_t& i_desc)
+{
+	vb_handle_t newVBO = detail::create_vb(i_desc);
+
+	size dataSize = i_desc.count * i_desc.stride;
+	voidptr data = get_composing_allocator()->allocate(dataSize);
+	memcpy(data, i_desc.data, dataSize);
+
+	buffers_command_t cmd;
+	cmd.command_type = buffers_command_type_e::create_vb_buffers;
+	cmd.create_vb_data.desc = i_desc;
+	cmd.create_vb_data.desc.data = data;
+	cmd.create_vb_data.vb_handle = newVBO;
+
+	push_command(cmd);
+
+	return newVBO;
+}
+
 const ib_handle_t create_ib(const ibdesc_t& i_desc)
 {
 	ib_handle_t newIBO = detail::create_ib(i_desc);
@@ -64,6 +84,25 @@ const ib_handle_t create_ib(const ibdesc_t& i_desc)
 	return newIBO;
 }
 
+const ib_handle_t copy_create_ib(const ibdesc_t& i_desc)
+{
+	ib_handle_t newIBO = detail::create_ib(i_desc);
+
+	size dataSize = i_desc.count * sizeof(s32);
+	voidptr data = get_composing_allocator()->allocate(dataSize);
+	memcpy(data, i_desc.data, dataSize);
+
+	buffers_command_t cmd;
+	cmd.command_type = buffers_command_type_e::create_ib_buffers;
+	cmd.create_ib_data.desc = i_desc;
+	cmd.create_ib_data.desc.data = data;
+	cmd.create_ib_data.ib_handle = newIBO;
+
+	push_command(cmd);
+
+	return newIBO;
+}
+
 const ub_handle_t create_ub(const ubdesc_t& i_desc)
 {
 	ub_handle_t newUBO = detail::create_ub(i_desc);
@@ -71,6 +110,32 @@ const ub_handle_t create_ub(const ubdesc_t& i_desc)
 	buffers_command_t cmd;
 	cmd.command_type = buffers_command_type_e::create_ub_buffers;
 	cmd.create_ub_data.desc = i_desc;
+	if (i_desc.alignment == 0)
+	{
+		cmd.create_ub_data.desc.alignment = g_gpu_capacities.ub_desired_offset;
+	}
+	cmd.create_ub_data.ub_handle = newUBO;
+
+	push_command(cmd);
+
+	return newUBO;
+}
+
+const ub_handle_t copy_create_ub(const ubdesc_t& i_desc)
+{
+	ub_handle_t newUBO = detail::create_ub(i_desc);
+
+	voidptr data = get_composing_allocator()->allocate(i_desc.data_size);
+	memcpy(data, i_desc.data, i_desc.data_size);
+
+	buffers_command_t cmd;
+	cmd.command_type = buffers_command_type_e::create_ub_buffers;
+	cmd.create_ub_data.desc = i_desc;
+	if (i_desc.alignment == 0)
+	{
+		cmd.create_ub_data.desc.alignment = g_gpu_capacities.ub_desired_offset;
+	}
+	cmd.create_ub_data.desc.data = data;
 	cmd.create_ub_data.ub_handle = newUBO;
 
 	push_command(cmd);
@@ -118,7 +183,7 @@ void copy_update_ib(const ib_handle_t i_hdl, voidptr i_data, const u32 i_icount,
 	update_ib(i_hdl, data, i_icount, i_offsetElem);
 }
 
-void update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const size i_offset)
+void update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const size i_offset, const size i_align /* = 0 */)
 {
 	buffers_command_t cmd;
 	cmd.command_type = buffers_command_type_e::stream_ub_data;
@@ -126,6 +191,14 @@ void update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const
 	cmd.stream_ub_data.data = i_data;
 	cmd.stream_ub_data.data_size = i_size;
 	cmd.stream_ub_data.offset = i_offset;
+	if (i_align == 0)
+	{
+		cmd.stream_ub_data.alignment = g_gpu_capacities.ub_desired_offset;
+	}
+	else
+	{
+		cmd.stream_ub_data.alignment = i_align;
+	}
 
 	push_command(cmd);
 }
@@ -165,6 +238,30 @@ void cleanup_buffers_resource(const ssize i_stateId)
 	cmd.clean_up_snapshot_data.downto_ub = snapShot.ub;
 
 	push_command(cmd);
+}
+
+namespace helpers
+{
+
+void update_ub_array(const ub_handle_t i_hdl, voidptr i_data, const size i_stride, const size i_elemCount)
+{
+	const size gpuStride = (i_stride / g_gpu_capacities.ub_desired_offset + 1) * g_gpu_capacities.ub_desired_offset;
+	const size gpuRegionSize = gpuStride * i_elemCount;
+
+	voidptr data = get_composing_allocator()->allocate(gpuRegionSize);
+	voidptr srcData = i_data;
+	voidptr dstData = data;
+
+	for (size i = 0; i < i_elemCount; i++)
+	{
+		memcpy(dstData, srcData, i_stride);
+		srcData = (voidptr)((aptr)srcData + i_stride);
+		dstData = (voidptr)((aptr)dstData + gpuStride);
+	}
+
+	update_ub(i_hdl, data, gpuRegionSize, 0, gpuStride);
+}
+
 }
 
 }
