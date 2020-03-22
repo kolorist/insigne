@@ -4,6 +4,7 @@
 
 #include <calyx/platform/android/system.h>
 
+#include "insigne/configs.h"
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/oglapis.h"
 #include "insigne/internal_states.h"
@@ -47,6 +48,25 @@ void create_main_context()
 	systemInfo->primary_screen_width = ANativeWindow_getWidth(s_cachedNativeWindow);
 	systemInfo->primary_screen_height = ANativeWindow_getHeight(s_cachedNativeWindow);
 
+	// informations
+	CLOVER_INFO("system_info.primary_screen_width: %d", systemInfo->primary_screen_width);
+	CLOVER_INFO("system_info.primary_screen_height: %d", systemInfo->primary_screen_height);
+	if (commonCtx->window_scale > 0.0f)
+	{
+		commonCtx->window_width = (u32)((f32)systemInfo->primary_screen_width * commonCtx->window_scale);
+		commonCtx->window_height = (u32)((f32)systemInfo->primary_screen_height * commonCtx->window_scale);
+		CLOVER_INFO("Render resolution (scale = %4.2f): %d x %d",
+				commonCtx->window_scale, commonCtx->window_width, commonCtx->window_height);
+	}
+	else
+	{
+		CLOVER_INFO("Render resolution: %d x %d", commonCtx->window_width, commonCtx->window_height);
+	}
+
+	// update settings
+	g_settings.native_res_x = commonCtx->window_width;
+	g_settings.native_res_y = commonCtx->window_height;
+
 	const EGLint attribs[] = {
 		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
 		EGL_BLUE_SIZE, 8,
@@ -71,7 +91,7 @@ void create_main_context()
 	eglGetConfigAttrib(androidCtx->display, androidCtx->config, EGL_NATIVE_VISUAL_ID, &s_format);
 
 	ANativeWindow_setBuffersGeometry(
-			androidCtx->native_window,
+			s_cachedNativeWindow,
 			commonCtx->window_width,
 			commonCtx->window_height,
 			s_format);
@@ -92,11 +112,6 @@ void create_main_context()
 	gl_debug_info& debugInfo = get_driver_info();
 	memset(&debugInfo, 0, sizeof(gl_debug_info));
 
-	// informations
-	CLOVER_INFO("system_info.primary_screen_width: %d", systemInfo->primary_screen_width);
-	CLOVER_INFO("system_info.primary_screen_height: %d", systemInfo->primary_screen_height);
-	CLOVER_INFO("Render resolution: %d x %d", width, height);
-
 	const GLubyte* verStr = pxGetString(GL_VERSION);
 	const GLubyte* glslStr = pxGetString(GL_SHADING_LANGUAGE_VERSION);
 	const GLubyte* vendorStr = pxGetString(GL_VENDOR);
@@ -111,18 +126,44 @@ void create_main_context()
 		\n\tOpenGL version: %s				\
 		\n\tGLSL version: %s					\
 		\n\tVendor: %s						\
-		\n\tRenderer: %s", verStr, glslStr, vendorStr, rendererStr);
+		\n\tRenderer: %s						\
+		\n\tResolution: %d x %d",
+		verStr, glslStr, vendorStr, rendererStr,
+		width, height);
 
 	GLint numExtension = 0;
 	pxGetIntegerv(GL_NUM_EXTENSIONS, &numExtension);
 	CLOVER_VERBOSE("Number of extensions: %d", numExtension);
 	debugInfo.num_extensions = numExtension;
 
-	for (s32 i = 0; i < numExtension; i++) {
+	for (s32 i = 0; i < numExtension; i++)
+	{
 		const GLubyte* extStr = pxGetStringi(GL_EXTENSIONS, i);
 		CLOVER_VERBOSE("Ext %d: %s", i, extStr);
 
 		strcpy(debugInfo.extensions[i], (const char*)extStr);
+	}
+
+	CLOVER_VERBOSE("Color-renderable texture formats:");
+	for (size i = 0; i < numExtension; i++)
+	{
+		if (strstr(debugInfo.extensions[i], "_color_buffer_float") != nullptr)
+		{
+			CLOVER_VERBOSE("Found '_color_buffer_float' support");
+			CLOVER_VERBOSE(" > [cr] GL_RGBA16F");
+			CLOVER_VERBOSE(" > [cr] GL_R11F_G11F_B10F");
+			CLOVER_VERBOSE(" > [tex] GL_RG16F");
+		}
+		else if (strstr(debugInfo.extensions[i], "_color_buffer_half_float") != nullptr)
+		{
+			CLOVER_VERBOSE("Found '_color_buffer_half_float' support");
+			CLOVER_VERBOSE(" > [cr] GL_RGB16F");
+		}
+		else if (strstr(debugInfo.extensions[i], "_texture_rg") != nullptr)
+		{
+			CLOVER_VERBOSE("Found '_texture_rg' support");
+			CLOVER_VERBOSE(" > [tex] GL_RG8");
+		}
 	}
 
 	GLint ubOffsetAlignment = 0;
@@ -136,6 +177,9 @@ void create_main_context()
 			\n\tMax Bindings Count: %d\
 			\n\tMax Uniform Block Size: %d",
 			ubOffsetAlignment, ubMaxBinding, ubMaxBlockSize);
+
+	g_gpu_capacities.ub_max_size = ubMaxBlockSize;
+	g_gpu_capacities.ub_desired_offset = ubOffsetAlignment;
 }
 
 void refresh_context()
@@ -161,7 +205,7 @@ void refresh_context()
 	androidCtx->surface = EGL_NO_SURFACE;
 
 	ANativeWindow_setBuffersGeometry(
-			androidCtx->native_window,
+			s_cachedNativeWindow,
 			commonCtx->window_width,
 			commonCtx->window_height,
 			s_format);

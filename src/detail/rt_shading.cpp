@@ -1,11 +1,14 @@
 #include "insigne/detail/rt_shading.h"
 
 #include "insigne/memory.h"
+#include "insigne/counters.h"
 #include "insigne/generated_code/proxy.h"
 #include "insigne/internal_states.h"
 
 #include <clover/SinkTopic.h>
 #include <clover/Logger.h>
+
+#include <lotus/profiler.h>
 
 namespace insigne {
 namespace detail {
@@ -30,12 +33,12 @@ const shader_handle_t create_shader(const insigne::shader_desc_t& i_desc)
 
 	// we have to create material_template here because user may infuse a material
 	// right after calling create_shader()
-	for (size i = 0; i < i_desc.reflection.textures->get_size(); i++) {
+	for (ssize i = 0; i < i_desc.reflection.textures->get_size(); i++) {
 		const_cstr pName = i_desc.reflection.textures->at(i).name;
 		desc.material_template.textures.push_back(floral::crc_string(pName));
 	}
 
-	for (size i = 0; i < i_desc.reflection.uniform_blocks->get_size(); i++) {
+	for (ssize i = 0; i < i_desc.reflection.uniform_blocks->get_size(); i++) {
 		const_cstr pName = i_desc.reflection.uniform_blocks->at(i).name;
 		desc.material_template.uniform_blocks.push_back(floral::crc_string(pName));
 	}
@@ -105,10 +108,6 @@ void compile_shader(shader_desc_t& io_desc, const_cstr i_vs, const_cstr i_fs, co
 	pxAttachShader(newShader, fs);
 	pxLinkProgram(newShader);
 
-	// release temp shaders
-	pxDeleteShader(vs);
-	pxDeleteShader(fs);
-
 	// reflection to template
 	{
 		for (u32 i = 0; i < i_refl.textures->get_size(); i++) {
@@ -137,6 +136,11 @@ void compile_shader(shader_desc_t& io_desc, const_cstr i_vs, const_cstr i_fs, co
 	}
 
 	io_desc.gpu_handle = newShader;
+
+	// release temp shaders
+	pxDeleteShader(vs);
+	pxDeleteShader(fs);
+
 }
 
 /* ut */
@@ -197,7 +201,13 @@ void cleanup_shading_module()
 
 void process_shading_command_buffer(const size i_cmdBuffId)
 {
+	PROFILE_SCOPE("process_shading_command_buffer");
+
 	detail::gpu_command_buffer_t& cmdbuff = get_shading_command_buffer(i_cmdBuffId);
+
+	u64 writeSlot = g_global_counters.current_write_slot;
+	g_debug_frame_counters[writeSlot].num_shading_commands += (u32)cmdbuff.get_size();
+
 	for (u32 i = 0; i < cmdbuff.get_size(); i++) {
 		gpu_command& gpuCmd = cmdbuff[i];
 		gpuCmd.reset_cursor();

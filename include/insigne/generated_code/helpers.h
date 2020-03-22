@@ -157,3 +157,5 @@ API_HELPER(void, VertexAttribPointer);
 API_HELPER(void, Viewport);
 
 API_HELPER(void, DisableVertexAttribArray);
+
+API_HELPER(void, Finish);

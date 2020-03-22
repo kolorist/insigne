@@ -78,6 +78,13 @@ void initialize_driver()
 
 void create_main_context()
 {
+	using namespace calyx;
+
+	// update settings
+	context_attribs* commonCtx = get_context_attribs();
+	g_settings.native_res_x = commonCtx->window_width;
+	g_settings.native_res_y = commonCtx->window_height;
+
 	floral::lock_guard guard(g_gl_context.init_mtx);
 	int attribs[] =
 	{
@@ -164,6 +171,9 @@ void create_shared_context()
 
 void swap_buffers()
 {
+	// NOTE: somehow, SwapBuffers on Windows doesn't flush everything and force a GPU-CPU synchronization.
+	// Fine... I'll do it myself.
+	pxFinish();
 	SwapBuffers(g_gl_context.dc);
 }
 

@@ -1,10 +1,13 @@
 #include "insigne/detail/rt_buffers.h"
 
 #include "insigne/memory.h"
+#include "insigne/counters.h"
 #include "insigne/generated_code/proxy.h"
 #include "insigne/internal_states.h"
 
 #include <clover/Logger.h>
+
+#include <lotus/profiler.h>
 
 /*
  * NOTE: we will not make shadow copy of vertex or index data for the command buffer for now
@@ -182,11 +185,12 @@ void stream_ib_data(const ib_handle_t i_hdl, const voidptr i_data, const u32 i_i
 	pxBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void stream_ub_data(const ub_handle_t i_hdl, const voidptr i_data, const size i_size, const size i_offset)
+void stream_ub_data(const ub_handle_t i_hdl, const voidptr i_data, const size i_size, const size i_offset, const size i_alignment)
 {
 	ubdesc_t& desc = g_ubs_pool[s32(i_hdl)];
 
 	desc.data_size = i_size;
+	desc.alignment = i_alignment;
 
 	pxBindBuffer(GL_UNIFORM_BUFFER, desc.gpu_handle);
 	pxBufferSubData(GL_UNIFORM_BUFFER, GLintptr(i_offset), GLsizeiptr(desc.data_size), (const GLvoid*)i_data);
@@ -250,7 +254,12 @@ void cleanup_buffers_module()
 
 void process_buffers_command_buffer(const size i_cmdBuffId)
 {
+	PROFILE_SCOPE("process_buffers_command_buffer");
 	detail::gpu_command_buffer_t& cmdbuff = get_buffers_command_buffer(i_cmdBuffId);
+
+	u64 writeSlot = g_global_counters.current_write_slot;
+	g_debug_frame_counters[writeSlot].num_buffer_commands += (u32)cmdbuff.get_size();
+
 	for (u32 i = 0; i < cmdbuff.get_size(); i++) {
 		gpu_command& gpuCmd = cmdbuff[i];
 		gpuCmd.reset_cursor();
@@ -281,7 +290,8 @@ void process_buffers_command_buffer(const size i_cmdBuffId)
 							break;
 						case buffers_command_type_e::stream_ub_data:
 							stream_ub_data(cmd.stream_ub_data.ub_handle, cmd.stream_ub_data.data,
-									cmd.stream_ub_data.data_size, cmd.stream_ub_data.offset);
+									cmd.stream_ub_data.data_size, cmd.stream_ub_data.offset,
+									cmd.stream_ub_data.alignment);
 							break;
 						case buffers_command_type_e::clean_up_snapshot:
 							clean_up_snapshot(cmd.clean_up_snapshot_data.downto_vb,

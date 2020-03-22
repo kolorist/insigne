@@ -256,4 +256,7 @@ extern glViewport_t glViewport;
 typedef void (APIENTRY *glDisableVertexAttribArray_t)(GLuint index);
 extern glDisableVertexAttribArray_t glDisableVertexAttribArray;
 
+typedef void (APIENTRY *glFinish_t)();
+extern glFinish_t glFinish;
+
 }

@@ -179,7 +179,9 @@ enum class texture_format_e {
 	hdr_rg,
 	rgb,
 	hdr_rgb,
+	hdr_rgb_half,
 	srgb,
+	srgba,
 	rgba,
 	hdr_rgba,
 	depth,
@@ -232,19 +234,34 @@ struct color_attachment_t {
 	c8											name[128];
 	texture_format_e							texture_format;
 	texture_dimension_e							texture_dimension;
+	s32											width, height;
 
 	color_attachment_t()
 		: texture_format(texture_format_e::rgb)
 		, texture_dimension(texture_dimension_e::tex_2d)
+		, width(0)
+		, height(0)
 	{
 	}
 	
 	color_attachment_t(const_cstr i_name, const texture_format_e i_texFormat)
 		: texture_format(i_texFormat)
 		, texture_dimension(texture_dimension_e::tex_2d)
+		, width(0)
+		, height(0)
 	{
 		strcpy(name, i_name);
 	}
+
+	color_attachment_t(const_cstr i_name, const texture_format_e i_texFormat, const s32 i_width, const s32 i_height)
+		: texture_format(i_texFormat)
+		, texture_dimension(texture_dimension_e::tex_2d)
+		, width(i_width)
+		, height(i_height)
+	{
+		strcpy(name, i_name);
+	}
+
 };
 
 typedef floral::fixed_array<shader_param_t, arena_allocator_t>		shader_param_list_t;

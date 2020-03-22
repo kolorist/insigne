@@ -4,6 +4,8 @@
 
 #include <floral/math/utils.h>
 
+#include <stdio.h>
+
 #include "insigne/internal_states.h"
 #include "insigne/counters.h"
 #include "insigne/commands.h"
@@ -72,11 +74,27 @@ void push_draw_command(const ssize i_surfaceTypeIdx, const draw_command_t& i_cmd
 // render entrypoint----------------------------
 void begin_frame()
 {
-	while (!detail::g_scene_presented.load() && !detail::g_waiting_cmdbuffs.is_empty());
+	u64 frameIdx = g_global_counters.current_frame_idx.load(std::memory_order_relaxed);
+	c8 scopeStr[64];
+	sprintf(scopeStr, "begin_frame (%zd)", frameIdx);
+	PROFILE_SCOPE(scopeStr);
+#if defined(USE_BUSY_LOCK)
+	while (!detail::g_scene_presented.load() || !detail::g_waiting_cmdbuffs.is_empty());
+#else
+	{
+		floral::lock_guard guard(detail::g_scene_presented_mtx);
+		while (!detail::g_scene_presented.load())
+		{
+			detail::g_scene_presented_condvar.wait(detail::g_scene_presented_mtx);
+		}
+	}
+#endif
+	detail::g_scene_presented.store(false);
 }
 
 void end_frame()
 {
+	PROFILE_SCOPE("end_frame");
 }
 
 void begin_render_pass(const framebuffer_handle_t i_fb)
@@ -155,7 +173,18 @@ void mark_present_render()
 
 void dispatch_render_pass()
 {
-	detail::g_waiting_cmdbuffs.wait_and_push(detail::g_composing_cmdbuff);
+	PROFILE_SCOPE("dispatch_render_pass");
+	{
+		PROFILE_SCOPE("wait_and_push");
+		detail::g_waiting_cmdbuffs.wait_and_push(detail::g_composing_cmdbuff);
+#if !defined(USE_BUSY_LOCK)
+		// notify render thread
+		{
+			floral::lock_guard guard(detail::g_waiting_cmdbuffs_mtx);
+			detail::g_waiting_cmdbuffs_condvar.notify_one();
+		}
+#endif
+	}
 
 	detail::g_composing_cmdbuff = (detail::g_composing_cmdbuff + 1) % BUFFERS_COUNT;
 	cleanup_shading_module();

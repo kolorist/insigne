@@ -88,6 +88,7 @@ typedef void									GLvoid;
 #define GL_INT                            0x1404
 #define GL_UNSIGNED_INT                   0x1405
 #define GL_FLOAT                          0x1406
+#define GL_HALF_FLOAT                     0x140B
 
 /* ErrorCode */
 #define GL_NO_ERROR                       0
@@ -190,6 +191,7 @@ typedef void									GLvoid;
 #define GL_DEPTH_COMPONENT32F             0x8CAC
 #define GL_DEPTH24_STENCIL8               0x88F0
 #define GL_UNSIGNED_INT_24_8              0x84FA
+#define GL_R11F_G11F_B10F                 0x8C3A
 
 /* TextureParameter */
 #define GL_TEXTURE_MAG_FILTER             0x2800

@@ -166,4 +166,6 @@ void pxViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 
 void pxDisableVertexAttribArray(GLuint index);
 
+void pxFinish();
+
 }

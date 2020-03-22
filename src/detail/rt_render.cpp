@@ -1,6 +1,7 @@
 #include "insigne/detail/rt_render.h"
 
 #include "insigne/configs.h"
+#include "insigne/counters.h"
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/proxy.h"
 #include "insigne/detail/rt_shading.h"
@@ -9,6 +10,8 @@
 #include "insigne/internal_states.h"
 
 #include <clover/Logger.h>
+
+#include <lotus/profiler.h>
 
 namespace insigne
 {
@@ -217,7 +220,7 @@ void clear_framebuffer(const bool i_clearcolor, const bool i_cleardepth)
 /* ut */
 const framebuffer_handle_t create_framebuffer(const insigne::framebuffer_desc_t& i_desc)
 {
-	u32 idx = g_framebuffers_pool.get_size();
+	ssize idx = g_framebuffers_pool.get_size();
 	g_framebuffers_pool.push_back(framebuffer_desc_t());
 
 	framebuffer_desc_t& desc = g_framebuffers_pool[idx];
@@ -228,7 +231,7 @@ const framebuffer_handle_t create_framebuffer(const insigne::framebuffer_desc_t&
 	desc.has_depth = i_desc.has_depth;
 
 	// attachments
-	for (u32 i = 0; i < i_desc.color_attachments->get_size(); i++) {
+	for (ssize i = 0; i < i_desc.color_attachments->get_size(); i++) {
 		desc.color_attach_textures.push_back(create_texture());
 		desc.color_attach_ids.push_back(floral::crc_string(i_desc.color_attachments->at(i).name));
 	}
@@ -265,7 +268,7 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 {
 	framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_hdl];
 
-	u32 colorAttachsCount = i_desc.color_attachments->get_size();
+	ssize colorAttachsCount = i_desc.color_attachments->get_size();
 
 	GLuint newFBO = 0;
 	pxGenFramebuffers(1, &newFBO);
@@ -276,11 +279,20 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 	s32 swidth = (s32)((f32)desc.width * desc.scale);
 	s32 sheight = (s32)((f32)desc.height * desc.scale);
 
-	for (u32 i = 0; i < colorAttachsCount; i++)
+	for (ssize i = 0; i < colorAttachsCount; i++)
 	{
 		insigne::texture_desc_t colorDesc;
 		colorDesc.data = nullptr;
-		colorDesc.width = i_desc.width; colorDesc.height = i_desc.height;
+		if (i_desc.color_attachments->at(i).width == 0 && i_desc.color_attachments->at(i).height == 0)
+		{
+			colorDesc.width = i_desc.width;
+			colorDesc.height = i_desc.height;
+		}
+		else
+		{
+			colorDesc.width = i_desc.color_attachments->at(i).width;
+			colorDesc.height = i_desc.color_attachments->at(i).height;
+		}
 		colorDesc.format = i_desc.color_attachments->at(i).texture_format;
 		colorDesc.mag_filter = filtering_e::linear;
 		colorDesc.has_mipmap = i_desc.color_has_mipmap;
@@ -297,12 +309,12 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 		texture_desc_t& colorTex = g_textures_pool[(s32)desc.color_attach_textures[i]];
 		if (colorDesc.dimension == texture_dimension_e::tex_2d)
 		{
-			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorTex.gpu_handle, 0);
+			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (u32)i, GL_TEXTURE_2D, colorTex.gpu_handle, 0);
 		}
 		else
 		{
 			FLORAL_ASSERT(colorAttachsCount == 1);
-			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_CUBE_MAP_POSITIVE_X, colorTex.gpu_handle, 0);
+			pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (u32)i, GL_TEXTURE_CUBE_MAP_POSITIVE_X, colorTex.gpu_handle, 0);
 		}
 	}
 
@@ -327,6 +339,14 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 
 void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height, const cubemap_face_e i_face, const s32 i_toMip)
 {
+	static GLenum s_attachments[] =
+	{
+		GL_COLOR_ATTACHMENT0,
+		GL_COLOR_ATTACHMENT1,
+		GL_COLOR_ATTACHMENT2,
+		GL_COLOR_ATTACHMENT3
+	};
+
 	if (i_face == cubemap_face_e::invalid)
 	{
 		if ((s32)i_hdl == DEFAULT_FRAMEBUFFER_HANDLE)
@@ -341,6 +361,8 @@ void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const
 		{
 			framebuffer_desc_t& desc = g_framebuffers_pool[(s32)i_hdl];
 			pxBindFramebuffer(GL_FRAMEBUFFER, desc.gpu_handle);
+			size numAttachments = desc.color_attach_textures.get_size();
+			pxDrawBuffers((s32)numAttachments, s_attachments);
 			if (i_width < 0 && i_height < 0) {
 				set_scissor_test<false_type>(0, 0, 0, 0);
 				pxViewport(0, 0, desc.width, desc.height);
@@ -369,7 +391,7 @@ void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const
 		pxBindFramebuffer(GL_FRAMEBUFFER, desc.gpu_handle);
 		const texture_desc_t& colorTex = g_textures_pool[(s32)desc.color_attach_textures[0]];
 		pxFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_GLCubemapFaces[(size)i_face], colorTex.gpu_handle, i_toMip);
-
+		pxDrawBuffers(1, s_attachments);
 		set_scissor_test<false_type>(0, 0, 0, 0);
 		s32 width = desc.width >> i_toMip;
 		s32 height = desc.height >> i_toMip;
@@ -416,7 +438,7 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 	pxUseProgram(shaderDesc.gpu_handle);
 
 	for (u32 i = 0; i < i_mat->textures.get_size(); i++) {
-		s32 texId = i_mat->textures[i].value;
+		texture_handle_t texId = i_mat->textures[i].value;
 		if (texId < 0) continue;
 		const insigne::detail::texture_desc_t& texDesc = insigne::detail::g_textures_pool[texId];
 		pxActiveTexture(GL_TEXTURE0 + i);
@@ -431,6 +453,7 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 	for (u32 i = 0; i < i_mat->uniform_blocks.get_size(); i++) {
 		const ubmat_desc_t ubMatDesc = i_mat->uniform_blocks[i].value;
 		if (ubMatDesc.ub_handle < 0) continue;
+		if (shaderDesc.slots_config.uniform_blocks[i] == GL_INVALID_INDEX) continue;
 		const insigne::detail::ubdesc_t& ubDesc = insigne::detail::g_ubs_pool[ubMatDesc.ub_handle];
 		if (ubMatDesc.offset == 0)
 		{
@@ -514,7 +537,11 @@ void cleanup_render_module()
 // ---------------------------------------------
 void process_draw_command_buffer(const size i_cmdBuffId)
 {
+	PROFILE_SCOPE("process_draw_command_buffer");
 	floral::lock_guard guard(detail::g_draw_config_mtx);
+
+	u64 writeSlot = g_global_counters.current_write_slot;
+
 	// geometry render phase
 	for (u32 i = 0; i < g_settings.surface_types_count; i++)
 	{
@@ -522,6 +549,8 @@ void process_draw_command_buffer(const size i_cmdBuffId)
 		states_setup_func_t stateSetupFunc = g_draw_command_buffers[i].states_setup_func;
 		vertex_data_setup_func_t vertexSetupFunc = g_draw_command_buffers[i].vertex_data_setup_func;
 		geometry_mode_e geometryMode = g_draw_command_buffers[i].geometry_mode;
+
+		g_debug_frame_counters[writeSlot].num_draw_commands += (u32)cmdbuff.get_size();
 
 		for (u32 j = 0; j < cmdbuff.get_size(); j++) {
 			gpu_command& gpuCmd = cmdbuff[j];
@@ -577,14 +606,20 @@ void process_draw_command_buffer(const size i_cmdBuffId)
 
 void process_post_draw_command_buffer(const size i_cmdBuffId)
 {
+	PROFILE_SCOPE("process_post_draw_command_buffer");
 	floral::lock_guard guard(detail::g_post_draw_config_mtx);
 	// geometry render phase
+
+	u64 writeSlot = g_global_counters.current_write_slot;
+
 	for (u32 i = 0; i < g_settings.post_surface_types_count; i++)
 	{
 		detail::gpu_command_buffer_t& cmdbuff = g_post_draw_command_buffers[i].command_buffer[i_cmdBuffId];
 		states_setup_func_t stateSetupFunc = g_post_draw_command_buffers[i].states_setup_func;
 		vertex_data_setup_func_t vertexSetupFunc = g_post_draw_command_buffers[i].vertex_data_setup_func;
 		geometry_mode_e geometryMode = g_post_draw_command_buffers[i].geometry_mode;
+
+		g_debug_frame_counters[writeSlot].num_draw_commands += (u32)cmdbuff.get_size();
 
 		for (u32 j = 0; j < cmdbuff.get_size(); j++) {
 			gpu_command& gpuCmd = cmdbuff[j];
@@ -640,8 +675,13 @@ void process_post_draw_command_buffer(const size i_cmdBuffId)
 
 const bool process_render_command_buffer(const size i_cmdBuffId)
 {
+	PROFILE_SCOPE("process_render_command_buffer");
 	bool endOfFrameMarked = false;
 	detail::gpu_command_buffer_t& cmdbuff = get_render_command_buffer(i_cmdBuffId);
+
+	u64 writeSlot = g_global_counters.current_write_slot;
+	g_debug_frame_counters[writeSlot].num_render_commands += (u32)cmdbuff.get_size();
+
 	for (u32 i = 0; i < cmdbuff.get_size(); i++) {
 		gpu_command& gpuCmd = cmdbuff[i];
 		gpuCmd.reset_cursor();

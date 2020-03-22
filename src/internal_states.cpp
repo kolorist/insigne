@@ -1,7 +1,9 @@
 #include "insigne/internal_states.h"
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
 
 // synchronization
 floral::condition_variable						g_init_condvar;
@@ -9,8 +11,17 @@ floral::mutex									g_init_mtx;
 
 size											g_composing_cmdbuff;
 std::atomic_bool								g_scene_presented;
+#if !defined(USE_BUSY_LOCK)
+floral::condition_variable						g_scene_presented_condvar;
+floral::mutex									g_scene_presented_mtx;
+#endif
 std::atomic_bool								g_context_dirty;
+
 waiting_cmdbuffs_t								g_waiting_cmdbuffs;
+#if !defined(USE_BUSY_LOCK)
+floral::condition_variable						g_waiting_cmdbuffs_condvar;
+floral::mutex									g_waiting_cmdbuffs_mtx;
+#endif
 
 // render---------------------------------------
 arena_allocator_t*								g_frame_render_allocator[BUFFERS_COUNT];

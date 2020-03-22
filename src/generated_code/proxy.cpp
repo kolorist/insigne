@@ -533,4 +533,10 @@ void pxDisableVertexAttribArray(GLuint index)
 	assert_driver_no_error();
 }
 
+void pxFinish()
+{
+	glFinish();
+	assert_driver_no_error();
+}
+
 }

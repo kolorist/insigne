@@ -161,4 +161,6 @@ glViewport_t glViewport;
 
 glDisableVertexAttribArray_t glDisableVertexAttribArray;
 
+glFinish_t glFinish;
+
 }

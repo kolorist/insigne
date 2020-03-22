@@ -3,6 +3,7 @@
 #include <clover.h>
 
 #include "insigne/memory.h"
+#include "insigne/counters.h"
 #include "insigne/generated_code/proxy.h"
 #include "insigne/internal_states.h"
 
@@ -20,7 +21,7 @@ inline detail::gpu_command_buffer_t& get_textures_command_buffer(const size i_cm
 /* ut */
 const texture_handle_t create_texture()
 {
-	u32 idx = g_textures_pool.get_size();
+	ssize idx = g_textures_pool.get_size();
 	g_textures_pool.push_back(texture_desc_t());
 
 	return texture_handle_t(idx);
@@ -41,7 +42,9 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 		GL_RG,									// hdr_rg
 		GL_RGB,									// rgb
 		GL_RGB,									// hdr_rgb
+		GL_RGB,									// hdr_rgb_half
 		GL_RGB,									// srgb
+		GL_RGBA,								// srgba
 		GL_RGBA,								// rgba
 		GL_RGBA,								// hdr_rgba
 		GL_DEPTH_COMPONENT,						// depth
@@ -53,7 +56,9 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 		GL_RG16F,								// hdr_rg
 		GL_RGB8,								// rgb
 		GL_RGB16F,								// hdr_rgb
+		GL_R11F_G11F_B10F,						// hdr_rgb_half
 		GL_SRGB8,								// srgb
+		GL_SRGB8_ALPHA8,						// srgba
 		GL_RGBA8,								// rgba
 		GL_RGBA16F,								// hdr_rgba
 		GL_DEPTH_COMPONENT24,					// depth
@@ -65,35 +70,28 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 		GL_FLOAT,								// hdr_rg
 		GL_UNSIGNED_BYTE,						// rgb
 		GL_FLOAT,								// hdr_rgb
+		GL_HALF_FLOAT,							// hdr_rgb
 		GL_UNSIGNED_BYTE,						// srgb
+		GL_UNSIGNED_BYTE,						// srgba
 		GL_UNSIGNED_BYTE,						// rgba
 		GL_FLOAT,								// hdr_rgba
 		GL_UNSIGNED_INT,						// depth
 		GL_UNSIGNED_INT_24_8					// depth_stencil
 	};
 
-	static size s_NumChannels[] = {
-		2,										// rg
-		2,										// hdr_rg
-		3,										// rgb
-		3,										// hdr_rgb
-		3,										// srgb
-		4,										// rgba
-		4,										// hdr_rgba
-		1,										// depth
-		1										// depth_stencil
-	};
-
+	// data size in the CPU, not GPU!!!
 	static size s_DataSize[] = {
-		1,
-		4,
-		1,
-		4,
-		1,
-		1,
-		4,
-		4,
-		4
+		2,										// rg
+		8,										// hdr_rg
+		3,										// rgb
+		12,										// hdr_rgb
+		12,										// hdr_rgb_half (TODO: really?)
+		3,										// srgb
+		4,										// srgba
+		4,										// rgba
+		16,										// hdr_rgba
+		4,										// depth
+		4										// depth_stencil
 	};
 
 	static GLenum s_GLFiltering[] = {
@@ -131,21 +129,26 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		if (i_uploadDesc.has_mipmap) {
+		if (i_uploadDesc.has_mipmap)
+		{
 			s32 texSize = i_uploadDesc.width;
 			s32 mipIdx = 0;
 			size offset = 0;
-			while (texSize >= 1) {
+			while (texSize >= 1)
+			{
 				// NOTE: please remember that: when loading mipmaps, the width and height is
 				// resolution of the mipmap, not the resolution of the largest mip
-				if (i_uploadDesc.data) {
+				if (i_uploadDesc.data)
+				{
 					pxTexImage2D(GL_TEXTURE_2D, mipIdx,
 							s_GLInternalFormat[(s32)i_uploadDesc.format],
 							texSize, texSize, 0,
 							s_GLFormat[(s32)i_uploadDesc.format],
 							s_GLDataType[(s32)i_uploadDesc.format],
 							(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
-				} else {
+				}
+				else
+				{
 					pxTexImage2D(GL_TEXTURE_2D, mipIdx,
 							s_GLInternalFormat[(s32)i_uploadDesc.format],
 							texSize, texSize, 0,
@@ -153,12 +156,15 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 							s_GLDataType[(s32)i_uploadDesc.format],
 							nullptr);
 				}
-				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
+				offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
 				texSize >>= 1;
 				mipIdx++;
 			}
-		} else {
-			if (i_uploadDesc.data) {
+		}
+		else
+		{
+			if (i_uploadDesc.data)
+			{
 				pxTexImage2D(GL_TEXTURE_2D, 0,
 						s_GLInternalFormat[s32(i_uploadDesc.format)],
 						i_uploadDesc.width, i_uploadDesc.height,
@@ -166,7 +172,9 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 						s_GLFormat[s32(i_uploadDesc.format)],
 						s_GLDataType[s32(i_uploadDesc.format)],
 						(GLvoid*)i_uploadDesc.data);
-			} else {
+			}
+			else
+			{
 				pxTexImage2D(GL_TEXTURE_2D, 0,
 						s_GLInternalFormat[s32(i_uploadDesc.format)],
 						i_uploadDesc.width, i_uploadDesc.height,
@@ -176,7 +184,6 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 						nullptr);
 			}
 		}
-
 		pxBindTexture(GL_TEXTURE_2D, 0);
 	} else if (i_uploadDesc.dimension == texture_dimension_e::tex_cube) {
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, newTexture);
@@ -216,7 +223,7 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 								s_GLDataType[(s32)i_uploadDesc.format],
 								nullptr);
 					}
-					offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
+					offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
 					texSize >>= 1;
 					mipIdx++;
 				}
@@ -244,7 +251,7 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 							s_GLDataType[(s32)i_uploadDesc.format],
 							nullptr);
 				}
-				offset += texSize * texSize * s_NumChannels[(s32)i_uploadDesc.format] * s_DataSize[(s32)i_uploadDesc.format];
+				offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
 			}
 		}
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -268,7 +275,9 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 		GL_RG,									// hdr_rg
 		GL_RGB,									// rgb
 		GL_RGB,									// hdr_rgb
+		GL_RGB,									// hdr_rgb_half
 		GL_RGB,									// srgb
+		GL_RGBA,								// srgba
 		GL_RGBA,								// rgba
 		GL_RGBA,								// hdr_rgba
 		GL_DEPTH_COMPONENT,						// depth
@@ -280,7 +289,9 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 		GL_RG16F,								// hdr_rg
 		GL_RGB8,								// rgb
 		GL_RGB16F,								// hdr_rgb
+		GL_R11F_G11F_B10F,						// hdr_rgb_half
 		GL_SRGB8,								// srgb
+		GL_SRGB8_ALPHA8,						// srgba
 		GL_RGBA8,								// rgba
 		GL_RGBA16F,								// hdr_rgba
 		GL_DEPTH_COMPONENT24,					// depth
@@ -292,35 +303,28 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 		GL_FLOAT,								// hdr_rg
 		GL_UNSIGNED_BYTE,						// rgb
 		GL_FLOAT,								// hdr_rgb
+		GL_HALF_FLOAT,							// hdr_rgb_half
 		GL_UNSIGNED_BYTE,						// srgb
+		GL_UNSIGNED_BYTE,						// srgba
 		GL_UNSIGNED_BYTE,						// rgba
 		GL_FLOAT,								// hdr_rgba
 		GL_UNSIGNED_INT,						// depth
 		GL_UNSIGNED_INT_24_8					// depth_stencil
 	};
 
-	static size s_NumChannels[] = {
-		2,										// rg
-		2,										// hdr_rg
-		3,										// rgb
-		3,										// hdr_rgb
-		3,										// srgb
-		4,										// rgba
-		4,										// hdr_rgba
-		1,										// depth
-		1										// depth_stencil
-	};
-
+	// data size in the CPU, not GPU!!!
 	static size s_DataSize[] = {
-		1,
-		4,
-		1,
-		4,
-		1,
-		1,
-		4,
-		4,
-		4
+		2,										// rg
+		8,										// hdr_rg
+		3,										// rgb
+		12,										// hdr_rgb
+		12,										// hdr_rgb_half (TODO: really?)
+		3,										// srgb
+		4,										// srgba
+		4,										// rgba
+		16,										// hdr_rgba
+		4,										// depth
+		4										// depth_stencil
 	};
 
 	static GLenum s_GLFiltering[] = {
@@ -369,7 +373,7 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 							s_GLDataType[(s32)texDesc.format],
 							nullptr);
 				}
-				offset += texSize * texSize * s_NumChannels[(s32)texDesc.format] * s_DataSize[(s32)texDesc.format];
+				offset += texSize * texSize * s_DataSize[(s32)texDesc.format];
 				texSize >>= 1;
 				mipIdx++;
 			}
@@ -434,7 +438,7 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 								s_GLDataType[(s32)texDesc.format],
 								nullptr);
 					}
-					offset += texSize * texSize * s_NumChannels[(s32)texDesc.format] * s_DataSize[(s32)texDesc.format];
+					offset += texSize * texSize * s_DataSize[(s32)texDesc.format];
 					texSize >>= 1;
 					mipIdx++;
 				}
@@ -462,7 +466,7 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 							s_GLDataType[(s32)texDesc.format],
 							nullptr);
 				}
-				offset += texSize * texSize * s_NumChannels[(s32)texDesc.format] * s_DataSize[(s32)texDesc.format];
+				offset += texSize * texSize * s_DataSize[(s32)texDesc.format];
 			}
 		}
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -509,6 +513,10 @@ void cleanup_textures_module()
 void process_textures_command_buffer(const size i_cmdBuffId)
 {
 	detail::gpu_command_buffer_t& cmdbuff = get_textures_command_buffer(i_cmdBuffId);
+
+	u64 writeSlot = g_global_counters.current_write_slot;
+	g_debug_frame_counters[writeSlot].num_texture_commands += (u32)cmdbuff.get_size();
+
 	for (u32 i = 0; i < cmdbuff.get_size(); i++) {
 		gpu_command& gpuCmd = cmdbuff[i];
 		gpuCmd.reset_cursor();
