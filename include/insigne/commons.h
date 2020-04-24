@@ -39,7 +39,8 @@ enum class buffer_usage_e : s32
 	stream_draw
 };
 
-enum class draw_type_e {
+enum class draw_type_e
+{
 	static_surface = 0,
 	dynamic_surface,
 	stream_surface
@@ -54,20 +55,23 @@ enum class compare_func_e
 	func_greater,
 	func_not_equal,
 	func_greater_or_equal,
-	func_always
+	func_always,
+	func_undefined
 };
 
 enum class front_face_e
 {
 	face_cw = 0,
-	face_ccw
+	face_ccw,
+	face_undefined
 };
 
 enum class face_side_e
 {
 	front_side = 0,
 	back_side,
-	front_and_back_side
+	front_and_back_side,
+	undefined_side
 };
 
 enum class blend_equation_e
@@ -76,7 +80,8 @@ enum class blend_equation_e
 	func_substract,
 	func_reverse_substract,
 	func_min,
-	func_max
+	func_max,
+	func_undefined
 };
 
 enum class polygon_mode_e {
@@ -100,7 +105,8 @@ enum class factor_e
 	fact_constant_color,
 	fact_one_minus_constant_color,
 	fact_constant_alpha,
-	fact_one_minus_constant_alpha
+	fact_one_minus_constant_alpha,
+	fact_undefined
 };
 
 enum class operation_e
@@ -112,7 +118,8 @@ enum class operation_e
 	oper_increment_wrap,
 	oper_decrement,
 	oper_decrement_wrap,
-	oper_invert
+	oper_invert,
+	oper_undefined
 };
 
 enum class data_type_e {
@@ -163,25 +170,30 @@ enum class param_data_type_e
 
 struct render_state_t
 {
-	bool										depth_test;
-	compare_func_e								depth_func;
+	// u8 boolean type rule:
+	// 0 = false
+	// 1 = true
+	// 2 = undefined
+	u8											depth_test			= 2;
+	u8											depth_write			= 2;
+	compare_func_e								depth_func			= compare_func_e::func_undefined;
 
-	bool										face_cull;
-	face_side_e									face_side;
-	front_face_e								front_face;
+	u8											cull_face			= 2;
+	face_side_e									face_side			= face_side_e::undefined_side;
+	front_face_e								front_face			= front_face_e::face_undefined;
 
-	bool										blending;
-	blend_equation_e							blend_equation;
-	factor_e									blend_func_sfactor;
-	factor_e									blend_func_dfactor;
+	u8											blending			= 2;
+	blend_equation_e							blend_equation		= blend_equation_e::func_undefined;
+	factor_e									blend_func_sfactor	= factor_e::fact_undefined;
+	factor_e									blend_func_dfactor	= factor_e::fact_undefined;
 
-	bool										stencil_test;
-	compare_func_e								stencil_func;
-	u32											stencil_mask;
-	s32											stencil_ref;
-	operation_e									stencil_op_sfail;
-	operation_e									stencil_op_dpfail;
-	operation_e									stencil_op_dppass;
+	u8											stencil_test		= 2;
+	compare_func_e								stencil_func		= compare_func_e::func_undefined;
+	u32											stencil_mask		= 0xFFFFFFFF;
+	s32											stencil_ref			= 0;
+	operation_e									stencil_op_sfail	= operation_e::oper_undefined;
+	operation_e									stencil_op_dpfail	= operation_e::oper_undefined;
+	operation_e									stencil_op_dppass	= operation_e::oper_undefined;
 };
 
 enum class texture_format_e {

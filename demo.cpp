@@ -36,7 +36,7 @@
 
 	insigne::shader_handle_t newShader = insigne::create_shader(desc);
 
-// infuse material (user thread)
+	// infuse material (user thread)
 	insigne::material_desc_t newMaterial;
 	insigne::infuse_material(newShader, newMaterial);
 

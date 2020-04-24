@@ -29,7 +29,7 @@ struct render_module_t
 static render_module_t*							s_render_module = nullptr;
 
 // ------------------------------------------------------------------
-static GLenum s_cmp_funcs[] = {
+static const GLenum s_cmp_funcs[] = {
 	GL_NEVER,
 	GL_LESS,
 	GL_EQUAL,
@@ -40,18 +40,18 @@ static GLenum s_cmp_funcs[] = {
 	GL_ALWAYS
 };
 
-static GLenum s_front_faces[] = {
+static const GLenum s_front_faces[] = {
 	GL_CW,
 	GL_CCW
 };
 
-static GLenum s_face_sides[] = {
+static const GLenum s_face_sides[] = {
 	GL_FRONT,
 	GL_BACK,
 	GL_FRONT_AND_BACK
 };
 
-static GLenum s_blend_equations[] = {
+static const GLenum s_blend_equations[] = {
 	GL_FUNC_ADD,
 	GL_FUNC_SUBTRACT,
 	GL_FUNC_REVERSE_SUBTRACT,
@@ -59,7 +59,7 @@ static GLenum s_blend_equations[] = {
 	GL_MAX
 };
 
-static GLenum s_factors[] = {
+static const GLenum s_factors[] = {
 	GL_ZERO,
 	GL_ONE,
 	GL_SRC_COLOR,
@@ -76,7 +76,7 @@ static GLenum s_factors[] = {
 	GL_ONE_MINUS_CONSTANT_ALPHA
 };
 
-static GLenum s_stencil_ops[] = {
+static const GLenum s_stencil_ops[] = {
 	GL_KEEP,
 	GL_ZERO,
 	GL_REPLACE,
@@ -87,7 +87,7 @@ static GLenum s_stencil_ops[] = {
 	GL_INVERT
 };
 
-static GLenum s_gl_data_types[] = {
+static const GLenum s_gl_data_types[] = {
 	GL_UNSIGNED_BYTE,
 	GL_BYTE,
 	GL_UNSIGNED_INT,
@@ -96,7 +96,7 @@ static GLenum s_gl_data_types[] = {
 	GL_UNSIGNED_INT_24_8
 };
 
-static GLenum s_polygon_modes[] = {
+static const GLenum s_polygon_modes[] = {
 	GL_POINT,
 	GL_LINE,
 	GL_FILL
@@ -198,6 +198,135 @@ void set_polygon_mode(const polygon_mode_e i_mode)
 
 static void setup_render_state(const render_state_t& i_renderState)
 {
+	// TODO: optimize me! reduce useless state change
+	render_state_t& renderState = s_render_module->render_state;
+
+	// depth
+	if (i_renderState.depth_write != 2)
+	{
+		if (renderState.depth_write != i_renderState.depth_write)
+		{
+			renderState.depth_write = i_renderState.depth_write;
+			if (renderState.depth_write == 1)
+			{
+				pxDepthMask(GL_TRUE);
+			}
+			else
+			{
+				pxDepthMask(GL_FALSE);
+			}
+		}
+	}
+
+	if (i_renderState.depth_test != 2)
+	{
+		if (renderState.depth_test != i_renderState.depth_test)
+		{
+			renderState.depth_test = i_renderState.depth_test;
+			if (renderState.depth_test == 1)
+			{
+				pxEnable(GL_DEPTH_TEST);
+			}
+			else
+			{
+				pxDisable(GL_DEPTH_TEST);
+			}
+		}
+	}
+
+	if (i_renderState.depth_func != compare_func_e::func_undefined)
+	{
+		if (renderState.depth_func != i_renderState.depth_func)
+		{
+			renderState.depth_func = i_renderState.depth_func;
+			pxDepthFunc(s_cmp_funcs[s32(renderState.depth_func)]);
+		}
+	}
+
+	// face
+	if (i_renderState.cull_face != 2)
+	{
+		if (renderState.cull_face != i_renderState.cull_face)
+		{
+			renderState.cull_face = i_renderState.cull_face;
+			if (renderState.cull_face == 1)
+			{
+				pxEnable(GL_CULL_FACE);
+			}
+			else
+			{
+				pxDisable(GL_CULL_FACE);
+			}
+		}
+	}
+
+	if (i_renderState.face_side != face_side_e::undefined_side)
+	{
+		if (renderState.face_side != i_renderState.face_side)
+		{
+			renderState.face_side = i_renderState.face_side;
+			pxCullFace(s_face_sides[s32(renderState.face_side)]);
+		}
+	}
+
+	if (i_renderState.front_face != front_face_e::face_undefined)
+	{
+		if (renderState.front_face != i_renderState.front_face)
+		{
+			renderState.front_face = i_renderState.front_face;
+			pxFrontFace(s_front_faces[s32(renderState.front_face)]);
+		}
+	}
+
+	// blend
+	if (i_renderState.blending != 2)
+	{
+		if (renderState.blending != i_renderState.blending)
+		{
+			renderState.blending = i_renderState.blending;
+			if (renderState.blending == 1)
+			{
+				pxEnable(GL_BLEND);
+			}
+			else
+			{
+				pxDisable(GL_BLEND);
+			}
+		}
+	}
+
+	if (i_renderState.blend_equation != blend_equation_e::func_undefined)
+	{
+		if (renderState.blend_equation != i_renderState.blend_equation)
+		{
+			renderState.blend_equation = i_renderState.blend_equation;
+			pxBlendEquation(s_blend_equations[s32(renderState.blend_equation)]);
+		}
+	}
+
+	bool blendFuncChanged = false;
+	if (i_renderState.blend_func_sfactor != factor_e::fact_undefined)
+	{
+		if (renderState.blend_func_sfactor != i_renderState.blend_func_sfactor)
+		{
+			renderState.blend_func_sfactor = i_renderState.blend_func_sfactor;
+			blendFuncChanged = true;
+		}
+	}
+	if (i_renderState.blend_func_dfactor != factor_e::fact_undefined)
+	{
+		if (renderState.blend_func_dfactor != i_renderState.blend_func_dfactor)
+		{
+			renderState.blend_func_dfactor = i_renderState.blend_func_dfactor;
+			blendFuncChanged = true;
+		}
+	}
+	if (blendFuncChanged)
+	{
+		pxBlendFunc(s_factors[s32(renderState.blend_func_sfactor)], s_factors[s32(renderState.blend_func_dfactor)]);
+	}
+
+	// TODO: add stencil
 }
 
 // ------------------------------------------------------------------
@@ -483,7 +612,8 @@ void draw_indexed_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const 
 		const s32 i_segSize, const s32 i_segOffset, geometry_mode_e i_geometryMode,
 		states_setup_func_t i_stateSetup, vertex_data_setup_func_t i_vertexSetup)
 {
-	i_stateSetup();
+	//i_stateSetup();
+	setup_render_state(i_mat->render_state);
 	const insigne::detail::vbdesc_t& vbDesc = insigne::detail::g_vbs_pool[s32(i_vb)];
 	const insigne::detail::ibdesc_t& ibDesc = insigne::detail::g_ibs_pool[s32(i_ib)];
 	const insigne::detail::shader_desc_t& shaderDesc = insigne::detail::g_shaders_pool[s32(i_mat->shader_handle)];
@@ -555,31 +685,43 @@ inline detail::gpu_command_buffer_t& get_render_command_buffer(const size i_cmdB
 void initialize_render_module()
 {
 	// create default framebuffer desc
-	//g_framebuffers_pool.init(32u, &g_persistance_allocator);
-#if 0
 	FLORAL_ASSERT(s_render_module == nullptr);
 	s_render_module = g_persistance_allocator.allocate<render_module_t>();
 
-	s_render_module->render_state.depth_test = true;
-	s_render_module->render_state.depth_func = compare_func_e::func_less;
+	render_state_t& renderState = s_render_module->render_state;
 
-	s_render_module->render_state.face_cull = true;
-	s_render_module->render_state.face_side = face_side_e::back_side;
-	s_render_module->render_state.front_face = front_face_e::face_ccw;
+	renderState.depth_test = 1;
+	renderState.depth_write = 1;
+	renderState.depth_func = compare_func_e::func_less;
+	pxEnable(GL_DEPTH_TEST);
+	pxDepthMask(GL_TRUE);
+	pxDepthFunc(GL_LESS);
 
-	s_render_module->render_state.blending = false;
-	s_render_module->render_state.blend_equation = blend_equation_e::func_add;
-	s_render_module->render_state.blend_func_sfactor = factor_e::fact_one;
-	s_render_module->render_state.blend_func_dfactor = factor_e::fact_zero;
+	renderState.cull_face = 1;
+	renderState.face_side = face_side_e::back_side;
+	renderState.front_face = front_face_e::face_ccw;
+	pxEnable(GL_CULL_FACE);
+	pxCullFace(GL_BACK);
+	pxFrontFace(GL_CCW);
 
-	s_render_module->render_state.stencil_test = false;
-	s_render_module->render_state.stencil_func = compare_func_e::func_always;
-	s_render_module->render_state.stencil_mask = 0xFFFFFFFF;
-	s_render_module->render_state.stencil_ref = 0;
-	s_render_module->render_state.stencil_op_sfail = operation_e::oper_keep;
-	s_render_module->render_state.stencil_op_dpfail = operation_e::oper_keep;
-	s_render_module->render_state.stencil_op_dppass = operation_e::oper_keep;
-#endif
+	renderState.blending = 0;
+	renderState.blend_equation = blend_equation_e::func_add;
+	renderState.blend_func_sfactor = factor_e::fact_one;
+	renderState.blend_func_dfactor = factor_e::fact_zero;
+	pxDisable(GL_BLEND);
+	pxBlendEquation(GL_FUNC_ADD);
+	pxBlendFunc(GL_ONE, GL_ZERO);
+
+	renderState.stencil_test = 0;
+	renderState.stencil_func = compare_func_e::func_always;
+	renderState.stencil_mask = 0xFFFFFFFF;
+	renderState.stencil_ref = 0;
+	renderState.stencil_op_sfail = operation_e::oper_keep;
+	renderState.stencil_op_dpfail = operation_e::oper_keep;
+	renderState.stencil_op_dppass = operation_e::oper_keep;
+	pxDisable(GL_STENCIL_TEST);
+	pxStencilFunc(GL_ALWAYS, renderState.stencil_ref, renderState.stencil_mask);
+	pxStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 }
 
 // ---------------------------------------------
@@ -607,6 +749,7 @@ void cleanup_render_module()
 		pxDeleteFramebuffers(1, &framebufferDesc.gpu_handle);
 	}
 	CLOVER_VERBOSE("Free %zd frame buffers", g_framebuffers_pool.get_size());
+	s_render_module = nullptr;
 	CLOVER_VERBOSE("Finished cleaning up render module...");
 }
 
