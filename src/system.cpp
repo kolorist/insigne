@@ -47,7 +47,7 @@ static void initialize_renderer()
 	pxGenVertexArrays(1, &s_vao);
 	pxBindVertexArray(s_vao);
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(FLORAL_PLATFORM_WINDOWS)
 	// [windows only] enable interpolating across cubemap's faces
 	pxEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 #endif
@@ -137,6 +137,7 @@ void dispatch_frame()
 
 			s_beginFramePoint = std::chrono::system_clock::now();
 		}
+		detail::g_processed_renderpasses.fetch_add(1);
 	}
 	else
 	{
@@ -238,42 +239,12 @@ void allocate_draw_command_buffers(const u32 i_maxSurfaceTypes)
 	detail::g_draw_command_buffers.reserve(i_maxSurfaceTypes, detail::g_draw_cmdbuff_arena);
 }
 
-static void free_all_draw_command_buffers()
-{
-	floral::free_array(detail::g_draw_command_buffers);
-}
-
 void allocate_post_draw_command_buffers(const u32 i_maxSurfaceTypes)
 {
 	FLORAL_ASSERT(detail::g_draw_cmdbuff_arena != nullptr);
 	detail::g_post_draw_command_buffers.reserve(i_maxSurfaceTypes, detail::g_post_draw_cmdbuff_arena);
 }
 
-static void free_all_post_draw_command_buffers()
-{
-	floral::free_array(detail::g_post_draw_command_buffers);
-}
-
-static void free_memory()
-{
-	floral::free_array(detail::g_framebuffers_pool);
-	floral::free_array(detail::g_textures_pool);
-	floral::free_array(detail::g_ubs_pool);
-	floral::free_array(detail::g_ibs_pool);
-	floral::free_array(detail::g_vbs_pool);
-	floral::free_array(detail::g_shaders_pool);
-
-	g_persistance_allocator.free(detail::g_resource_arena);
-	detail::g_resource_arena = nullptr;
-
-	free_all_post_draw_command_buffers();
-	g_persistance_allocator.free(detail::g_post_draw_cmdbuff_arena);
-	detail::g_post_draw_cmdbuff_arena = nullptr;
-
-	free_all_draw_command_buffers();
-	g_persistance_allocator.free(detail::g_draw_cmdbuff_arena);
-	detail::g_draw_cmdbuff_arena = nullptr;
-}
 //----------------------------------------------
 
 void initialize_render_thread()
@@ -297,7 +268,8 @@ void initialize_render_thread()
 	memset(g_hardware_counters, 0, sizeof(hardware_counters));
 
 	// render
-	for (u32 i = 0; i < BUFFERS_COUNT; i++) {
+	for (u32 i = 0; i < BUFFERS_COUNT; i++)
+	{
 		detail::g_frame_render_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 				SIZE_MB(g_settings.frame_render_allocator_size_mb), "insigne::detail::g_frame_render_allocator");
 		detail::g_frame_draw_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
@@ -305,19 +277,22 @@ void initialize_render_thread()
 		detail::g_render_command_buffer[i].reserve(MAX_RENDER_COMMANDS_IN_BUFFER, &g_persistance_allocator);
 	}
 	// shading
-	for (u32 i = 0; i < BUFFERS_COUNT; i++) {
+	for (u32 i = 0; i < BUFFERS_COUNT; i++)
+	{
 		detail::g_frame_shader_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 				SIZE_MB(g_settings.frame_shader_allocator_size_mb), "insigne::detail::g_frame_shader_allocator");
 		detail::g_shading_command_buffer[i].reserve(MAX_SHADING_COMMANDS_IN_BUFFER, &g_persistance_allocator);
 	}
 	// buffers
-	for (u32 i = 0; i < BUFFERS_COUNT; i++) {
+	for (u32 i = 0; i < BUFFERS_COUNT; i++)
+	{
 		detail::g_frame_buffers_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 				SIZE_MB(g_settings.frame_buffers_allocator_size_mb), "insigne::detail::g_frame_buffers_allocator");
 		detail::g_buffers_command_buffer[i].reserve(MAX_BUFFERS_COMMANDS_IN_BUFFER, &g_persistance_allocator);
 	}
 	// textures
-	for (u32 i = 0; i < BUFFERS_COUNT; i++) {
+	for (u32 i = 0; i < BUFFERS_COUNT; i++)
+	{
 		detail::g_frame_textures_allocator[i] = g_persistance_allocator.allocate_arena<arena_allocator_t>(
 				SIZE_MB(g_settings.frame_textures_allocator_size_mb), "insigne::detail::g_frame_textures_allocator");
 		detail::g_textures_command_buffer[i].reserve(MAX_TEXTURES_COMMANDS_IN_BUFFER, &g_persistance_allocator);
@@ -327,6 +302,8 @@ void initialize_render_thread()
 	detail::g_composing_cmdbuff = 0;
 	detail::g_scene_presented = true;
 	detail::g_context_dirty = true;
+	detail::g_processed_renderpasses = 0;
+	detail::g_submitted_renderpasses = 0;
 
 	s_is_initialized.store(false, std::memory_order_relaxed);
 	{
@@ -341,39 +318,33 @@ void initialize_render_thread()
 
 void clean_up_render_thread()
 {
+	g_persistance_allocator.free_all();
 	// textures
 	for (ssize i = BUFFERS_COUNT - 1; i >= 0; i--)
 	{
-		floral::free_array(detail::g_textures_command_buffer[i]);
-		g_persistance_allocator.free(detail::g_frame_textures_allocator[i]);
 		detail::g_frame_textures_allocator[i] = nullptr;
 	}
 	// buffers
 	for (ssize i = BUFFERS_COUNT - 1; i >= 0; i--)
 	{
-		floral::free_array(detail::g_buffers_command_buffer[i]);
-		g_persistance_allocator.free(detail::g_frame_buffers_allocator[i]);
 		detail::g_frame_buffers_allocator[i] = nullptr;
 	}
 	// shading
 	for (ssize i = BUFFERS_COUNT - 1; i >= 0; i--)
 	{
-		floral::free_array(detail::g_shading_command_buffer[i]);
-		g_persistance_allocator.free(detail::g_frame_shader_allocator[i]);
 		detail::g_frame_shader_allocator[i] = nullptr;
 	}
 	// render
 	for (ssize i = BUFFERS_COUNT - 1; i >= 0; i--)
 	{
-		floral::free_array(detail::g_render_command_buffer[i]);
-		g_persistance_allocator.free(detail::g_frame_draw_allocator[i]);
 		detail::g_frame_draw_allocator[i] = nullptr;
-		g_persistance_allocator.free(detail::g_frame_render_allocator[i]);
 		detail::g_frame_render_allocator[i] = nullptr;
 	}
 
-	g_persistance_allocator.free(g_hardware_counters);
 	g_hardware_counters = nullptr;
+	detail::g_resource_arena = nullptr;
+	detail::g_post_draw_cmdbuff_arena = nullptr;
+	detail::g_draw_cmdbuff_arena = nullptr;
 }
 
 void pause_render_thread()
@@ -392,6 +363,7 @@ void resume_render_thread()
 void clean_up_and_stop_render_thread()
 {
 	s_stopped.store(true, std::memory_order_release);
+	detail::g_waiting_cmdbuffs_condvar.notify_one();
 	while (s_is_initialized.load(std::memory_order_acquire))
 	{
 	}
@@ -401,13 +373,14 @@ void clean_up_and_stop_render_thread()
 
 	// memory
 	clean_up_render_thread();
-	free_memory();
 }
 
 void wait_finish_dispatching()
 {
-	while (!detail::g_waiting_cmdbuffs.is_empty())
+	while (detail::g_processed_renderpasses.load(std::memory_order_relaxed)
+			< detail::g_submitted_renderpasses.load(std::memory_order_relaxed))
 	{
+		// busy loop
 	}
 }
 

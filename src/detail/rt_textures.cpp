@@ -198,6 +198,7 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, s_GLFiltering[(s32)i_uploadDesc.min_filter]);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		if (i_uploadDesc.has_mipmap) {
 			size offset = 0;
 			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
@@ -413,6 +414,7 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, s_GLFiltering[(s32)texDesc.min_filter]);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		if (texDesc.has_mipmap) {
 			size offset = 0;
 			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
@@ -506,7 +508,6 @@ void cleanup_textures_module()
 		pxDeleteTextures(1, &texDesc.gpu_handle);
 	}
 	CLOVER_VERBOSE("Free %zd textures", g_textures_pool.get_size());
-	g_textures_pool.~textures_pool_t();
 	CLOVER_VERBOSE("Finished cleaning up textures module...");
 }
 

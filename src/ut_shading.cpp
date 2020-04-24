@@ -7,9 +7,9 @@
 #include "insigne/internal_states.h"
 #include "insigne/detail/rt_shading.h"
 
-namespace insigne {
-
-// ---------------------------------------------
+namespace insigne
+{
+// -------------------------------------------------------------------
 
 struct shading_resource_snapshot_t
 {
@@ -18,15 +18,19 @@ struct shading_resource_snapshot_t
 
 static floral::inplace_array<shading_resource_snapshot_t, 8>	s_resource_snapshots;
 
-// ---------------------------------------------
-static inline arena_allocator_t* get_composing_allocator() {
+// -------------------------------------------------------------------
+
+static inline arena_allocator_t* get_composing_allocator()
+{
 	return detail::g_frame_shader_allocator[detail::g_composing_cmdbuff];
 }
 
-static inline detail::gpu_command_buffer_t& get_composing_command_buffer() {
+static inline detail::gpu_command_buffer_t& get_composing_command_buffer()
+{
 	return detail::g_shading_command_buffer[detail::g_composing_cmdbuff];
 }
-// ---------------------------------------------
+
+// -------------------------------------------------------------------
 
 static inline void push_command(const shading_command_t& i_cmd)
 {
@@ -105,6 +109,7 @@ void cleanup_shading_resource(const ssize i_stateId)
 
 namespace helpers
 {
+// -------------------------------------------------------------------
 
 void assign_uniform_block(material_desc_t& io_mat, const_cstr i_id, const size i_offset, const size i_range, const ub_handle_t i_ub)
 {
@@ -118,6 +123,8 @@ void assign_texture(material_desc_t& io_mat, const_cstr i_id, const texture_hand
 	io_mat.textures[slot].value = i_tex;
 }
 
+// -------------------------------------------------------------------
 }
 
+// -------------------------------------------------------------------
 }

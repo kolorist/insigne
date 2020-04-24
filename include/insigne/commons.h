@@ -9,8 +9,10 @@
 
 namespace insigne
 {
+// ------------------------------------------------------------------
 
-enum class render_state_togglemask_e {
+enum class render_state_togglemask_e : u32
+{
 	depth_test								= 1u << 0,
 	depth_write								= 1u << 1,
 	cull_face								= 1u << 2,
@@ -19,7 +21,8 @@ enum class render_state_togglemask_e {
 	stencil_test							= 1u << 5
 };
 
-enum class geometry_mode_e : s32 {
+enum class geometry_mode_e : s32
+{
 	points = 0,
 	line_strip,
 	line_loop,
@@ -29,7 +32,8 @@ enum class geometry_mode_e : s32 {
 	triangles
 };
 
-enum class buffer_usage_e : s32 {
+enum class buffer_usage_e : s32
+{
 	static_draw = 0,
 	dynamic_draw,
 	stream_draw
@@ -41,7 +45,8 @@ enum class draw_type_e {
 	stream_surface
 };
 
-enum class compare_func_e {
+enum class compare_func_e
+{
 	func_never = 0,
 	func_less,
 	func_equal,
@@ -52,18 +57,21 @@ enum class compare_func_e {
 	func_always
 };
 
-enum class front_face_e {
+enum class front_face_e
+{
 	face_cw = 0,
 	face_ccw
 };
 
-enum class face_side_e {
+enum class face_side_e
+{
 	front_side = 0,
 	back_side,
 	front_and_back_side
 };
 
-enum class blend_equation_e {
+enum class blend_equation_e
+{
 	func_add = 0,
 	func_substract,
 	func_reverse_substract,
@@ -77,7 +85,8 @@ enum class polygon_mode_e {
 	fill
 };
 
-enum class factor_e {
+enum class factor_e
+{
 	fact_zero = 0,
 	fact_one,
 	fact_src_color,
@@ -94,7 +103,8 @@ enum class factor_e {
 	fact_one_minus_constant_alpha
 };
 
-enum class operation_e {
+enum class operation_e
+{
 	oper_keep = 0,
 	oper_zero,
 	oper_replace,
@@ -137,7 +147,8 @@ enum class material_data_type_e {
 	param_ub
 };
 
-enum class param_data_type_e {
+enum class param_data_type_e
+{
 	param_int = 0,
 	param_float,
 	param_sampler2d,
@@ -150,28 +161,27 @@ enum class param_data_type_e {
 	param_ub
 };
 
-struct render_state_t {
-	u32										toggles;
+struct render_state_t
+{
+	bool										depth_test;
+	compare_func_e								depth_func;
 
-	compare_func_e							depth_func;
+	bool										face_cull;
+	face_side_e									face_side;
+	front_face_e								front_face;
 
-	front_face_e							front_face;
+	bool										blending;
+	blend_equation_e							blend_equation;
+	factor_e									blend_func_sfactor;
+	factor_e									blend_func_dfactor;
 
-	blend_equation_e						blend_equation;
-	factor_e								blend_func_sfactor;
-	factor_e								blend_func_dfactor;
-
-	compare_func_e							stencil_func;
-	u32										stencil_mask;
-	s32										stencil_ref;
-	operation_e								stencil_op_sfail;
-	operation_e								stencil_op_dpfail;
-	operation_e								stencil_op_dppass;
-
-	s32										scissor_x;
-	s32										scissor_y;
-	s32										scissor_width;
-	s32										scissor_height;
+	bool										stencil_test;
+	compare_func_e								stencil_func;
+	u32											stencil_mask;
+	s32											stencil_ref;
+	operation_e									stencil_op_sfail;
+	operation_e									stencil_op_dpfail;
+	operation_e									stencil_op_dppass;
 };
 
 enum class texture_format_e {
@@ -243,7 +253,7 @@ struct color_attachment_t {
 		, height(0)
 	{
 	}
-	
+
 	color_attachment_t(const_cstr i_name, const texture_format_e i_texFormat)
 		: texture_format(i_texFormat)
 		, texture_dimension(texture_dimension_e::tex_2d)
@@ -264,8 +274,8 @@ struct color_attachment_t {
 
 };
 
-typedef floral::fixed_array<shader_param_t, arena_allocator_t>		shader_param_list_t;
-typedef floral::fixed_array<color_attachment_t, arena_allocator_t>	color_attachment_list_t;
+using shader_param_list_t = floral::fast_fixed_array<shader_param_t, arena_allocator_t>;
+using color_attachment_list_t = floral::fast_fixed_array<color_attachment_t, arena_allocator_t>;
 
 typedef ssize									shader_handle_t;
 typedef ssize									texture_handle_t;
@@ -282,7 +292,7 @@ typedef s32										pb_handle_t;
 typedef void									(*states_setup_func_t)();
 typedef void									(*vertex_data_setup_func_t)();
 
-// ---------------------------------------------
+// -------------------------------------------------------------------
 /* pixel data alignment
  *	> for 2d texture:
  * 		pixel data is stored as a list of scanlines in a order from top to bottom of an image
@@ -293,7 +303,8 @@ typedef void									(*vertex_data_setup_func_t)();
  *		mipmap is stored as a sequence of pixel data, face after face:
  *			mip0 - positiveX, mip1 - posiviteX,... , mip[n-1] - negativeZ, mip[n] - negativeZ
  */
-struct texture_desc_t {
+struct texture_desc_t
+{
 	voidptr										data;
 	s32											width, height;
 	texture_format_e							format;
@@ -302,8 +313,10 @@ struct texture_desc_t {
 	bool										has_mipmap;
 };
 
-// ---------------------------------------------
-struct framebuffer_desc_t {
+// -------------------------------------------------------------------
+
+struct framebuffer_desc_t
+{
 	color_attachment_list_t*					color_attachments;
 	floral::vec4f								clear_color;
 	s32											width, height;
@@ -312,13 +325,18 @@ struct framebuffer_desc_t {
 	bool										color_has_mipmap = false;
 };
 
-// ---------------------------------------------
-struct shader_reflection_t {
+// -------------------------------------------------------------------
+
+struct shader_reflection_t
+{
 	shader_param_list_t*						textures;
 	shader_param_list_t*						uniform_blocks;
 };
 
-struct shader_desc_t {
+// -------------------------------------------------------------------
+
+struct shader_desc_t
+{
 	floral::path								vs_path, fs_path;
 	cstr										vs, fs;
 
@@ -329,7 +347,8 @@ struct shader_desc_t {
 * they should be handled in user space
 */
 template <typename t_value>
-struct name_value_pair_t {
+struct name_value_pair_t
+{
 	floral::crc_string							name;
 	t_value										value;
 };
@@ -337,21 +356,25 @@ struct name_value_pair_t {
 template <typename t_value, u32 t_capacity>
 using params_array_t = floral::inplace_array<name_value_pair_t<t_value>, t_capacity>;
 
-struct ubmat_desc_t {
+struct ubmat_desc_t
+{
 	size										offset;
 	size										range;
 	ub_handle_t									ub_handle;
 };
 
-struct material_desc_t {
+struct material_desc_t
+{
 	shader_handle_t								shader_handle;
 
+	render_state_t								render_state;
 	params_array_t<texture_handle_t, MAX_TEXTURE_SAMPLERS>	textures;
 	params_array_t<ubmat_desc_t, MAX_UNIFORM_BLOCKS>		uniform_blocks;
 };
 
-//----------------------------------------------
-struct vbdesc_t {
+//-------------------------------------------------------------------
+struct vbdesc_t
+{
 	size										region_size;
 	size										stride;
 	voidptr										data;
@@ -359,14 +382,16 @@ struct vbdesc_t {
 	buffer_usage_e								usage;
 };
 
-struct ibdesc_t {
+struct ibdesc_t
+{
 	size										region_size;
 	voidptr										data;
 	u32											count;
 	buffer_usage_e								usage;
 };
 
-struct ubdesc_t {
+struct ubdesc_t
+{
 	size										region_size;
 	voidptr										data;
 	size										data_size;
@@ -403,4 +428,5 @@ struct texturecube_descriptor_t {
 	bool									has_mipmap;
 };
 
+// ------------------------------------------------------------------
 }

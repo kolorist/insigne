@@ -10,8 +10,10 @@
 
 #include <lotus/profiler.h>
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
 
 shaders_pool_t									g_shaders_pool;
 
@@ -195,7 +197,6 @@ void cleanup_shading_module()
 		pxDeleteProgram(shaderDesc.gpu_handle);
 	}
 	CLOVER_VERBOSE("Free %zd shaders", g_shaders_pool.get_size());
-	g_shaders_pool.~shaders_pool_t();
 	CLOVER_VERBOSE("Finished cleaning up shading module...");
 }
 

@@ -1,18 +1,22 @@
 #pragma once
 
-#include <floral.h>
+#include <floral/stdaliases.h>
+#include <floral/containers/fast_array.h>
 
 #include <string.h>
 
 #include "commons.h"
 #include "internal_commons.h"
 
-namespace insigne {
+namespace insigne
+{
+// -------------------------------------------------------------------
 
 #define COMMAND_PAYLOAD_SIZE					64
 #define GPU_COMMAND_BUFFER_SIZE					1024u
 
-enum class command {
+enum class command
+{
 	invalid = 0,
 	shading_command,
 	buffers_command,
@@ -22,12 +26,13 @@ enum class command {
 };
 
 // this struct is copyable
-struct gpu_command {
-	command									opcode;
+struct gpu_command
+{
+	command										opcode;
 
-	u8										payload[COMMAND_PAYLOAD_SIZE];
-	size									pos;
-	size									psize;
+	u8											payload[COMMAND_PAYLOAD_SIZE];
+	size										pos;
+	size										psize;
 
 	gpu_command()
 		: opcode(command::invalid)
@@ -56,10 +61,12 @@ struct gpu_command {
 	void reset_cursor()						{ pos = 0; }
 };
 
-// ------------payload----------------------
-namespace detail {
-// draw-----------------------------------------
-typedef floral::fixed_array<gpu_command, linear_allocator_t>	gpu_command_buffer_t;
+namespace detail
+{
+// -------------------------------------------------------------------
+using gpu_command_buffer_t = floral::fast_fixed_array<gpu_command, linear_allocator_t>;
+// -------------------------------------------------------------------
 }
 
+// -------------------------------------------------------------------
 }

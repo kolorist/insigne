@@ -3,6 +3,7 @@
 
 namespace insigne
 {
+// -------------------------------------------------------------------
 
 template <typename t_surface>
 void register_surface_type()
@@ -29,7 +30,7 @@ void unregister_surface_type()
 {
 	floral::lock_guard guard(detail::g_draw_config_mtx);
 	using namespace detail;
-	
+
 	ssize cmdBuffSize = g_draw_command_buffers.get_size();
 	ssize toRemoveCmdBuffIdx = t_surface::index;
 
@@ -39,7 +40,7 @@ void unregister_surface_type()
 		cmdbuffs_t& cmdbuff = g_draw_command_buffers[toRemoveCmdBuffIdx];
 		for (ssize i = BUFFERS_COUNT - 1; i >= 0; i--)
 		{
-			cmdbuff.command_buffer[i].~gpu_command_buffer_t();
+			cmdbuff.command_buffer[i].invalidate();
 		}
 		cmdbuff.states_setup_func = nullptr;
 		cmdbuff.vertex_data_setup_func = nullptr;
@@ -75,7 +76,7 @@ void unregister_post_surface_type()
 {
 	floral::lock_guard guard(detail::g_draw_config_mtx);
 	using namespace detail;
-	
+
 	ssize cmdBuffSize = g_post_draw_command_buffers.get_size();
 	ssize toRemoveCmdBuffIdx = t_surface::index & 0x7FFF;
 
@@ -85,7 +86,7 @@ void unregister_post_surface_type()
 		cmdbuffs_t& cmdbuff = g_post_draw_command_buffers[toRemoveCmdBuffIdx];
 		for (ssize i = BUFFERS_COUNT - 1; i >= 0; i--)
 		{
-			cmdbuff.command_buffer[i].~gpu_command_buffer_t();
+			cmdbuff.command_buffer[i].invalidate();
 		}
 		cmdbuff.states_setup_func = nullptr;
 		cmdbuff.vertex_data_setup_func = nullptr;
@@ -96,4 +97,5 @@ void unregister_post_surface_type()
 	}
 }
 
+// -------------------------------------------------------------------
 }

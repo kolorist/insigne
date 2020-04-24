@@ -177,6 +177,7 @@ void dispatch_render_pass()
 	{
 		PROFILE_SCOPE("wait_and_push");
 		detail::g_waiting_cmdbuffs.wait_and_push(detail::g_composing_cmdbuff);
+		detail::g_submitted_renderpasses.fetch_add(1);
 #if !defined(USE_BUSY_LOCK)
 		// notify render thread
 		{

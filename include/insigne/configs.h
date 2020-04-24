@@ -2,7 +2,7 @@
 
 #include <floral.h>
 
-#define BUFFERS_COUNT							4
+#define BUFFERS_COUNT							3
 
 #define MAX_FLOAT_UNIFORMS						8u
 #define MAX_VEC3_UNIFORMS						8u

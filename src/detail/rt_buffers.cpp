@@ -16,8 +16,10 @@
  * after doing an upload_vb() or update_vb() call
  */
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
 
 vbs_pool_t										g_vbs_pool;
 ibs_pool_t										g_ibs_pool;
@@ -246,9 +248,6 @@ void cleanup_buffers_module()
 		pxDeleteBuffers(1, &ubDesc.gpu_handle);
 	}
 	CLOVER_VERBOSE("Free %zd uniform buffers", g_ubs_pool.get_size());
-	g_ubs_pool.~ubs_pool_t();
-	g_ibs_pool.~ibs_pool_t();
-	g_vbs_pool.~vbs_pool_t();
 	CLOVER_VERBOSE("Finished cleaning up buffers module");
 }
 

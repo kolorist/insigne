@@ -1,6 +1,7 @@
 #include "insigne/detail/rt_render.h"
 
 #include "insigne/configs.h"
+#include "insigne/commons.h"
 #include "insigne/counters.h"
 #include "insigne/gl/identifiers.h"
 #include "insigne/generated_code/proxy.h"
@@ -17,10 +18,17 @@ namespace insigne
 {
 namespace detail
 {
+// ------------------------------------------------------------------
 
 framebuffers_pool_t								g_framebuffers_pool;
 
-// -----------------------------------------
+struct render_module_t
+{
+	render_state_t								render_state;
+};
+static render_module_t*							s_render_module = nullptr;
+
+// ------------------------------------------------------------------
 static GLenum s_cmp_funcs[] = {
 	GL_NEVER,
 	GL_LESS,
@@ -185,6 +193,14 @@ void set_polygon_mode(const polygon_mode_e i_mode)
 {
 	pxPolygonMode(GL_FRONT_AND_BACK, s_polygon_modes[(s32)i_mode]);
 }
+
+// ------------------------------------------------------------------
+
+static void setup_render_state(const render_state_t& i_renderState)
+{
+}
+
+// ------------------------------------------------------------------
 
 void enable_vertex_attrib(const u32 i_location)
 {
@@ -409,20 +425,57 @@ void capture_framebuffer(const framebuffer_handle_t i_hdl, voidptr o_data)
 	const texture_desc_t& texDesc = g_textures_pool[(s32)desc.color_attach_textures[0]];
 	GLint oldFb;
 	pxGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &oldFb);
-	pxBindFramebuffer(GL_READ_FRAMEBUFFER, desc.gpu_handle);
-	pxReadBuffer(GL_COLOR_ATTACHMENT0);
 	static GLenum s_GLReadFormat[] = {
 		GL_RG,									// rg
 		GL_RG,									// hdr_rg
 		GL_RGB,									// rgb
 		GL_RGB,									// hdr_rgb
+		GL_RGB,									// hdr_rgb_half
 		GL_RGB,									// srgb
+		GL_RGBA,								// srgba
 		GL_RGBA,								// rgba
 		GL_RGBA,								// hdr_rgba
 		GL_RED,									// depth
 		GL_RED									// depth_stencil
 	};
-	pxReadPixels(0, 0, desc.width, desc.height, s_GLReadFormat[(s32)texDesc.format], GL_FLOAT, o_data);
+	if (texDesc.dimension == texture_dimension_e::tex_2d)
+	{
+		pxBindFramebuffer(GL_READ_FRAMEBUFFER, desc.gpu_handle);
+		pxReadBuffer(GL_COLOR_ATTACHMENT0);
+		pxReadPixels(0, 0, desc.width, desc.height, s_GLReadFormat[(s32)texDesc.format], GL_FLOAT, o_data);
+	}
+	else if (texDesc.dimension == texture_dimension_e::tex_cube)
+	{
+		FLORAL_ASSERT(desc.width == desc.height);
+		FLORAL_ASSERT(texDesc.width == texDesc.height);
+		pxBindFramebuffer(GL_READ_FRAMEBUFFER, desc.gpu_handle);
+		pxReadBuffer(GL_COLOR_ATTACHMENT0);
+		static GLenum s_GLCubemapFaces[] =
+		{
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+		};
+		f32* oData = (f32*)o_data;
+		for (s32 i = 0; i < 6; i++)
+		{
+			s32 texSize = texDesc.width;
+			s32 mipIdx = 0;
+			while (texSize >= 1)
+			{
+				pxFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+						s_GLCubemapFaces[i], texDesc.gpu_handle, mipIdx);
+				pxReadPixels(0, 0, texSize, texSize, s_GLReadFormat[(s32)texDesc.format], GL_FLOAT, oData);
+				// TODO: fix channel count hardcode
+				oData += texSize * texSize * 3;
+				texSize >>= 1;
+				mipIdx++;
+			}
+		}
+	}
 	pxBindFramebuffer(GL_READ_FRAMEBUFFER, oldFb);
 }
 
@@ -503,6 +556,30 @@ void initialize_render_module()
 {
 	// create default framebuffer desc
 	//g_framebuffers_pool.init(32u, &g_persistance_allocator);
+#if 0
+	FLORAL_ASSERT(s_render_module == nullptr);
+	s_render_module = g_persistance_allocator.allocate<render_module_t>();
+
+	s_render_module->render_state.depth_test = true;
+	s_render_module->render_state.depth_func = compare_func_e::func_less;
+
+	s_render_module->render_state.face_cull = true;
+	s_render_module->render_state.face_side = face_side_e::back_side;
+	s_render_module->render_state.front_face = front_face_e::face_ccw;
+
+	s_render_module->render_state.blending = false;
+	s_render_module->render_state.blend_equation = blend_equation_e::func_add;
+	s_render_module->render_state.blend_func_sfactor = factor_e::fact_one;
+	s_render_module->render_state.blend_func_dfactor = factor_e::fact_zero;
+
+	s_render_module->render_state.stencil_test = false;
+	s_render_module->render_state.stencil_func = compare_func_e::func_always;
+	s_render_module->render_state.stencil_mask = 0xFFFFFFFF;
+	s_render_module->render_state.stencil_ref = 0;
+	s_render_module->render_state.stencil_op_sfail = operation_e::oper_keep;
+	s_render_module->render_state.stencil_op_dpfail = operation_e::oper_keep;
+	s_render_module->render_state.stencil_op_dppass = operation_e::oper_keep;
+#endif
 }
 
 // ---------------------------------------------
@@ -530,7 +607,6 @@ void cleanup_render_module()
 		pxDeleteFramebuffers(1, &framebufferDesc.gpu_handle);
 	}
 	CLOVER_VERBOSE("Free %zd frame buffers", g_framebuffers_pool.get_size());
-	g_framebuffers_pool.~framebuffers_pool_t();
 	CLOVER_VERBOSE("Finished cleaning up render module...");
 }
 
@@ -730,5 +806,6 @@ const bool process_render_command_buffer(const size i_cmdBuffId)
 	return endOfFrameMarked;
 }
 
+// ------------------------------------------------------------------
 }
 }
