@@ -203,11 +203,11 @@ void update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const
 	push_command(cmd);
 }
 
-void copy_update_ub(const ub_handle_t i_hdl, const voidptr i_data, const size i_size, const size i_offset)
+void copy_update_ub(const ub_handle_t i_hdl, const voidptr i_data, const size i_size, const size i_offset, const size i_align /* = 0 */)
 {
 	voidptr data = get_composing_allocator()->allocate(i_size);
 	memcpy(data, i_data, i_size);
-	update_ub(i_hdl, data, i_size, i_offset);
+	update_ub(i_hdl, data, i_size, i_offset, i_align);
 }
 
 void cleanup_buffers_module()
@@ -242,6 +242,11 @@ void cleanup_buffers_resource(const ssize i_stateId)
 
 namespace helpers
 {
+	
+size calculate_nearest_ub_offset(const size i_rawOffset)
+{
+	return (i_rawOffset / g_gpu_capacities.ub_desired_offset + 1) * g_gpu_capacities.ub_desired_offset;
+}
 
 void update_ub_array(const ub_handle_t i_hdl, voidptr i_data, const size i_stride, const size i_elemCount)
 {

@@ -259,4 +259,13 @@ extern glDisableVertexAttribArray_t glDisableVertexAttribArray;
 typedef void (APIENTRY *glFinish_t)();
 extern glFinish_t glFinish;
 
+typedef void (APIENTRY *glCompressedTexImage2D_t)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data);
+extern glCompressedTexImage2D_t glCompressedTexImage2D;
+
+typedef void (APIENTRY *glGetProgramiv_t)(GLuint program, GLenum pname, GLint *params);
+extern glGetProgramiv_t glGetProgramiv;
+
+typedef void (APIENTRY *glGetProgramInfoLog_t)(GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+extern glGetProgramInfoLog_t glGetProgramInfoLog;
+
 }

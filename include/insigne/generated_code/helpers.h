@@ -159,3 +159,10 @@ API_HELPER(void, Viewport);
 API_HELPER(void, DisableVertexAttribArray);
 
 API_HELPER(void, Finish);
+
+API_HELPER(void, CompressedTexImage2D);
+
+API_HELPER(void, GetProgramiv);
+
+API_HELPER(void, GetProgramInfoLog);
+

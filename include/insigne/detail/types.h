@@ -6,8 +6,10 @@
 #include "insigne/commons.h"
 #include "insigne/gl/identifiers.h"
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
 
 //----------------------------------------------
 struct framebuffer_desc_t {
@@ -41,7 +43,9 @@ struct shader_desc_t {
 };
 
 //----------------------------------------------
-struct vbdesc_t {
+
+struct vbdesc_t
+{
 	size										region_size;
 	size										stride;
 	GLuint										gpu_handle;
@@ -49,26 +53,32 @@ struct vbdesc_t {
 	buffer_usage_e								usage;
 };
 
-struct ibdesc_t {
+struct ibdesc_t
+{
 	size										region_size;
 	u32											count;
 	GLuint										gpu_handle;
 	buffer_usage_e								usage;
 };
 
-struct ubdesc_t {
+struct ubdesc_t
+{
 	size										region_size;
 	size										data_size;
 	size										alignment;
 	GLuint										gpu_handle;
 	buffer_usage_e								usage;
 };
+
 //----------------------------------------------
-struct texture_desc_t {
+
+struct texture_desc_t
+{
 	s32											width, height;
 	texture_format_e							format;
 	filtering_e									min_filter, mag_filter;
 	texture_dimension_e							dimension;
+	texture_compression_e						compression;
 	GLuint										gpu_handle;
 	bool										has_mipmap;
 };

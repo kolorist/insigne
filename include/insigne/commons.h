@@ -11,6 +11,10 @@ namespace insigne
 {
 // ------------------------------------------------------------------
 
+static constexpr ssize k_invalid_handle = -1;
+
+// ------------------------------------------------------------------
+
 enum class render_state_togglemask_e : u32
 {
 	depth_test								= 1u << 0,
@@ -196,12 +200,14 @@ struct render_state_t
 	operation_e									stencil_op_dppass	= operation_e::oper_undefined;
 };
 
-enum class texture_format_e {
+enum class texture_format_e
+{
 	rg = 0,
 	hdr_rg,
 	rgb,
 	hdr_rgb,
-	hdr_rgb_half,
+	hdr_rgb_high,
+	hdr_rgb_half,	// only use for hdr framebuffer
 	srgb,
 	srgba,
 	rgba,
@@ -210,13 +216,21 @@ enum class texture_format_e {
 	depth_stencil
 };
 
-enum class texture_dimension_e {
+enum class texture_dimension_e
+{
 	tex_2d = 0,
 	tex_3d,
 	tex_cube
 };
 
-enum class filtering_e {
+enum class texture_compression_e
+{
+	no_compression = 0,
+	dxt
+};
+
+enum class filtering_e
+{
 	nearest,
 	linear,
 	nearest_mipmap_nearest,
@@ -322,6 +336,7 @@ struct texture_desc_t
 	texture_format_e							format;
 	filtering_e									min_filter, mag_filter;
 	texture_dimension_e							dimension;
+	texture_compression_e						compression;
 	bool										has_mipmap;
 };
 

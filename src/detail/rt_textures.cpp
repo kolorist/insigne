@@ -7,10 +7,83 @@
 #include "insigne/generated_code/proxy.h"
 #include "insigne/internal_states.h"
 
-namespace insigne {
-namespace detail {
+namespace insigne
+{
+namespace detail
+{
+// -------------------------------------------------------------------
 
 textures_pool_t									g_textures_pool;
+
+static const GLenum s_GLFormat[] = {
+	GL_RG,									// rg
+	GL_RG,									// hdr_rg
+	GL_RGB,									// rgb
+	GL_RGB,									// hdr_rgb
+	GL_RGB,									// hdr_rgb_high
+	GL_RGB,									// hdr_rgb_half
+	GL_RGB,									// srgb
+	GL_RGBA,								// srgba
+	GL_RGBA,								// rgba
+	GL_RGBA,								// hdr_rgba
+	GL_DEPTH_COMPONENT,						// depth
+	GL_DEPTH_STENCIL						// depth_stencil
+};
+
+static const GLenum s_GLInternalFormat[] = {
+	GL_RG8,									// rg
+	GL_RG16F,								// hdr_rg
+	GL_RGB8,								// rgb
+	GL_RGB16F,								// hdr_rgb
+	GL_RGB16F,								// hdr_rgb_high
+	GL_R11F_G11F_B10F,						// hdr_rgb_half
+	GL_SRGB8,								// srgb
+	GL_SRGB8_ALPHA8,						// srgba
+	GL_RGBA8,								// rgba
+	GL_RGBA16F,								// hdr_rgba
+	GL_DEPTH_COMPONENT24,					// depth
+	GL_DEPTH24_STENCIL8						// depth_stencil
+};
+
+static const GLenum s_GLDataType[] = {
+	GL_UNSIGNED_BYTE,						// rg
+	GL_HALF_FLOAT,							// hdr_rg
+	GL_UNSIGNED_BYTE,						// rgb
+	GL_HALF_FLOAT,							// hdr_rgb
+	GL_FLOAT,								// hdr_rgb_high
+	GL_HALF_FLOAT,							// hdr_rgb_half
+	GL_UNSIGNED_BYTE,						// srgb
+	GL_UNSIGNED_BYTE,						// srgba
+	GL_UNSIGNED_BYTE,						// rgba
+	GL_HALF_FLOAT,							// hdr_rgba
+	GL_UNSIGNED_INT,						// depth
+	GL_UNSIGNED_INT_24_8					// depth_stencil
+};
+
+// data size in the CPU, not GPU!!!
+static const size s_DataSize[] = {
+	2,										// rg
+	4,										// hdr_rg
+	3,										// rgb
+	6,										// hdr_rgb
+	12,										// hdr_rgb_high
+	6,										// hdr_rgb_half
+	3,										// srgb
+	4,										// srgba
+	4,										// rgba
+	8,										// hdr_rgba
+	4,										// depth
+	4										// depth_stencil
+};
+
+static const GLenum s_GLFiltering[] = {
+	GL_NEAREST,
+	GL_LINEAR,
+	GL_NEAREST_MIPMAP_NEAREST,
+	GL_LINEAR_MIPMAP_NEAREST,
+	GL_NEAREST_MIPMAP_LINEAR,
+	GL_LINEAR_MIPMAP_LINEAR
+};
 
 // ---------------------------------------------
 inline detail::gpu_command_buffer_t& get_textures_command_buffer(const size i_cmdBuffId) {
@@ -37,71 +110,6 @@ const texture_handle_t get_last_texture()
 void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t& i_uploadDesc)
 {
 	texture_desc_t& texDesc = g_textures_pool[(s32)i_hdl];
-	static GLenum s_GLFormat[] = {
-		GL_RG,									// rg
-		GL_RG,									// hdr_rg
-		GL_RGB,									// rgb
-		GL_RGB,									// hdr_rgb
-		GL_RGB,									// hdr_rgb_half
-		GL_RGB,									// srgb
-		GL_RGBA,								// srgba
-		GL_RGBA,								// rgba
-		GL_RGBA,								// hdr_rgba
-		GL_DEPTH_COMPONENT,						// depth
-		GL_DEPTH_STENCIL						// depth_stencil
-	};
-
-	static GLenum s_GLInternalFormat[] = {
-		GL_RG8,									// rg
-		GL_RG16F,								// hdr_rg
-		GL_RGB8,								// rgb
-		GL_RGB16F,								// hdr_rgb
-		GL_R11F_G11F_B10F,						// hdr_rgb_half
-		GL_SRGB8,								// srgb
-		GL_SRGB8_ALPHA8,						// srgba
-		GL_RGBA8,								// rgba
-		GL_RGBA16F,								// hdr_rgba
-		GL_DEPTH_COMPONENT24,					// depth
-		GL_DEPTH24_STENCIL8						// depth_stencil
-	};
-
-	static GLenum s_GLDataType[] = {
-		GL_UNSIGNED_BYTE,						// rg
-		GL_FLOAT,								// hdr_rg
-		GL_UNSIGNED_BYTE,						// rgb
-		GL_FLOAT,								// hdr_rgb
-		GL_HALF_FLOAT,							// hdr_rgb
-		GL_UNSIGNED_BYTE,						// srgb
-		GL_UNSIGNED_BYTE,						// srgba
-		GL_UNSIGNED_BYTE,						// rgba
-		GL_FLOAT,								// hdr_rgba
-		GL_UNSIGNED_INT,						// depth
-		GL_UNSIGNED_INT_24_8					// depth_stencil
-	};
-
-	// data size in the CPU, not GPU!!!
-	static size s_DataSize[] = {
-		2,										// rg
-		8,										// hdr_rg
-		3,										// rgb
-		12,										// hdr_rgb
-		12,										// hdr_rgb_half (TODO: really?)
-		3,										// srgb
-		4,										// srgba
-		4,										// rgba
-		16,										// hdr_rgba
-		4,										// depth
-		4										// depth_stencil
-	};
-
-	static GLenum s_GLFiltering[] = {
-		GL_NEAREST,
-		GL_LINEAR,
-		GL_NEAREST_MIPMAP_NEAREST,
-		GL_LINEAR_MIPMAP_NEAREST,
-		GL_NEAREST_MIPMAP_LINEAR,
-		GL_LINEAR_MIPMAP_LINEAR
-	};
 
 	texDesc.width = i_uploadDesc.width;
 	texDesc.height = i_uploadDesc.height;
@@ -109,13 +117,48 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 	texDesc.min_filter = i_uploadDesc.min_filter;
 	texDesc.mag_filter = i_uploadDesc.mag_filter;
 	texDesc.dimension = i_uploadDesc.dimension;
+	texDesc.compression = i_uploadDesc.compression;
 	texDesc.has_mipmap = i_uploadDesc.has_mipmap;
 
+	GLenum compressFormat = GL_RGBA;
+	size blockSize = 0;
+	bool hasCompression = true;
+	switch (i_uploadDesc.compression)
+	{
+	case texture_compression_e::dxt:
+	{
+		switch (i_uploadDesc.format)
+		{
+		case texture_format_e::rgb:
+		{
+			compressFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			blockSize = 8;
+			break;
+		}
+		case texture_format_e::rgba:
+		{
+			compressFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			blockSize = 16;
+			break;
+		}
+		default:
+			FLORAL_ASSERT(false);
+			break;
+		}
+		break;
+	}
+
+	case texture_compression_e::no_compression:
+	default:
+		hasCompression = false;
+		break;
+	}
+
 	GLuint newTexture = 0;
-	
 	pxGenTextures(1, &newTexture);
 
-	if (i_uploadDesc.dimension == texture_dimension_e::tex_2d) {
+	if (i_uploadDesc.dimension == texture_dimension_e::tex_2d)
+	{
 		pxBindTexture(GL_TEXTURE_2D, newTexture);
 
 		// unpacking settings
@@ -126,8 +169,8 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s_GLFiltering[s32(i_uploadDesc.mag_filter)]);
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s_GLFiltering[s32(i_uploadDesc.min_filter)]);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		if (i_uploadDesc.has_mipmap)
 		{
@@ -138,54 +181,85 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 			{
 				// NOTE: please remember that: when loading mipmaps, the width and height is
 				// resolution of the mipmap, not the resolution of the largest mip
-				if (i_uploadDesc.data)
+				if (!hasCompression)
 				{
-					pxTexImage2D(GL_TEXTURE_2D, mipIdx,
-							s_GLInternalFormat[(s32)i_uploadDesc.format],
-							texSize, texSize, 0,
-							s_GLFormat[(s32)i_uploadDesc.format],
-							s_GLDataType[(s32)i_uploadDesc.format],
-							(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+					if (i_uploadDesc.data)
+					{
+						pxTexImage2D(GL_TEXTURE_2D, mipIdx, s_GLInternalFormat[(s32)i_uploadDesc.format],
+								texSize, texSize, 0,
+								s_GLFormat[(s32)i_uploadDesc.format], s_GLDataType[(s32)i_uploadDesc.format],
+								(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+					}
+					else
+					{
+						pxTexImage2D(GL_TEXTURE_2D, mipIdx, s_GLInternalFormat[(s32)i_uploadDesc.format],
+								texSize, texSize, 0,
+								s_GLFormat[(s32)i_uploadDesc.format], s_GLDataType[(s32)i_uploadDesc.format],
+								nullptr);
+					}
+					offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
 				}
 				else
 				{
-					pxTexImage2D(GL_TEXTURE_2D, mipIdx,
-							s_GLInternalFormat[(s32)i_uploadDesc.format],
-							texSize, texSize, 0,
-							s_GLFormat[(s32)i_uploadDesc.format],
-							s_GLDataType[(s32)i_uploadDesc.format],
-							nullptr);
+					size compressedDataSize = ((texSize + 3) / 4) * ((texSize + 3) / 4) * blockSize;
+					if (i_uploadDesc.data)
+					{
+						pxCompressedTexImage2D(GL_TEXTURE_2D, mipIdx, compressFormat,
+								texSize, texSize, 0,
+								compressedDataSize, (void*)((aptr)i_uploadDesc.data + (aptr)offset));
+					}
+					else
+					{
+						pxCompressedTexImage2D(GL_TEXTURE_2D, mipIdx, compressFormat,
+								texSize, texSize, 0,
+								0, nullptr);
+					}
+					offset += compressedDataSize;
 				}
-				offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
 				texSize >>= 1;
 				mipIdx++;
 			}
 		}
 		else
 		{
-			if (i_uploadDesc.data)
+			if (!hasCompression)
 			{
-				pxTexImage2D(GL_TEXTURE_2D, 0,
-						s_GLInternalFormat[s32(i_uploadDesc.format)],
-						i_uploadDesc.width, i_uploadDesc.height,
-						0,
-						s_GLFormat[s32(i_uploadDesc.format)],
-						s_GLDataType[s32(i_uploadDesc.format)],
-						(GLvoid*)i_uploadDesc.data);
+				if (i_uploadDesc.data)
+				{
+					pxTexImage2D(GL_TEXTURE_2D, 0, s_GLInternalFormat[s32(i_uploadDesc.format)],
+							i_uploadDesc.width, i_uploadDesc.height, 0,
+							s_GLFormat[s32(i_uploadDesc.format)], s_GLDataType[s32(i_uploadDesc.format)],
+							(GLvoid*)i_uploadDesc.data);
+				}
+				else
+				{
+					pxTexImage2D(GL_TEXTURE_2D, 0, s_GLInternalFormat[s32(i_uploadDesc.format)],
+							i_uploadDesc.width, i_uploadDesc.height, 0,
+							s_GLFormat[s32(i_uploadDesc.format)], s_GLDataType[s32(i_uploadDesc.format)],
+							nullptr);
+				}
 			}
 			else
 			{
-				pxTexImage2D(GL_TEXTURE_2D, 0,
-						s_GLInternalFormat[s32(i_uploadDesc.format)],
-						i_uploadDesc.width, i_uploadDesc.height,
-						0,
-						s_GLFormat[s32(i_uploadDesc.format)],
-						s_GLDataType[s32(i_uploadDesc.format)],
-						nullptr);
+				size compressedDataSize = ((i_uploadDesc.width + 3) / 4) * ((i_uploadDesc.height + 3) / 4) * blockSize;
+				if (i_uploadDesc.data)
+				{
+					pxCompressedTexImage2D(GL_TEXTURE_2D, 0, compressFormat,
+							i_uploadDesc.width, i_uploadDesc.height, 0,
+							compressedDataSize, (void*)(i_uploadDesc.data));
+				}
+				else
+				{
+					pxCompressedTexImage2D(GL_TEXTURE_2D, 0, compressFormat,
+							i_uploadDesc.width, i_uploadDesc.height, 0,
+							0, nullptr);
+				}
 			}
 		}
 		pxBindTexture(GL_TEXTURE_2D, 0);
-	} else if (i_uploadDesc.dimension == texture_dimension_e::tex_cube) {
+	}
+	else if (i_uploadDesc.dimension == texture_dimension_e::tex_cube)
+	{
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, newTexture);
 
 		// unpacking settings
@@ -199,66 +273,111 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		if (i_uploadDesc.has_mipmap) {
+		if (i_uploadDesc.has_mipmap)
+		{
 			size offset = 0;
-			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
+			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++)
+			{
 				s32 texSize = i_uploadDesc.width;
 				s32 mipIdx = 0;
-				while (texSize >= 1) {
-					if (i_uploadDesc.data) {
-						pxTexImage2D(
-								GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
-								mipIdx,
-								s_GLInternalFormat[(s32)i_uploadDesc.format],
-								texSize, texSize, 0,
-								s_GLFormat[(s32)i_uploadDesc.format],
-								s_GLDataType[(s32)i_uploadDesc.format],
-								(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
-					} else {
-						pxTexImage2D(
-								GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
-								mipIdx,
-								s_GLInternalFormat[(s32)i_uploadDesc.format],
-								texSize, texSize, 0,
-								s_GLFormat[(s32)i_uploadDesc.format],
-								s_GLDataType[(s32)i_uploadDesc.format],
-								nullptr);
+				while (texSize >= 1)
+				{
+					if (!hasCompression)
+					{
+						if (i_uploadDesc.data)
+						{
+							pxTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx, mipIdx,
+									s_GLInternalFormat[(s32)i_uploadDesc.format],
+									texSize, texSize, 0,
+									s_GLFormat[(s32)i_uploadDesc.format], s_GLDataType[(s32)i_uploadDesc.format],
+									(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+						}
+						else
+						{
+							pxTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx, mipIdx,
+									s_GLInternalFormat[(s32)i_uploadDesc.format],
+									texSize, texSize, 0,
+									s_GLFormat[(s32)i_uploadDesc.format], s_GLDataType[(s32)i_uploadDesc.format],
+									nullptr);
+						}
+						offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
 					}
-					offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
+					else
+					{
+						size compressedDataSize = ((texSize + 3) / 4) * ((texSize + 3) / 4) * blockSize;
+						if (i_uploadDesc.data)
+						{
+							pxCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx, mipIdx, compressFormat,
+									texSize, texSize, 0,
+									compressedDataSize, (void*)((aptr)i_uploadDesc.data + (aptr)offset));
+						}
+						else
+						{
+							pxCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx, mipIdx, compressFormat,
+									texSize, texSize, 0,
+									0, nullptr);
+						}
+						offset += compressedDataSize;
+					}
 					texSize >>= 1;
 					mipIdx++;
 				}
 			}
-		} else {
+		}
+		else
+		{
 			s32 texSize = i_uploadDesc.width;
 			size offset = 0;
-			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {
-				if (i_uploadDesc.data) {
-					pxTexImage2D(
-							GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
-							0,
-							s_GLInternalFormat[(s32)i_uploadDesc.format],
-							texSize, texSize, 0,
-							s_GLFormat[(s32)i_uploadDesc.format],
-							s_GLDataType[(s32)i_uploadDesc.format],
-							(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
-				} else {
-					pxTexImage2D(
-							GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx,
-							0,
-							s_GLInternalFormat[(s32)i_uploadDesc.format],
-							texSize, texSize, 0,
-							s_GLFormat[(s32)i_uploadDesc.format],
-							s_GLDataType[(s32)i_uploadDesc.format],
-							nullptr);
+			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++)
+			{
+				if (!hasCompression)
+				{
+					if (i_uploadDesc.data)
+					{
+						pxTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx, 0,
+								s_GLInternalFormat[(s32)i_uploadDesc.format],
+								texSize, texSize, 0,
+								s_GLFormat[(s32)i_uploadDesc.format], s_GLDataType[(s32)i_uploadDesc.format],
+								(GLvoid*)((aptr)i_uploadDesc.data + (aptr)offset));
+					}
+					else
+					{
+						pxTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx, 0,
+								s_GLInternalFormat[(s32)i_uploadDesc.format],
+								texSize, texSize, 0,
+								s_GLFormat[(s32)i_uploadDesc.format], s_GLDataType[(s32)i_uploadDesc.format],
+								nullptr);
+					}
+					offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
 				}
-				offset += texSize * texSize * s_DataSize[(s32)i_uploadDesc.format];
+				else
+				{
+					size compressedDataSize = ((texSize + 3) / 4) * ((texSize + 3) / 4) * blockSize;
+					if (i_uploadDesc.data)
+					{
+						pxCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx, 0, compressFormat,
+								texSize, texSize, 0,
+								compressedDataSize, (void*)(i_uploadDesc.data));
+					}
+					else
+					{
+						pxCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIdx, 0, compressFormat,
+								texSize, texSize, 0,
+								0, nullptr);
+					}
+					offset += compressedDataSize;
+				}
 			}
 		}
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	} else if (i_uploadDesc.dimension == texture_dimension_e::tex_3d) {
+	}
+	else if (i_uploadDesc.dimension == texture_dimension_e::tex_3d)
+	{
 		// TODO: texture_dimension_e::tex_3d?
-	} else {
+	}
+	else
+	{
+		FLORAL_ASSERT(false);
 		// nani?!
 	}
 
@@ -270,72 +389,39 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 	texture_desc_t& texDesc = g_textures_pool[(s32)i_hdl];
 
 	//TODO: assert i_dataSize
+	GLenum compressFormat = GL_RGBA;
+	size blockSize = 0;
+	bool hasCompression = true;
+	switch (texDesc.compression)
+	{
+	case texture_compression_e::dxt:
+	{
+		switch (texDesc.format)
+		{
+		case texture_format_e::rgb:
+		{
+			compressFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			blockSize = 8;
+			break;
+		}
+		case texture_format_e::rgba:
+		{
+			compressFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			blockSize = 16;
+			break;
+		}
+		default:
+			FLORAL_ASSERT(false);
+			break;
+		}
+		break;
+	}
 
-	static GLenum s_GLFormat[] = {
-		GL_RG,									// rg
-		GL_RG,									// hdr_rg
-		GL_RGB,									// rgb
-		GL_RGB,									// hdr_rgb
-		GL_RGB,									// hdr_rgb_half
-		GL_RGB,									// srgb
-		GL_RGBA,								// srgba
-		GL_RGBA,								// rgba
-		GL_RGBA,								// hdr_rgba
-		GL_DEPTH_COMPONENT,						// depth
-		GL_DEPTH_STENCIL						// depth_stencil
-	};
-
-	static GLenum s_GLInternalFormat[] = {
-		GL_RG8,									// rg
-		GL_RG16F,								// hdr_rg
-		GL_RGB8,								// rgb
-		GL_RGB16F,								// hdr_rgb
-		GL_R11F_G11F_B10F,						// hdr_rgb_half
-		GL_SRGB8,								// srgb
-		GL_SRGB8_ALPHA8,						// srgba
-		GL_RGBA8,								// rgba
-		GL_RGBA16F,								// hdr_rgba
-		GL_DEPTH_COMPONENT24,					// depth
-		GL_DEPTH24_STENCIL8						// depth_stencil
-	};
-
-	static GLenum s_GLDataType[] = {
-		GL_UNSIGNED_BYTE,						// rg
-		GL_FLOAT,								// hdr_rg
-		GL_UNSIGNED_BYTE,						// rgb
-		GL_FLOAT,								// hdr_rgb
-		GL_HALF_FLOAT,							// hdr_rgb_half
-		GL_UNSIGNED_BYTE,						// srgb
-		GL_UNSIGNED_BYTE,						// srgba
-		GL_UNSIGNED_BYTE,						// rgba
-		GL_FLOAT,								// hdr_rgba
-		GL_UNSIGNED_INT,						// depth
-		GL_UNSIGNED_INT_24_8					// depth_stencil
-	};
-
-	// data size in the CPU, not GPU!!!
-	static size s_DataSize[] = {
-		2,										// rg
-		8,										// hdr_rg
-		3,										// rgb
-		12,										// hdr_rgb
-		12,										// hdr_rgb_half (TODO: really?)
-		3,										// srgb
-		4,										// srgba
-		4,										// rgba
-		16,										// hdr_rgba
-		4,										// depth
-		4										// depth_stencil
-	};
-
-	static GLenum s_GLFiltering[] = {
-		GL_NEAREST,
-		GL_LINEAR,
-		GL_NEAREST_MIPMAP_NEAREST,
-		GL_LINEAR_MIPMAP_NEAREST,
-		GL_NEAREST_MIPMAP_LINEAR,
-		GL_LINEAR_MIPMAP_LINEAR
-	};
+	case texture_compression_e::no_compression:
+	default:
+		hasCompression = false;
+		break;
+	}
 
 	if (texDesc.dimension == texture_dimension_e::tex_2d)
 	{
@@ -349,52 +435,91 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s_GLFiltering[s32(texDesc.mag_filter)]);
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s_GLFiltering[s32(texDesc.min_filter)]);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		if (texDesc.has_mipmap) {
+		if (texDesc.has_mipmap)
+		{
 			s32 texSize = texDesc.width;
 			s32 mipIdx = 0;
 			size offset = 0;
-			while (texSize >= 1) {
+			while (texSize >= 1)
+			{
 				// NOTE: please remember that: when loading mipmaps, the width and height is
 				// resolution of the mipmap, not the resolution of the largest mip
-				if (i_data) {
-					pxTexImage2D(GL_TEXTURE_2D, mipIdx,
-							s_GLInternalFormat[(s32)texDesc.format],
-							texSize, texSize, 0,
-							s_GLFormat[(s32)texDesc.format],
-							s_GLDataType[(s32)texDesc.format],
-							(GLvoid*)((aptr)i_data + (aptr)offset));
-				} else {
-					pxTexImage2D(GL_TEXTURE_2D, mipIdx,
-							s_GLInternalFormat[(s32)texDesc.format],
-							texSize, texSize, 0,
-							s_GLFormat[(s32)texDesc.format],
-							s_GLDataType[(s32)texDesc.format],
-							nullptr);
+				if (!hasCompression)
+				{
+					if (i_data)
+					{
+						pxTexImage2D(GL_TEXTURE_2D, mipIdx, s_GLInternalFormat[(s32)texDesc.format],
+								texSize, texSize, 0,
+								s_GLFormat[(s32)texDesc.format], s_GLDataType[(s32)texDesc.format],
+								(GLvoid*)((aptr)i_data + (aptr)offset));
+					}
+					else
+					{
+						pxTexImage2D(GL_TEXTURE_2D, mipIdx, s_GLInternalFormat[(s32)texDesc.format],
+								texSize, texSize, 0,
+								s_GLFormat[(s32)texDesc.format], s_GLDataType[(s32)texDesc.format],
+								nullptr);
+					}
+					offset += texSize * texSize * s_DataSize[(s32)texDesc.format];
 				}
-				offset += texSize * texSize * s_DataSize[(s32)texDesc.format];
+				else
+				{
+					size compressedDataSize = ((texSize + 3) / 4) * ((texSize + 3) / 4) * blockSize;
+					if (i_data)
+					{
+						pxCompressedTexImage2D(GL_TEXTURE_2D, mipIdx, compressFormat,
+								texSize, texSize, 0,
+								compressedDataSize, (GLvoid*)((aptr)i_data + (aptr)offset));
+					}
+					else
+					{
+						pxCompressedTexImage2D(GL_TEXTURE_2D, mipIdx, compressFormat,
+								texSize, texSize, 0,
+								0, nullptr);
+					}
+					offset += compressedDataSize;
+				}
 				texSize >>= 1;
 				mipIdx++;
 			}
-		} else {
-			if (i_data) {
-				pxTexImage2D(GL_TEXTURE_2D, 0,
-						s_GLInternalFormat[s32(texDesc.format)],
-						texDesc.width, texDesc.height,
-						0,
-						s_GLFormat[s32(texDesc.format)],
-						s_GLDataType[s32(texDesc.format)],
-						(GLvoid*)i_data);
-			} else {
-				pxTexImage2D(GL_TEXTURE_2D, 0,
-						s_GLInternalFormat[s32(texDesc.format)],
-						texDesc.width, texDesc.height,
-						0,
-						s_GLFormat[s32(texDesc.format)],
-						s_GLDataType[s32(texDesc.format)],
-						nullptr);
+		}
+		else
+		{
+			if (!hasCompression)
+			{
+				if (i_data)
+				{
+					pxTexImage2D(GL_TEXTURE_2D, 0, s_GLInternalFormat[s32(texDesc.format)],
+							texDesc.width, texDesc.height, 0,
+							s_GLFormat[s32(texDesc.format)], s_GLDataType[s32(texDesc.format)],
+							(GLvoid*)i_data);
+				}
+				else
+				{
+					pxTexImage2D(GL_TEXTURE_2D, 0, s_GLInternalFormat[s32(texDesc.format)],
+							texDesc.width, texDesc.height, 0,
+							s_GLFormat[s32(texDesc.format)], s_GLDataType[s32(texDesc.format)],
+							nullptr);
+				}
+			}
+			else
+			{
+				size compressedDataSize = ((texDesc.width + 3) / 4) * ((texDesc.height + 3) / 4) * blockSize;
+				if (i_data)
+				{
+					pxCompressedTexImage2D(GL_TEXTURE_2D, 0, compressFormat,
+							texDesc.width, texDesc.height, 0,
+							compressedDataSize, (void*)(i_data));
+				}
+				else
+				{
+					pxCompressedTexImage2D(GL_TEXTURE_2D, 0, compressFormat,
+							texDesc.width, texDesc.height, 0,
+							0, nullptr);
+				}
 			}
 		}
 

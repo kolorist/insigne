@@ -18,7 +18,7 @@ void											copy_update_vb(const vb_handle_t i_hdl, voidptr i_data, const u32
 void											update_ib(const ib_handle_t i_hdl, voidptr i_data, const u32 i_icount, const u32 i_offsetElem);
 void											copy_update_ib(const ib_handle_t i_hdl, voidptr i_data, const u32 i_icount, const u32 i_offsetElem);
 void											update_ub(const ub_handle_t i_hdl, voidptr i_data, const size i_size, const size i_offset, const size i_align = 0);
-void											copy_update_ub(const ub_handle_t i_hdl, const voidptr i_data, const size i_size, const size i_offset);
+void											copy_update_ub(const ub_handle_t i_hdl, const voidptr i_data, const size i_size, const size i_offset, const size i_align = 0);
 
 void											cleanup_buffers_module(); // not used
 
@@ -27,6 +27,7 @@ void											cleanup_buffers_resource(const ssize i_stateId);
 
 namespace helpers
 {
+size											calculate_nearest_ub_offset(const size i_rawOffset);
 void											update_ub_array(const ub_handle_t i_hdl, voidptr i_data, const size i_stride, const size i_elemCount);
 }
 

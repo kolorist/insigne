@@ -168,4 +168,10 @@ void pxDisableVertexAttribArray(GLuint index);
 
 void pxFinish();
 
+void pxCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data);
+
+void pxGetProgramiv(GLuint program, GLenum pname, GLint *params);
+
+void pxGetProgramInfoLog(GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+
 }

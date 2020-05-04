@@ -539,4 +539,22 @@ void pxFinish()
 	assert_driver_no_error();
 }
 
+void pxCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data)
+{
+	glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
+	assert_driver_no_error();
+}
+
+void pxGetProgramiv(GLuint program, GLenum pname, GLint *params)
+{
+	glGetProgramiv(program, pname, params);
+	assert_driver_no_error();
+}
+
+void pxGetProgramInfoLog(GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)
+{
+	glGetProgramInfoLog(program, maxLength,length, infoLog);
+	assert_driver_no_error();
+}
+
 }

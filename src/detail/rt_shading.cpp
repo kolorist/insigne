@@ -109,6 +109,20 @@ void compile_shader(shader_desc_t& io_desc, const_cstr i_vs, const_cstr i_fs, co
 	pxAttachShader(newShader, vs);
 	pxAttachShader(newShader, fs);
 	pxLinkProgram(newShader);
+	
+	{
+		GLint result = GL_FALSE;
+		int infoLength;
+		pxGetProgramiv(newShader, GL_LINK_STATUS, &result);
+		if (!result)
+		{
+			pxGetProgramiv(newShader, GL_INFO_LOG_LENGTH, &infoLength);
+			cstr shaderErrorMsg = g_arena_allocator.allocate_array<c8>(infoLength);
+			pxGetProgramInfoLog(newShader, infoLength + 1, NULL, shaderErrorMsg);
+			CLOVER_ERROR("Shader Linking error:\n%s", shaderErrorMsg);
+			return;
+		}
+	}
 
 	// reflection to template
 	{

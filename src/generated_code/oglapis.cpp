@@ -163,4 +163,10 @@ glDisableVertexAttribArray_t glDisableVertexAttribArray;
 
 glFinish_t glFinish;
 
+glCompressedTexImage2D_t glCompressedTexImage2D;
+
+glGetProgramiv_t glGetProgramiv;
+
+glGetProgramInfoLog_t glGetProgramInfoLog;
+
 }

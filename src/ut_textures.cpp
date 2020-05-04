@@ -36,36 +36,51 @@ static inline void push_command(const textures_command_t& i_cmd)
 	get_composing_command_buffer().push_back(newCmd);
 }
 
-// ---------------------------------------------
-const size prepare_texture_desc(texture_desc_t& io_desc)
+// -------------------------------------------------------------------
+
+const size calculate_texture_memsize(const texture_desc_t& i_desc)
 {
 	// bit-per-pixel, CPU side
 	static size s_bpp[] = {
 		2 * 8,									// rg
-		2 * 32,									// hdr_rg
+		2 * 16,									// hdr_rg
 		3 * 8,									// rgb
-		3 * 32,									// hdr_rgb
+		3 * 16,									// hdr_rgb
+		3 * 32,									// hdr_rgb_high
+		3 * 16,									// hdr_rgb_half
 		3 * 8,									// srgb
+		4 * 8,									// srgba
 		4 * 8,									// rgba
-		4 * 32,									// hdr_rgba
+		4 * 16,									// hdr_rgba
 		1 * 32,									// depth
 		1 * 32									// depth_stencil
 	};
-	size bytePerPixel = s_bpp[s32(io_desc.format)] / 8;
+	size bytePerPixel = s_bpp[s32(i_desc.format)] / 8;
 
 	size dataSize = 0;
-	if (io_desc.has_mipmap) {
-		FLORAL_ASSERT_MSG(io_desc.width == io_desc.height, "Texture with mipmap enable must have width == height");
+	if (i_desc.has_mipmap)
+	{
+		FLORAL_ASSERT_MSG(i_desc.width == i_desc.height, "Texture with mipmap enable must have width == height");
 		// TODO: check power of two
-		s32 mipsCount = s32(log2(io_desc.width)) + 1;
+		s32 mipsCount = s32(log2(i_desc.width)) + 1;
 		dataSize = ((1 << (2 * mipsCount)) - 1) / 3 * bytePerPixel;
-	} else {
-		dataSize = io_desc.width * io_desc.height * bytePerPixel;
+	}
+	else
+	{
+		dataSize = i_desc.width * i_desc.height * bytePerPixel;
 	}
 
-	if (io_desc.dimension == texture_dimension_e::tex_cube)
+	if (i_desc.dimension == texture_dimension_e::tex_cube)
+	{
 		dataSize *= 6;
+	}
 
+	return dataSize;
+}
+
+const size prepare_texture_desc(texture_desc_t& io_desc)
+{
+	size dataSize = calculate_texture_memsize(io_desc);
 	io_desc.data = get_composing_allocator()->allocate(dataSize);
 	return dataSize;
 }
@@ -82,6 +97,16 @@ const texture_handle_t create_texture(const texture_desc_t& i_desc)
 	push_command(cmd);
 
 	return newTextureHdl;
+}
+
+void update_texture(const texture_handle_t i_hdl, const texture_desc_t& i_desc)
+{
+	textures_command_t cmd;
+	cmd.command_type = textures_command_type_e::stream_texture;
+	cmd.stream_texture_data.texture_handle = i_hdl;
+	cmd.stream_texture_data.data = i_desc.data;
+
+	push_command(cmd);
 }
 
 void copy_update_texture(const texture_handle_t i_hdl, voidptr i_data, const size i_dataSize)

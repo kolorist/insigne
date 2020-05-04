@@ -119,6 +119,7 @@ typedef void									GLvoid;
 #define GL_FRAGMENT_SHADER                0x8B30
 #define GL_VERTEX_SHADER                  0x8B31
 #define GL_COMPILE_STATUS                 0x8B81
+#define GL_LINK_STATUS                    0x8B82
 #define GL_INFO_LOG_LENGTH                0x8B84
 
 /* BufferObject */
@@ -192,6 +193,9 @@ typedef void									GLvoid;
 #define GL_DEPTH24_STENCIL8               0x88F0
 #define GL_UNSIGNED_INT_24_8              0x84FA
 #define GL_R11F_G11F_B10F                 0x8C3A
+#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT   0x83F0
+#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT  0x83F1
+#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT  0x83F3
 
 /* TextureParameter */
 #define GL_TEXTURE_MAG_FILTER             0x2800
