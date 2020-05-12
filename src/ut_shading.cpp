@@ -114,13 +114,19 @@ namespace helpers
 void assign_uniform_block(material_desc_t& io_mat, const_cstr i_id, const size i_offset, const size i_range, const ub_handle_t i_ub)
 {
 	ssize slot = get_material_uniform_block_slot(io_mat, i_id);
-	io_mat.uniform_blocks[slot].value = ubmat_desc_t { i_offset, i_range, i_ub };
+	if (slot >= 0)
+	{
+		io_mat.uniform_blocks[slot].value = ubmat_desc_t { i_offset, i_range, i_ub };
+	}
 }
 
 void assign_texture(material_desc_t& io_mat, const_cstr i_id, const texture_handle_t i_tex)
 {
 	ssize slot = get_material_texture_slot(io_mat, i_id);
-	io_mat.textures[slot].value = i_tex;
+	if (slot >= 0)
+	{
+		io_mat.textures[slot].value = i_tex;
+	}
 }
 
 // -------------------------------------------------------------------

@@ -88,8 +88,8 @@ void create_main_context()
 	floral::lock_guard guard(g_gl_context.init_mtx);
 	int attribs[] =
 	{
-		GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
-		GLX_CONTEXT_MINOR_VERSION_ARB, 5,
+		GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+		GLX_CONTEXT_MINOR_VERSION_ARB, 3,
 		GLX_CONTEXT_FLAGS_ARB, 0,
 		GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 		0
@@ -126,7 +126,7 @@ void create_main_context()
 	for (GLint i = 0; i < numExtension; i++)
 	{
 		const GLubyte* extStr = pxGetStringi(GL_EXTENSIONS, i);
-		CLOVER_VERBOSE("Ext %d: %s", i, extStr);
+		// CLOVER_VERBOSE("Ext %d: %s", i, extStr);
 
 		strcpy(debugInfo.extensions[i], (const char*)extStr);
 	}

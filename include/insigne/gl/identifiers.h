@@ -212,6 +212,7 @@ typedef void									GLvoid;
 #define GL_CLAMP                          0x2900
 #define GL_REPEAT                         0x2901
 #define GL_CLAMP_TO_EDGE                  0x812F
+#define GL_MIRRORED_REPEAT                0x8370
 
 /* TextureFiltering */
 #define GL_NEAREST                        0x2600

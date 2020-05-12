@@ -450,6 +450,9 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 			colorDesc.min_filter = filtering_e::linear;
 		}
 		colorDesc.dimension = i_desc.color_attachments->at(i).texture_dimension;
+		colorDesc.wrap_s = wrap_e::clamp_to_edge;
+		colorDesc.wrap_t = wrap_e::clamp_to_edge;
+		colorDesc.wrap_r = wrap_e::clamp_to_edge;
 		upload_texture(desc.color_attach_textures[i], colorDesc);
 		texture_desc_t& colorTex = g_textures_pool[(s32)desc.color_attach_textures[i]];
 		if (colorDesc.dimension == texture_dimension_e::tex_2d)
@@ -471,6 +474,9 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 		depthDesc.format = texture_format_e::depth;
 		depthDesc.min_filter = filtering_e::linear; depthDesc.mag_filter = filtering_e::linear;
 		depthDesc.dimension = texture_dimension_e::tex_2d;
+		depthDesc.wrap_s = wrap_e::clamp_to_edge;
+		depthDesc.wrap_t = wrap_e::clamp_to_edge;
+		depthDesc.wrap_r = wrap_e::clamp_to_edge;
 		depthDesc.has_mipmap = false;
 		upload_texture(desc.depth_texture, depthDesc);
 
