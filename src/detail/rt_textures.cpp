@@ -85,6 +85,12 @@ static const GLenum s_GLFiltering[] = {
 	GL_LINEAR_MIPMAP_LINEAR
 };
 
+static const GLenum s_GLWrap[] = {
+	GL_CLAMP_TO_EDGE,
+	GL_MIRRORED_REPEAT,
+	GL_REPEAT
+};
+
 // ---------------------------------------------
 inline detail::gpu_command_buffer_t& get_textures_command_buffer(const size i_cmdBuffId) {
 	return detail::g_textures_command_buffer[i_cmdBuffId];
@@ -119,6 +125,9 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 	texDesc.dimension = i_uploadDesc.dimension;
 	texDesc.compression = i_uploadDesc.compression;
 	texDesc.has_mipmap = i_uploadDesc.has_mipmap;
+	texDesc.wrap_s = i_uploadDesc.wrap_s;
+	texDesc.wrap_t = i_uploadDesc.wrap_t;
+	texDesc.wrap_r = i_uploadDesc.wrap_r;
 
 	GLenum compressFormat = GL_RGBA;
 	size blockSize = 0;
@@ -169,8 +178,8 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s_GLFiltering[s32(i_uploadDesc.mag_filter)]);
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s_GLFiltering[s32(i_uploadDesc.min_filter)]);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s_GLWrap[s32(i_uploadDesc.wrap_s)]);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s_GLWrap[s32(i_uploadDesc.wrap_t)]);
 
 		if (i_uploadDesc.has_mipmap)
 		{
@@ -270,9 +279,9 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, s_GLFiltering[(s32)i_uploadDesc.mag_filter]);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, s_GLFiltering[(s32)i_uploadDesc.min_filter]);
-		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, s_GLWrap[s32(i_uploadDesc.wrap_s)]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, s_GLWrap[s32(i_uploadDesc.wrap_t)]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, s_GLWrap[s32(i_uploadDesc.wrap_r)]);
 		if (i_uploadDesc.has_mipmap)
 		{
 			size offset = 0;
@@ -435,8 +444,8 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s_GLFiltering[s32(texDesc.mag_filter)]);
 		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s_GLFiltering[s32(texDesc.min_filter)]);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s_GLWrap[s32(texDesc.wrap_s)]);
+		pxTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s_GLWrap[s32(texDesc.wrap_t)]);
 
 		if (texDesc.has_mipmap)
 		{
@@ -537,9 +546,9 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, s_GLFiltering[(s32)texDesc.mag_filter]);
 		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, s_GLFiltering[(s32)texDesc.min_filter]);
-		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, s_GLWrap[s32(texDesc.wrap_s)]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, s_GLWrap[s32(texDesc.wrap_t)]);
+		pxTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, s_GLWrap[s32(texDesc.wrap_r)]);
 		if (texDesc.has_mipmap) {
 			size offset = 0;
 			for (u32 faceIdx = 0; faceIdx < 6; faceIdx++) {

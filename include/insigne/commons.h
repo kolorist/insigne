@@ -239,6 +239,13 @@ enum class filtering_e
 	linear_mipmap_linear
 };
 
+enum class wrap_e
+{
+	clamp_to_edge,
+	mirrored_repeat,
+	repeat
+};
+
 struct material_param_t {
 	c8										name[128];
 	material_data_type_e					data_type;
@@ -335,6 +342,7 @@ struct texture_desc_t
 	s32											width, height;
 	texture_format_e							format;
 	filtering_e									min_filter, mag_filter;
+	wrap_e										wrap_s, wrap_t, wrap_r;
 	texture_dimension_e							dimension;
 	texture_compression_e						compression;
 	bool										has_mipmap;

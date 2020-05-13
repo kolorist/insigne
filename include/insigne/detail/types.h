@@ -77,6 +77,7 @@ struct texture_desc_t
 	s32											width, height;
 	texture_format_e							format;
 	filtering_e									min_filter, mag_filter;
+	wrap_e										wrap_s, wrap_t, wrap_r;
 	texture_dimension_e							dimension;
 	texture_compression_e						compression;
 	GLuint										gpu_handle;
