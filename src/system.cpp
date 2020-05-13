@@ -180,6 +180,12 @@ void render_thread_func(voidptr i_data)
 					break;
 				}
 			}
+			
+			if (detail::g_context_dirty.load())
+			{
+				refresh_context();
+				detail::g_context_dirty.store(false);
+			}
 		}
 #endif
 
