@@ -226,7 +226,8 @@ enum class texture_dimension_e
 enum class texture_compression_e
 {
 	no_compression = 0,
-	dxt
+	dxt,
+	etc
 };
 
 enum class filtering_e

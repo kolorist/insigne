@@ -157,6 +157,29 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 		break;
 	}
 
+	case texture_compression_e::etc:
+	{
+		switch (i_uploadDesc.format)
+		{
+		case texture_format_e::rgb:
+		{
+			compressFormat = GL_COMPRESSED_RGB8_ETC2;
+			blockSize = 8;
+			break;
+		}
+		case texture_format_e::rgba:
+		{
+			compressFormat = GL_COMPRESSED_RGBA8_ETC2_EAC;
+			blockSize = 16;
+			break;
+		}
+		default:
+			FLORAL_ASSERT(false);
+			break;
+		}
+		break;
+	}
+
 	case texture_compression_e::no_compression:
 	default:
 		hasCompression = false;
@@ -165,6 +188,8 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 
 	GLuint newTexture = 0;
 	pxGenTextures(1, &newTexture);
+
+	// TODO: dxt and etc2 compressed image size is same with each other???
 
 	if (i_uploadDesc.dimension == texture_dimension_e::tex_2d)
 	{
@@ -416,6 +441,29 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 		case texture_format_e::rgba:
 		{
 			compressFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			blockSize = 16;
+			break;
+		}
+		default:
+			FLORAL_ASSERT(false);
+			break;
+		}
+		break;
+	}
+
+	case texture_compression_e::etc:
+	{
+		switch (texDesc.format)
+		{
+		case texture_format_e::rgb:
+		{
+			compressFormat = GL_COMPRESSED_RGB8_ETC2;
+			blockSize = 8;
+			break;
+		}
+		case texture_format_e::rgba:
+		{
+			compressFormat = GL_COMPRESSED_RGBA8_ETC2_EAC;
 			blockSize = 16;
 			break;
 		}
