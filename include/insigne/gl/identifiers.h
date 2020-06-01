@@ -175,6 +175,7 @@ typedef void									GLvoid;
 #define GL_RG                             0x8227
 #define GL_RGB                            0x1907
 #define GL_RGBA                           0x1908
+#define GL_RGBA_INTEGER                   0x8D99
 #define GL_DEPTH_COMPONENT                0x1902
 #define GL_DEPTH_STENCIL                  0x84F9
 #define GL_RG8                            0x822B
@@ -187,6 +188,8 @@ typedef void									GLvoid;
 #define GL_SRGB8                          0x8C41
 #define GL_SRGB_ALPHA                     0x8C42
 #define GL_SRGB8_ALPHA8                   0x8C43
+#define GL_UNSIGNED_INT_2_10_10_10_REV    0x8368
+#define GL_RGB10_A2                       0x8059
 #define GL_DEPTH_COMPONENT16              0x81A5
 #define GL_DEPTH_COMPONENT24              0x81A6
 #define GL_DEPTH_COMPONENT32F             0x8CAC

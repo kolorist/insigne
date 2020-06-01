@@ -22,6 +22,7 @@ static const GLenum s_GLFormat[] = {
 	GL_RGB,									// hdr_rgb
 	GL_RGB,									// hdr_rgb_high
 	GL_RGB,									// hdr_rgb_half
+	GL_RGBA,								// hdr_rgb_unorm
 	GL_RGB,									// srgb
 	GL_RGBA,								// srgba
 	GL_RGBA,								// rgba
@@ -37,6 +38,7 @@ static const GLenum s_GLInternalFormat[] = {
 	GL_RGB16F,								// hdr_rgb
 	GL_RGB16F,								// hdr_rgb_high
 	GL_R11F_G11F_B10F,						// hdr_rgb_half
+	GL_RGB10_A2,							// hdr_rgb_unorm
 	GL_SRGB8,								// srgb
 	GL_SRGB8_ALPHA8,						// srgba
 	GL_RGBA8,								// rgba
@@ -52,6 +54,7 @@ static const GLenum s_GLDataType[] = {
 	GL_HALF_FLOAT,							// hdr_rgb
 	GL_FLOAT,								// hdr_rgb_high
 	GL_HALF_FLOAT,							// hdr_rgb_half
+	GL_UNSIGNED_INT_2_10_10_10_REV,			// hdr_rgb_unorm
 	GL_UNSIGNED_BYTE,						// srgb
 	GL_UNSIGNED_BYTE,						// srgba
 	GL_UNSIGNED_BYTE,						// rgba
@@ -68,6 +71,7 @@ static const size s_DataSize[] = {
 	6,										// hdr_rgb
 	12,										// hdr_rgb_high
 	6,										// hdr_rgb_half
+	6,										// hdr_rgb_unorm
 	3,										// srgb
 	4,										// srgba
 	4,										// rgba
