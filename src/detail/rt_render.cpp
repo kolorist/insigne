@@ -566,7 +566,6 @@ void capture_framebuffer(const framebuffer_handle_t i_hdl, voidptr o_data)
 		GL_RGB,									// rgb
 		GL_RGB,									// hdr_rgb
 		GL_RGB,									// hdr_rgb_half
-		GL_RGBA,								// hdr_rgb_unorm
 		GL_RGB,									// srgb
 		GL_RGBA,								// srgba
 		GL_RGBA,								// rgba

@@ -208,7 +208,6 @@ enum class texture_format_e
 	hdr_rgb,
 	hdr_rgb_high,
 	hdr_rgb_half,	// only use for hdr framebuffer
-	hdr_rgb_unorm,	// only use for hdr framebuffer
 	srgb,
 	srgba,
 	rgba,
