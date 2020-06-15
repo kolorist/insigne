@@ -490,6 +490,7 @@ void initialize_framebuffer(const framebuffer_handle_t i_hdl, const insigne::fra
 
 void activate_framebuffer(const framebuffer_handle_t i_hdl, const s32 i_x, const s32 i_y, const s32 i_width, const s32 i_height, const cubemap_face_e i_face, const s32 i_toMip)
 {
+	PROFILE_SCOPE("activate_framebuffer");
 	static GLenum s_attachments[] =
 	{
 		GL_COLOR_ATTACHMENT0,

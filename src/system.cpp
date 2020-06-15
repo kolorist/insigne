@@ -148,6 +148,7 @@ void dispatch_frame()
 
 void render_thread_func(voidptr i_data)
 {
+	floral::set_current_thread_name("render_thread");
 	// profiler init
 	lotus::init_capture_for_this_thread(1, "render_thread");
 	lotus::init_hardware_counters();
