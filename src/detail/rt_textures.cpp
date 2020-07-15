@@ -735,7 +735,7 @@ void process_textures_command_buffer(const size i_cmdBuffId)
 		}
 	}
 
-	cmdbuff.empty();
+	cmdbuff.clear();
 }
 
 }

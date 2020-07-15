@@ -33,6 +33,8 @@ const shader_handle_t create_shader(const insigne::shader_desc_t& i_desc)
 	desc.fs_path = i_desc.fs_path;
 	desc.gpu_handle = 0;
 
+	// TODO: crash because the inplace_array constructor is not triggered
+
 	// we have to create material_template here because user may infuse a material
 	// right after calling create_shader()
 	for (ssize i = 0; i < i_desc.reflection.textures->get_size(); i++) {
@@ -258,7 +260,7 @@ void process_shading_command_buffer(const size i_cmdBuffId)
 		}
 	}
 
-	cmdbuff.empty();
+	cmdbuff.clear();
 }
 
 }

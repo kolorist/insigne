@@ -826,7 +826,7 @@ void process_draw_command_buffer(const size i_cmdBuffId)
 	for (u32 i = 0; i < g_settings.surface_types_count; i++)
 	{
 		detail::gpu_command_buffer_t& cmdBuff = g_draw_command_buffers[i].command_buffer[i_cmdBuffId];
-		cmdBuff.empty();
+		cmdBuff.clear();
 	}
 }
 
@@ -895,7 +895,7 @@ void process_post_draw_command_buffer(const size i_cmdBuffId)
 	for (u32 i = 0; i < g_settings.post_surface_types_count; i++)
 	{
 		detail::gpu_command_buffer_t& cmdBuff = g_post_draw_command_buffers[i].command_buffer[i_cmdBuffId];
-		cmdBuff.empty();
+		cmdBuff.clear();
 	}
 }
 
@@ -951,7 +951,7 @@ const bool process_render_command_buffer(const size i_cmdBuffId)
 		}
 	}
 
-	cmdbuff.empty();
+	cmdbuff.clear();
 
 	return endOfFrameMarked;
 }
