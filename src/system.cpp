@@ -115,6 +115,7 @@ void dispatch_frame()
 			ctBuffer.gpu_cycles = g_hardware_counters->gpu_cycles;
 			ctBuffer.fragment_cycles = g_hardware_counters->fragment_cycles;
 			ctBuffer.tiler_cycles = g_hardware_counters->tiler_cycles;
+			ctBuffer.frag_elim = g_hardware_counters->frag_elim;
 			ctBuffer.shader_texture_cycles = g_hardware_counters->shader_texture_cycles;
 			ctBuffer.varying_16_bits = g_hardware_counters->varying_16_bits;
 			ctBuffer.varying_32_bits = g_hardware_counters->varying_32_bits;
