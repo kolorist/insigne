@@ -58,6 +58,7 @@ struct hardware_counters
 	f32											fragment_cycles[debug_frames_count];
 	f32											tiler_cycles[debug_frames_count];
 	f32											frag_elim[debug_frames_count];
+	f32											tiles[debug_frames_count];
 
 	f32											shader_texture_cycles[debug_frames_count];
 	f32											varying_16_bits[debug_frames_count];
