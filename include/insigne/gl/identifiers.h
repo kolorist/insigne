@@ -181,6 +181,7 @@ typedef void									GLvoid;
 #define GL_RG8                            0x822B
 #define GL_RG16F                          0x822F
 #define GL_RGBA16F                        0x881A
+#define GL_RGBA32F                        0x8814
 #define GL_RGB16F                         0x881B
 #define GL_RGB8                           0x8051
 #define GL_RGBA8                          0x8058
