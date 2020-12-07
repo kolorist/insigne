@@ -119,6 +119,7 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 
 	texDesc.width = i_uploadDesc.width;
 	texDesc.height = i_uploadDesc.height;
+	texDesc.depth = i_uploadDesc.depth;
 	texDesc.format = i_uploadDesc.format;
 	texDesc.min_filter = i_uploadDesc.min_filter;
 	texDesc.mag_filter = i_uploadDesc.mag_filter;
@@ -407,7 +408,37 @@ void upload_texture(const texture_handle_t i_hdl, const insigne::texture_desc_t&
 	}
 	else if (i_uploadDesc.dimension == texture_dimension_e::tex_3d)
 	{
-		// TODO: texture_dimension_e::tex_3d?
+		pxBindTexture(GL_TEXTURE_3D, newTexture);
+
+		// unpacking settings
+		pxPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+		pxPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, s_GLFiltering[s32(i_uploadDesc.mag_filter)]);
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, s_GLFiltering[s32(i_uploadDesc.min_filter)]);
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, s_GLWrap[s32(i_uploadDesc.wrap_s)]);
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, s_GLWrap[s32(i_uploadDesc.wrap_t)]);
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, s_GLWrap[s32(i_uploadDesc.wrap_r)]);
+
+		FLORAL_ASSERT(i_uploadDesc.has_mipmap == false); // we won't support mipmapping for 3d texture
+		FLORAL_ASSERT(hasCompression == false); // we won't support compression for 3d texture
+
+		if (i_uploadDesc.data)
+		{
+			pxTexImage3D(GL_TEXTURE_3D, 0, s_GLInternalFormat[s32(i_uploadDesc.format)],
+					i_uploadDesc.width, i_uploadDesc.height, i_uploadDesc.depth, 0,
+					s_GLFormat[s32(i_uploadDesc.format)], s_GLDataType[s32(i_uploadDesc.format)],
+					(GLvoid*)i_uploadDesc.data);
+		}
+		else
+		{
+			pxTexImage3D(GL_TEXTURE_3D, 0, s_GLInternalFormat[s32(i_uploadDesc.format)],
+					i_uploadDesc.width, i_uploadDesc.height, i_uploadDesc.depth, 0,
+					s_GLFormat[s32(i_uploadDesc.format)], s_GLDataType[s32(i_uploadDesc.format)],
+					nullptr);
+		}
 	}
 	else
 	{
@@ -654,9 +685,43 @@ void update_texture(const texture_handle_t i_hdl, const voidptr i_data, const si
 			}
 		}
 		pxBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	} else if (texDesc.dimension == texture_dimension_e::tex_3d) {
-		// TODO: texture_dimension_e::tex_3d?
-	} else {
+	}
+	else if (texDesc.dimension == texture_dimension_e::tex_3d)
+	{
+		pxBindTexture(GL_TEXTURE_3D, texDesc.gpu_handle);
+
+		// unpacking settings
+		pxPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+		pxPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+		pxPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, s_GLFiltering[s32(texDesc.mag_filter)]);
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, s_GLFiltering[s32(texDesc.min_filter)]);
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, s_GLWrap[s32(texDesc.wrap_s)]);
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, s_GLWrap[s32(texDesc.wrap_t)]);
+		pxTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, s_GLWrap[s32(texDesc.wrap_r)]);
+
+		FLORAL_ASSERT(texDesc.has_mipmap == false); // we won't support mipmapping for 3d texture
+		FLORAL_ASSERT(hasCompression == false); // we won't support compression for 3d texture
+
+		if (i_data)
+		{
+			pxTexImage3D(GL_TEXTURE_3D, 0, s_GLInternalFormat[s32(texDesc.format)],
+					texDesc.width, texDesc.height, texDesc.depth, 0,
+					s_GLFormat[s32(texDesc.format)], s_GLDataType[s32(texDesc.format)],
+					(GLvoid*)i_data);
+		}
+		else
+		{
+			pxTexImage3D(GL_TEXTURE_3D, 0, s_GLInternalFormat[s32(texDesc.format)],
+					texDesc.width, texDesc.height, texDesc.depth, 0,
+					s_GLFormat[s32(texDesc.format)], s_GLDataType[s32(texDesc.format)],
+					nullptr);
+		}
+	}
+	else
+	{
 		// nani?!
 	}
 }

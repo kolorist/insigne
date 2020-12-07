@@ -74,7 +74,7 @@ struct ubdesc_t
 
 struct texture_desc_t
 {
-	s32											width, height;
+	s32											width, height, depth;
 	texture_format_e							format;
 	filtering_e									min_filter, mag_filter;
 	wrap_e										wrap_s, wrap_t, wrap_r;

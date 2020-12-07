@@ -169,4 +169,6 @@ glGetProgramiv_t glGetProgramiv;
 
 glGetProgramInfoLog_t glGetProgramInfoLog;
 
+glTexImage3D_t glTexImage3D;
+
 }

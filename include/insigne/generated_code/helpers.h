@@ -166,3 +166,5 @@ API_HELPER(void, GetProgramiv);
 
 API_HELPER(void, GetProgramInfoLog);
 
+API_HELPER(void, TexImage3D);
+

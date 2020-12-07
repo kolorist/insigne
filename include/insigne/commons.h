@@ -149,6 +149,7 @@ enum class material_data_type_e {
 	param_int = 0,
 	param_float,
 	param_sampler2d,
+	param_sampler3d,
 	param_sampler_cube,
 	param_vec2,
 	param_vec3,
@@ -163,6 +164,7 @@ enum class param_data_type_e
 	param_int = 0,
 	param_float,
 	param_sampler2d,
+	param_sampler3d,
 	param_sampler_cube,
 	param_vec2,
 	param_vec3,
@@ -340,7 +342,7 @@ typedef void									(*vertex_data_setup_func_t)();
 struct texture_desc_t
 {
 	voidptr										data;
-	s32											width, height;
+	s32											width, height, depth;
 	texture_format_e							format;
 	filtering_e									min_filter, mag_filter;
 	wrap_e										wrap_s, wrap_t, wrap_r;

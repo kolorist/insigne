@@ -158,6 +158,7 @@ typedef void									GLvoid;
 
 /* Texture */
 #define GL_TEXTURE_2D                     0x0DE1
+#define GL_TEXTURE_3D                     0x806F
 #define GL_TEXTURE_CUBE_MAP               0x8513
 #define GL_TEXTURE_CUBE_MAP_SEAMLESS      0x884F
 #define GL_TEXTURE_CUBE_MAP_POSITIVE_X    0x8515

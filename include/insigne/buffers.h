@@ -12,7 +12,7 @@ namespace insigne
 {
 // -------------------------------------------------------------------
 
-#define COMMAND_PAYLOAD_SIZE					64
+#define COMMAND_PAYLOAD_SIZE					128
 #define GPU_COMMAND_BUFFER_SIZE					1024u
 
 enum class command
@@ -44,6 +44,7 @@ struct gpu_command
 	void deserialize(const t_target& i_target)
 	{
 		size dataSize = sizeof(t_target);
+		FLORAL_ASSERT(dataSize <= COMMAND_PAYLOAD_SIZE);
 		memcpy(&payload[pos], &i_target, dataSize);
 		pos += dataSize;
 		psize += dataSize;
@@ -53,6 +54,7 @@ struct gpu_command
 	void serialize(t_target& o_target)
 	{
 		size dataSize = sizeof(t_target);
+		FLORAL_ASSERT(dataSize <= COMMAND_PAYLOAD_SIZE);
 		memcpy(&o_target, &payload[pos], dataSize);
 		pos += dataSize;
 	}

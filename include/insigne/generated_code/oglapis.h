@@ -268,4 +268,7 @@ extern glGetProgramiv_t glGetProgramiv;
 typedef void (APIENTRY *glGetProgramInfoLog_t)(GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
 extern glGetProgramInfoLog_t glGetProgramInfoLog;
 
+typedef void (APIENTRY *glTexImage3D_t)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void * data);
+extern glTexImage3D_t glTexImage3D;
+
 }

@@ -80,3 +80,4 @@ __TPL_VARIANT__;__FUNC_NAME__;__FUNC_PARAMS__;__FUNC_PARAMS_FW__;__FUNC_RET_TYPE
 0;CompressedTexImage2D;GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data;target, level, internalformat, width, height, border, imageSize, data;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;GetProgramiv;GLuint program, GLenum pname, GLint *params;program, pname, params;void;since OpenGL 2.0 / OpenGL ES 2.0
 0;GetProgramInfoLog;GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog;program, maxLength,length, infoLog;void;since OpenGL 2.0 / OpenGL ES 2.0
+0;TexImage3D;GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void * data;target, level, internalFormat, width, height, depth, border, format, type, data;void;since OpenGL ES 3.0

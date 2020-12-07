@@ -174,4 +174,6 @@ void pxGetProgramiv(GLuint program, GLenum pname, GLint *params);
 
 void pxGetProgramInfoLog(GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
 
+void pxTexImage3D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void * data);
+
 }

@@ -58,21 +58,90 @@ const size calculate_texture_memsize(const texture_desc_t& i_desc)
 	size bytePerPixel = s_bpp[s32(i_desc.format)] / 8;
 
 	size dataSize = 0;
-	if (i_desc.has_mipmap)
+	if (i_desc.compression == texture_compression_e::no_compression)
 	{
-		FLORAL_ASSERT_MSG(i_desc.width == i_desc.height, "Texture with mipmap enable must have width == height");
-		// TODO: check power of two
-		s32 mipsCount = s32(log2(i_desc.width)) + 1;
-		dataSize = ((1 << (2 * mipsCount)) - 1) / 3 * bytePerPixel;
+		if (i_desc.has_mipmap)
+		{
+			FLORAL_ASSERT_MSG(i_desc.width == i_desc.height, "Texture with mipmap enable must have width == height");
+			// TODO: check power of two
+			s32 mipsCount = s32(log2(i_desc.width)) + 1;
+			dataSize = ((1 << (2 * mipsCount)) - 1) / 3 * bytePerPixel;
+		}
+		else
+		{
+			dataSize = i_desc.width * i_desc.height * bytePerPixel;
+		}
 	}
 	else
 	{
-		dataSize = i_desc.width * i_desc.height * bytePerPixel;
+		size blockSize = 0;
+		switch (i_desc.compression)
+		{
+		case texture_compression_e::dxt:
+		{
+			switch (i_desc.format)
+			{
+			case texture_format_e::rgb:
+				blockSize = 8;
+				break;
+			case texture_format_e::rgba:
+				blockSize = 16;
+				break;
+			default:
+				FLORAL_ASSERT(false);
+				break;
+			}
+			break;
+		}
+
+		case texture_compression_e::etc:
+		{
+			switch (i_desc.format)
+			{
+			case texture_format_e::rgb:
+				blockSize = 8;
+				break;
+			case texture_format_e::rgba:
+				blockSize = 16;
+				break;
+			default:
+				FLORAL_ASSERT(false);
+				break;
+			}
+			break;
+		}
+
+		default:
+			FLORAL_ASSERT(false);
+			break;
+		}
+
+		FLORAL_ASSERT_MSG(i_desc.width == i_desc.height, "Texture with compression enable must have width == height");
+		s32 texSize = i_desc.width;
+		if (i_desc.has_mipmap)
+		{
+			// TODO: check power of two
+			s32 mipsCount = s32(log2(i_desc.width)) + 1;
+			for (s32 i = 0; i < mipsCount; i++)
+			{
+				size compressedDataSize = ((texSize + 3) / 4) * ((texSize + 3) / 4) * blockSize;
+				dataSize += compressedDataSize;
+				texSize >>= 1;
+			}
+		}
+		else
+		{
+			dataSize = ((texSize + 3) / 4) * ((texSize + 3) / 4) * blockSize;
+		}
 	}
 
 	if (i_desc.dimension == texture_dimension_e::tex_cube)
 	{
 		dataSize *= 6;
+	}
+	else if (i_desc.dimension == texture_dimension_e::tex_3d)
+	{
+		dataSize *= i_desc.depth;
 	}
 
 	return dataSize;

@@ -557,4 +557,10 @@ void pxGetProgramInfoLog(GLuint program, GLsizei maxLength, GLsizei *length, GLc
 	assert_driver_no_error();
 }
 
+void pxTexImage3D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void * data)
+{
+	glTexImage3D(target, level, internalFormat, width, height, depth, border, format, type, data);
+	assert_driver_no_error();
+}
+
 }
