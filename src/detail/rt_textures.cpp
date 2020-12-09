@@ -37,7 +37,7 @@ static const GLenum s_GLInternalFormat[] = {
 	GL_RGB8,								// rgb
 	GL_RGB16F,								// hdr_rgb
 	GL_RGB16F,								// hdr_rgb_high
-	GL_RGBA32F,								// hdr_rgba_high
+	GL_RGBA16F,								// hdr_rgba_high
 	GL_R11F_G11F_B10F,						// hdr_rgb_half
 	GL_SRGB8,								// srgb
 	GL_SRGB8_ALPHA8,						// srgba

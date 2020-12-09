@@ -49,7 +49,7 @@ shader_desc_t create_shader_desc()
 
 	// TODO: hardcode!!!
 	newDesc.vs = (cstr)get_composing_allocator()->allocate(SIZE_KB(32));
-	newDesc.fs = (cstr)get_composing_allocator()->allocate(SIZE_KB(32));
+	newDesc.fs = (cstr)get_composing_allocator()->allocate(SIZE_KB(128));
 	newDesc.reflection.textures = get_composing_allocator()->allocate<shader_param_list_t>(MAX_TEXTURE_SAMPLERS, get_composing_allocator());
 	newDesc.reflection.uniform_blocks = get_composing_allocator()->allocate<shader_param_list_t>(MAX_UNIFORM_BLOCKS, get_composing_allocator());
 

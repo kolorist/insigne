@@ -90,7 +90,7 @@ void compile_shader(shader_desc_t& io_desc, const_cstr i_vs, const_cstr i_fs, co
 	// compile fragment shader
 	{
 		GLint result = GL_FALSE;
-		int infoLength;
+		s32 infoLength;
 		pxShaderSource(fs, 1, (const GLchar**)&i_fs, nullptr);
 		pxCompileShader(fs);
 		pxGetShaderiv(fs, GL_COMPILE_STATUS, &result);
@@ -114,7 +114,7 @@ void compile_shader(shader_desc_t& io_desc, const_cstr i_vs, const_cstr i_fs, co
 	
 	{
 		GLint result = GL_FALSE;
-		int infoLength;
+		s32 infoLength;
 		pxGetProgramiv(newShader, GL_LINK_STATUS, &result);
 		if (!result)
 		{
