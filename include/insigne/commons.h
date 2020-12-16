@@ -204,7 +204,8 @@ struct render_state_t
 
 enum class texture_format_e
 {
-	rg = 0,
+	r = 0,
+	rg,
 	hdr_rg,
 	rgb,
 	hdr_rgb,

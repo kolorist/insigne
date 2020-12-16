@@ -16,6 +16,7 @@ namespace detail
 textures_pool_t									g_textures_pool;
 
 static const GLenum s_GLFormat[] = {
+	GL_RED,									// a
 	GL_RG,									// rg
 	GL_RG,									// hdr_rg
 	GL_RGB,									// rgb
@@ -32,6 +33,7 @@ static const GLenum s_GLFormat[] = {
 };
 
 static const GLenum s_GLInternalFormat[] = {
+	GL_R8,									// r
 	GL_RG8,									// rg
 	GL_RG16F,								// hdr_rg
 	GL_RGB8,								// rgb
@@ -48,6 +50,7 @@ static const GLenum s_GLInternalFormat[] = {
 };
 
 static const GLenum s_GLDataType[] = {
+	GL_UNSIGNED_BYTE,						// r
 	GL_UNSIGNED_BYTE,						// rg
 	GL_HALF_FLOAT,							// hdr_rg
 	GL_UNSIGNED_BYTE,						// rgb
@@ -65,6 +68,7 @@ static const GLenum s_GLDataType[] = {
 
 // data size in the CPU, not GPU!!!
 static const size s_DataSize[] = {
+	1,										// r
 	2,										// rg
 	4,										// hdr_rg
 	3,										// rgb

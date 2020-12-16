@@ -562,6 +562,7 @@ void capture_framebuffer(const framebuffer_handle_t i_hdl, voidptr o_data)
 	GLint oldFb;
 	pxGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &oldFb);
 	static GLenum s_GLReadFormat[] = {
+		GL_RED,									// r
 		GL_RG,									// rg
 		GL_RG,									// hdr_rg
 		GL_RGB,									// rgb

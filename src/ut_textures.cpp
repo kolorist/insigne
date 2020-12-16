@@ -42,6 +42,7 @@ const size calculate_texture_memsize(const texture_desc_t& i_desc)
 {
 	// bit-per-pixel, CPU side
 	static size s_bpp[] = {
+		1 * 8,									// r
 		2 * 8,									// rg
 		2 * 16,									// hdr_rg
 		3 * 8,									// rgb
