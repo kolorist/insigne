@@ -8,7 +8,7 @@ namespace insigne
 
 // -----------------------------------------
 template <typename t_surface>
-void draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t& i_mat)
+void draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t& i_mat, const_cstr i_dbgInfo /* = nullptr */)
 {
 	material_desc_t* matSnapshot = detail::g_frame_draw_allocator[detail::g_composing_cmdbuff]->allocate<material_desc_t>();
 	(*matSnapshot) = i_mat; // trigger copy assignment
@@ -16,6 +16,7 @@ void draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material
 	draw_command_t cmd;
 	cmd.command_type = draw_command_type_e::draw_surface;
 
+	cmd.draw_surface_data.debug_info = i_dbgInfo;
 	cmd.draw_surface_data.material_snapshot = matSnapshot;
 	cmd.draw_surface_data.segment_offset = 0;
 	cmd.draw_surface_data.vb_handle = i_vb;
@@ -27,7 +28,7 @@ void draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material
 
 template <typename t_surface>
 void draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material_desc_t& i_mat,
-		const s32 i_idxOffset, const s32 i_elemCount)
+		const s32 i_idxOffset, const s32 i_elemCount, const_cstr i_dbgInfo /* = nullptr */)
 {
 	material_desc_t* matSnapshot = detail::g_frame_draw_allocator[detail::g_composing_cmdbuff]->allocate<material_desc_t>();
 	(*matSnapshot) = i_mat; // trigger copy assignment
@@ -35,6 +36,7 @@ void draw_surface(const vb_handle_t i_vb, const ib_handle_t i_ib, const material
 	draw_command_t cmd;
 	cmd.command_type = draw_command_type_e::draw_surface;
 
+	cmd.draw_surface_data.debug_info = i_dbgInfo;
 	cmd.draw_surface_data.material_snapshot = matSnapshot;
 	cmd.draw_surface_data.segment_offset = i_idxOffset;
 	cmd.draw_surface_data.vb_handle = i_vb;

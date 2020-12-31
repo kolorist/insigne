@@ -66,6 +66,7 @@ struct draw_command_t {
 	draw_command_type_e							command_type;
 	union {
 		struct {
+			const_cstr							debug_info;
 			material_desc_t*					material_snapshot;
 			s32									segment_offset;
 			vb_handle_t							vb_handle;
