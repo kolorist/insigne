@@ -5,8 +5,8 @@
 #include "insigne/generated_code/proxy.h"
 #include "insigne/internal_states.h"
 
-#include <clover/SinkTopic.h>
-#include <clover/Logger.h>
+#include <clover/sink_topic.h>
+#include <clover/logger.h>
 
 #include <lotus/profiler.h>
 
